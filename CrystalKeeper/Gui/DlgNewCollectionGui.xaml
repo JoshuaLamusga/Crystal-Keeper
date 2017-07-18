@@ -1,0 +1,34 @@
+﻿<Window x:Class="CrystalKeeper.Gui.DlgNewCollectionGui"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="New Collection" SizeToContent="Width" Height="110px"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+    <StackPanel Margin="4px">
+    <WrapPanel>
+        <TextBlock
+            Text="Template"
+            Padding="4px"
+            VerticalAlignment="Center"/>
+        <ComboBox Name="CmbxTemplate"
+                  MinWidth="100px"
+                  Margin="4px"/>
+    </WrapPanel>
+        <Grid Margin="0, 10px, 0, 0px">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button Name="BttnOk"
+                    IsDefault="True"
+                    Content="Done"
+                    Grid.Column="0"
+                    Width="75px"/>
+            <Button Name="BttnCancel"
+                    IsCancel="True"
+                    Content="Cancel"
+                    Grid.Column="1"
+                    Width="75px"/>
+        </Grid>
+    </StackPanel>
+</Window>

@@ -1,0 +1,72 @@
+﻿<UserControl x:Class="CrystalKeeper.Gui.PgGroupingGuiEdit"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <!--Lists all items vertically.-->
+    <StackPanel
+        HorizontalAlignment="Stretch">
+        <!--Title. Text set automatically.-->
+        <TextBox Name="TxtblkGroupingName"
+            Padding="4px"
+            HorizontalAlignment="Stretch"
+            TextAlignment="Center"
+            VerticalAlignment="Center"
+            FontWeight="Bold"
+            FontSize="24px"/>
+        <Grid Name="FieldTabGrid">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="*"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <!--Content added programatically.-->
+            <StackPanel
+                Grid.Row="1"
+                Grid.Column="0">
+                <TextBlock
+                    Text="In group"
+                    HorizontalAlignment="Center"
+                    Margin="4px"/>
+                <ListBox Name="LstbxInGroup"
+                    MinHeight="32px"
+                    Margin="4px"/>
+            </StackPanel>
+            <Image Name="BttnMoveLeft"
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Height="32px"
+                    Margin="0px, 28px, 2px, 4px"
+                    Width="32px"
+                   VerticalAlignment="Top"
+                    Source="pack://application:,,,/Assets/BttnMvLeft.png"/>
+            <Image Name="BttnMoveRight"
+                    Grid.Row="1"
+                    Grid.Column="2"
+                    Height="32px"
+                    Margin="0px, 28px, 2px, 4px"
+                    Width="32px"
+                   VerticalAlignment="Top"
+                    Source="pack://application:,,,/Assets/BttnMvRight.png"/>
+            <StackPanel
+                Grid.Row="1"
+                Grid.Column="3">
+                <TextBlock
+                    Text="Not in group"
+                    HorizontalAlignment="Center"
+                    Margin="4px"/>
+                <ListBox Name="LstbxOutGroup"
+                    MinHeight="32px"
+                    Margin="4px"/>
+            </StackPanel>
+        </Grid>
+    </StackPanel>
+</UserControl>

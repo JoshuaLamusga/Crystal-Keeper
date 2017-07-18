@@ -1,0 +1,266 @@
+﻿<Window x:Class="CrystalKeeper.Gui.DlgEditTemplateGui"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:CrystalKeeper.Gui"
+    Title="Edit templates..."
+    SizeToContent="Height"
+    Width="600px"
+    WindowStartupLocation="CenterScreen"
+    ResizeMode="NoResize">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <!--Lists all items vertically.-->
+        <TabControl Grid.Row="0">
+            <TabItem Header="Settings">
+                <StackPanel HorizontalAlignment="Center">
+                    <!--Title. Text set automatically.-->
+                    <TextBox Name="TxtbxTemplateName"
+                   Padding="4px"
+                   HorizontalAlignment="Center"
+                   TextAlignment="Center"
+                   VerticalAlignment="Center"
+                   FontWeight="Bold"
+                   FontSize="24px"
+                   Width="300px"
+                   MaxWidth="300px"/>
+                    <GroupBox Header="Images">
+                        <StackPanel>
+                            <CheckBox Name="ChkbxCenterMainImages"
+                            Margin="5px"
+                            Content="Center images at the top of each entry"/>
+                            <WrapPanel
+                            Margin="0,0,0,5px">
+                                <TextBlock
+                                Text="Display up to "
+                                Padding="4px"
+                                VerticalAlignment="Center"/>
+                                <TextBox Name="TxtbxNumImages"
+                                Padding="4px"
+                                MinWidth="25px"/>
+                                <TextBlock
+                                Text="extra images per entry"
+                                Padding="4px"
+                                MinWidth="75px"/>
+                            </WrapPanel>
+                            <WrapPanel>
+                                <TextBlock
+                                Text="Extra images"
+                                Padding="4px"
+                                MinWidth="75px"/>
+                                <!--Combobox items constructed dynamically-->
+                                <ComboBox Name="CmbxImageAnchor"
+                                Padding="4px"
+                                MinWidth="75px"
+                                SelectedValuePath="Content">
+                                </ComboBox>
+                                <TextBlock
+                                Text="the main image"
+                                Padding="4px"
+                                MinWidth="75px"/>
+                            </WrapPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Organization">
+                        <StackPanel>
+                            <RadioButton Name="RadOneColumn"
+                            GroupName="RadNumColumns"
+                            Margin="0,5px,0,5px"
+                            Content="Entries use one column"/>
+                            <RadioButton Name="RadTwoColumns"
+                            GroupName="RadNumColumns"
+                            Content="Entries use two columns"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Font">
+                        <StackPanel>
+                            <WrapPanel
+                            Margin="5px,10px,0,0">
+                                <!--Fill set automatically-->
+                                <Rectangle Name="RectTitleFontColor"
+                                Width="20px"
+                                Height="20px"
+                                Fill="Black"
+                                Margin="0,0,10px,0"/>
+                                <TextBlock Name="TxtblkTitleFontColor"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Text="Title font color"/>
+                            </WrapPanel>
+                            <WrapPanel
+                            Margin="5px,10px,0,5px">
+                                <!--Fill set automatically-->
+                                <Rectangle Name="RectFontColor"
+                                Width="20px"
+                                Height="20px"
+                                Fill="Black"
+                                Margin="0,0,10px,0"/>
+                                <TextBlock Name="TxtblkFontColor"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Text="Content font color"/>
+                            </WrapPanel>
+                            <WrapPanel>
+                                <TextBlock
+                                Text="Font: "
+                                Padding="4px"
+                                VerticalAlignment="Center"/>
+                                <!--Fonts loaded automatically-->
+                                <ComboBox Name="CmbxFontFamily"
+                                Padding="4px"
+                                MinWidth="150px"
+                                SelectedValuePath="Content">
+                                </ComboBox>
+                            </WrapPanel>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+            </TabItem>
+            <TabItem Name="FieldTab"
+                Header="Fields">
+                <Grid Name="FieldTabGrid">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <!--Content added programatically.-->
+                    <TextBox Name="TxtbxNewField"
+                        Width="{Binding ElementName=FieldTabGrid, Path=ActualWidth}"
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="4">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                                <Style.Resources>
+                                    <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
+                                        <VisualBrush.Visual>
+                                            <Label Content="Type the name of a new field..." Foreground="LightGray" />
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Style.Resources>
+                                <Style.Triggers>
+                                    <Trigger Property="Text" Value="{x:Static sys:String.Empty}">
+                                        <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                                    </Trigger>
+                                    <Trigger Property="Text" Value="{x:Null}">
+                                        <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                                    </Trigger>
+                                    <Trigger Property="IsKeyboardFocused" Value="True">
+                                        <Setter Property="Background" Value="White" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                    <ListBox Name="LstbxCol1"
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Margin="4px">
+                    </ListBox>
+                    <Image Name="BttnMoveLeft"
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Height="32px"
+                    Margin="0px, 0px, 4px, 0px"
+                    Width="32px"
+                    Source="pack://application:,,,/Assets/BttnMvLeft.png"/>
+                    <Image Name="BttnMoveRight"
+                    Grid.Row="1"
+                    Grid.Column="2"
+                    Height="32px"
+                    Width="32px"
+                    Source="pack://application:,,,/Assets/BttnMvRight.png"/>
+                    <ListBox Name="LstbxCol2"
+                    Grid.Row="1"
+                    Grid.Column="3"
+                    Margin="4px"/>
+                    <StackPanel
+                    Grid.Row="2"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="4"
+                    Orientation="Horizontal">
+                        <Image Name="BttnMoveUp"
+                            Height="16px"
+                            Width="16px"
+                            Source="pack://application:,,,/Assets/BttnMvUp.png"
+                            VerticalAlignment="Top"/>
+                        <Image Name="BttnMoveDown"
+                            Height="16px"
+                            Width="16px"
+                            Source="pack://application:,,,/Assets/BttnMvDown.png"
+                            VerticalAlignment="Top"/>
+                        <TextBlock Name="TxtblkFieldName"
+                            Width="150px"
+                            Margin="0,0,10px,0"
+                            FontSize="12px"
+                            FontWeight="Bold"
+                            VerticalAlignment="Center"/>
+                        <WrapPanel>
+                            <TextBlock
+                            Text="Data type:"
+                            VerticalAlignment="Center"
+                            Padding="0,0,5px,0"/>
+                            <ComboBox Name="CmbxDataType"
+                            MinWidth="100px"
+                            VerticalAlignment="Center"
+                            Margin="0,0,10px,0">
+                                <ComboBoxItem Name="ItemTypeEntryImages">Entry Images</ComboBoxItem>
+                                <ComboBoxItem Name="ItemTypeEntryMinName">Mineral Name</ComboBoxItem>
+                                <ComboBoxItem Name="ItemTypeEntryMinFormula">Mineral Formula</ComboBoxItem>
+                                <ComboBoxItem Name="ItemTypeText">Text</ComboBoxItem>
+                                <ComboBoxItem Name="ItemTypeImages">Images</ComboBoxItem>
+                                <ComboBoxItem Name="ItemTypeMoneyUSD">Money (USD)</ComboBoxItem>
+                                <ComboBoxItem Name="ItemTypeHyperlink">Hyperlink</ComboBoxItem>
+                            </ComboBox>
+                        </WrapPanel>
+                        <!-- Field options -->
+                        <StackPanel>
+                            <CheckBox Name="ChkbxFieldInvisible"
+                            Content="Show this field with entries"
+                            VerticalAlignment="Center"
+                            VerticalContentAlignment="Center"/>
+                            <CheckBox Name="ChkbxFieldNameInvisible"
+                            Content="Show the field name"
+                            VerticalAlignment="Center"
+                            VerticalContentAlignment="Center"/>
+                            <CheckBox Name="ChkbxFieldNameInline"
+                            Content="Show field name left of field"
+                            VerticalAlignment="Center"
+                            VerticalContentAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button Name="BttnSaveChanges"
+                Grid.Column="1"
+                Margin="10px"
+                Width="96px">
+                Save Changes
+            </Button>
+            <Button Name="BttnCancel"
+                IsCancel="True"
+                Grid.Column="2"
+                Margin="10px"
+                Width="96px">
+                Cancel
+            </Button>
+        </Grid>
+    </Grid>
+</Window>

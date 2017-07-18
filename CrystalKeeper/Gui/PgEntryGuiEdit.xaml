@@ -1,0 +1,51 @@
+﻿<UserControl x:Class="CrystalKeeper.Gui.PgEntryGuiEdit"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d">
+    <!--Lists all items vertically.-->
+    <Grid Name="GuiItems"
+          HorizontalAlignment="Stretch">
+        
+        <!-- 3x1 dimensions. -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        
+        <!-- Title. Text set automatically. -->
+        <TextBox Name="TxtbxEntryName"
+            AcceptsReturn="True"
+            FontSize="24px"
+            FontWeight="Bold"
+            Grid.Row="0"
+            HorizontalAlignment="Stretch"
+            TextAlignment="Center"
+            Padding="4px"/>
+        
+        <!-- Centered entry images may be added here automatically. -->
+        
+        <!-- Creates a grid to contain all dynamic data. -->
+        <Grid Name="ColumnGrid"
+              Grid.Row="2"
+              HorizontalAlignment="Stretch">
+            <!-- Defines each column. -->
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Name="LeftCol"/>
+                <ColumnDefinition Name="RightCol"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Creates a stackpanel for both columns. -->
+            <StackPanel Name="LeftColItems"
+                        Grid.Column="0"
+                        HorizontalAlignment="Center">
+            </StackPanel>
+            <StackPanel Name="RightColItems"
+                        Grid.Column="1"
+                        HorizontalAlignment="Center">
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

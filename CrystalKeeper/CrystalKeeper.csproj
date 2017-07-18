@@ -1,0 +1,274 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1CA24DC0-8ED9-4966-9D65-E8ABCED4B362}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CrystalKeeper</RootNamespace>
+    <AssemblyName>CrystalKeeper</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Assets\CrystalKeeperIco.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="Gui\App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="Core\Assets.cs" />
+    <Compile Include="Core\DataItem.cs" />
+    <Compile Include="Core\DataItemTypes.cs" />
+    <Compile Include="Core\Project.cs" />
+    <Compile Include="Core\TemplateFieldType.cs" />
+    <Compile Include="Core\TemplateImagePos.cs" />
+    <Compile Include="Core\Utils.cs" />
+    <Page Include="Gui\PgCollectionGuiView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Gui\PgEntryGuiEdit.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Gui\PgEntryGuiView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Gui\PgGroupingGuiEdit.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Gui\DlgNewProjectGui.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Gui\DlgEditTemplateGui.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Gui\PgCollectionGuiEdit.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Gui\PgDatabaseGuiView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Gui\DlgAboutGui.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Gui\DlgNewCollectionGui.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Gui\DlgTextboxGui.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Gui\MainDisplayGui.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Compile Include="GuiCore\LstbxDataItem.cs" />
+    <Compile Include="GuiCore\MenuDataItem.cs" />
+    <Compile Include="GuiCore\CmbxDataItem.cs" />
+    <Compile Include="GuiCore\TreeViewDataItem.cs" />
+    <Compile Include="Gui\App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Gui\PgCollectionGuiView.xaml.cs">
+      <DependentUpon>PgCollectionGuiView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Gui\PgCollectionView.cs" />
+    <Compile Include="Gui\PgEntryEdit.cs" />
+    <Compile Include="Gui\PgEntryGuiEdit.xaml.cs">
+      <DependentUpon>PgEntryGuiEdit.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Gui\PgEntryGuiView.xaml.cs">
+      <DependentUpon>PgEntryGuiView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Gui\PgEntryView.cs" />
+    <Compile Include="Gui\PgGroupingGuiEdit.xaml.cs">
+      <DependentUpon>PgGroupingGuiEdit.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Gui\PgGroupingEdit.cs" />
+    <Compile Include="Gui\DlgNewCollection.cs" />
+    <Compile Include="Gui\DlgNewProjectGui.xaml.cs">
+      <DependentUpon>DlgNewProjectGui.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Gui\DlgEditTemplate.cs" />
+    <Compile Include="Gui\DlgEditTemplateGui.xaml.cs">
+      <DependentUpon>DlgEditTemplateGui.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Gui\PgCollectionGuiEdit.xaml.cs">
+      <DependentUpon>PgCollectionGuiEdit.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Gui\PgCollectionEdit.cs" />
+    <Compile Include="Gui\PgDatabaseView.cs" />
+    <Compile Include="Gui\PgDatabaseGuiView.xaml.cs">
+      <DependentUpon>PgDatabaseGuiView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Gui\DlgAboutGui.xaml.cs">
+      <DependentUpon>DlgAboutGui.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Gui\DlgNewProject.cs" />
+    <Compile Include="Gui\DlgNewCollectionGui.xaml.cs">
+      <DependentUpon>DlgNewCollectionGui.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Gui\DlgTextbox.cs" />
+    <Compile Include="Gui\DlgTextboxGui.xaml.cs">
+      <DependentUpon>DlgTextboxGui.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Gui\MainDisplay.cs" />
+    <Compile Include="Gui\MainDisplayGui.xaml.cs">
+      <DependentUpon>MainDisplayGui.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Gui\DlgImgDisplay.cs" />
+    <Compile Include="Gui\ImgAnimated.cs" />
+    <Compile Include="Gui\DlgImgDisplayGui.xaml.cs">
+      <DependentUpon>DlgImgDisplayGui.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Gui\ImgThumbnail.cs" />
+    <Page Include="Gui\DlgImgDisplayGui.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Gui\PgDatabaseGuiEdit.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Gui\PgGroupingGuiView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Gui\PgDatabaseEdit.cs" />
+    <Compile Include="Gui\PgDatabaseGuiEdit.xaml.cs">
+      <DependentUpon>PgDatabaseGuiEdit.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Gui\PgGroupingGuiView.xaml.cs">
+      <DependentUpon>PgGroupingGuiView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Gui\PgGroupingView.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\CrystalKeeperIco.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\BttnDeleteHover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\BttnDelete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\BttnConfirmHover.png" />
+    <Resource Include="Assets\BttnEditHover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\BttnConfirm.png" />
+    <Resource Include="Assets\BttnEdit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\BttnMvLeft.png" />
+    <Resource Include="Assets\BttnMvLeftDisabled.png" />
+    <Resource Include="Assets\BttnMvRight.png" />
+    <Resource Include="Assets\BttnMvRightDisabled.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\BttnMvDown.png" />
+    <Resource Include="Assets\BttnMvUp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\BttnAdd.png" />
+    <Resource Include="Assets\BttnAddHover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Minerals.txt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

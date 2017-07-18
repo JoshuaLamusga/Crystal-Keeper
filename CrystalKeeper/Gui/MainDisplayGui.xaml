@@ -1,0 +1,227 @@
+﻿<Window x:Class="CrystalKeeper.Gui.MainDisplayGui"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Crystal Keeper" Height="600" Width="800"
+        WindowStartupLocation="CenterScreen">
+    <Grid Name="GuiLayoutGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <!--Menubar handles buttons.-->
+        <Menu Name="GuiMenubar"
+              Grid.Row="0"
+              Width="{Binding ElementName=GuiLayoutGrid, Path=ActualWidth}"
+              Height="20"
+              VerticalAlignment="Top">
+            <MenuItem Name="GuiMenuFile" Header="_File">
+                <!--A submenu of recent files is auto-populated.-->
+                <MenuItem Name="GuiFileNew" Header="New" InputGestureText="Ctrl+N"/>
+                <MenuItem Name="GuiFileOpen" Header="Open" InputGestureText="Ctrl+O"/>
+                <MenuItem Name="GuiFileSave" Header="Save" InputGestureText="Ctrl+S"/>
+                <MenuItem Name="GuiFileSaveAs" Header="Save As" InputGestureText="Ctrl+Alt+S"/>
+            </MenuItem>
+            <MenuItem Name="GuiMenuPrefs" Header="_Preferences"/>
+            <!--Existing templates dynamically added.-->
+            <MenuItem Name="GuiMenuTemplates" Header="_Templates">
+                <MenuItem Name="GuiTemplateNew" Header="New..."/>
+            </MenuItem>
+            <MenuItem Name="GuiMenuHelp" Header="_Help">
+                <MenuItem Name="GuiHelpHelp" Header="Help" InputGestureText="F1"/>
+                <MenuItem Name="GuiHelpAbout" Header="About"/>
+            </MenuItem>
+        </Menu>
+        <!--Central grid contains treeview and content display.-->
+        <Grid Name="GuiCentralGrid"
+              Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="100px" MaxWidth="500px"/>
+                <ColumnDefinition Width="5px"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+            <!--Contains the treeview and search in a movable tray.-->
+            <Grid Name="GuiCentralLeftGrid"
+                  Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <!--Contains labeled search options.-->
+                <Grid Name="GuiSearchGrid"
+                      Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Label
+                        Content="Filter by:"
+                        Grid.Column="0"
+                        HorizontalAlignment="Center"></Label>
+                    <ComboBox Name="GuiSearchField"
+                          Grid.Column="1"
+                          IsEnabled="False"/>
+                </Grid>
+                <!--Used to filter results in the treeview.-->
+                <TextBox Name="GuiTreeViewSearch"
+                         Grid.Row="1"
+                         IsEnabled="False">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                            <Style.Resources>
+                                <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
+                                    <VisualBrush.Visual>
+                                        <Label Content="Search" Foreground="LightGray" />
+                                    </VisualBrush.Visual>
+                                </VisualBrush>
+                            </Style.Resources>
+                            <Style.Triggers>
+                                <Trigger Property="Text" Value="{x:Static sys:String.Empty}">
+                                    <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                                </Trigger>
+                                <Trigger Property="Text" Value="{x:Null}">
+                                    <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                                </Trigger>
+                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                    <Setter Property="Background" Value="White" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+                <!--Tree content automatically added.-->
+                <ScrollViewer Name="GuiTreeViewScroll"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Hidden"
+                                  Grid.Row="2">
+                    <TreeView Name="GuiTreeView"
+                              Height="{Binding ElementName=GuiTreeViewScroll, Path=ActualHeight}"
+                              Width="{Binding ElementName=GuiTreeViewScroll, Path=ActualWidth}"
+                              VerticalAlignment="Top"
+                              HorizontalAlignment="Left">
+                    </TreeView>
+                </ScrollViewer>
+                <Grid Name="GuiNewOptionsGrid"
+                      Grid.Row="3">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <!--Click and submit to create a new collection.-->
+                    <TextBox Name="GuiNewCollection"
+                             Grid.Row="0">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                                <Style.Resources>
+                                    <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
+                                        <VisualBrush.Visual>
+                                            <Label Content="Name a collection and press enter..." Foreground="LightGray" />
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Style.Resources>
+                                <Style.Triggers>
+                                    <Trigger Property="Text" Value="{x:Static sys:String.Empty}">
+                                        <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                                    </Trigger>
+                                    <Trigger Property="Text" Value="{x:Null}">
+                                        <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                                    </Trigger>
+                                    <Trigger Property="IsKeyboardFocused" Value="True">
+                                        <Setter Property="Background" Value="White" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                    <!--Click and submit to create a new grouping.-->
+                    <TextBox Name="GuiNewGrouping"
+                             Grid.Row="1"
+                             IsEnabled="False"
+                             Visibility="Collapsed">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                                <Style.Resources>
+                                    <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
+                                        <VisualBrush.Visual>
+                                            <Label Content="Name a grouping and press enter..." Foreground="LightGray" />
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Style.Resources>
+                                <Style.Triggers>
+                                    <Trigger Property="Text" Value="{x:Static sys:String.Empty}">
+                                        <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                                    </Trigger>
+                                    <Trigger Property="Text" Value="{x:Null}">
+                                        <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                                    </Trigger>
+                                    <Trigger Property="IsKeyboardFocused" Value="True">
+                                        <Setter Property="Background" Value="White" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                    <!--Click and submit to create a new entry.-->
+                    <TextBox Name="GuiNewEntry"
+                             Grid.Row="2"
+                             IsEnabled="False"
+                             Visibility="Collapsed">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                                <Style.Resources>
+                                    <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
+                                        <VisualBrush.Visual>
+                                            <Label Content="Name an entry and press enter..." Foreground="LightGray" />
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Style.Resources>
+                                <Style.Triggers>
+                                    <Trigger Property="Text" Value="{x:Static sys:String.Empty}">
+                                        <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                                    </Trigger>
+                                    <Trigger Property="Text" Value="{x:Null}">
+                                        <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                                    </Trigger>
+                                    <Trigger Property="IsKeyboardFocused" Value="True">
+                                        <Setter Property="Background" Value="White" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                </Grid>
+            </Grid>
+            <!--Makes the left tray movable.-->
+            <GridSplitter
+                Grid.Column="1"
+                Width="5px"
+                ResizeBehavior="PreviousAndNext"
+                VerticalAlignment="Stretch"/>
+            <!--Canvas content automatically added.-->
+            <Grid
+                Grid.Column="2">
+                <ScrollViewer Name="GuiContent"
+                    HorizontalScrollBarVisibility="Disabled"
+                    VerticalScrollBarVisibility="Visible">
+                </ScrollViewer>
+                <Image Name="GuiToggleMode"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Top"
+                   Margin="0,4,24,0"
+                   Visibility="Visible"
+                   Source="pack://application:,,,/Assets/BttnEdit.png"
+                   Stretch="None"/>
+            </Grid>
+        </Grid>
+        <!--Tooltip content automatically added.-->
+        <StatusBar Name="GuiTooltip"
+            Grid.Row="2"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Height="20"
+            Width="{Binding ElementName=GuiLayoutGrid, Path=ActualWidth}"/>
+    </Grid>
+</Window>

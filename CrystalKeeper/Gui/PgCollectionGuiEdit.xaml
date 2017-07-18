@@ -1,0 +1,57 @@
+﻿<UserControl x:Class="CrystalKeeper.Gui.PgCollectionGuiEdit"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <!--Lists all items vertically.-->
+    <StackPanel
+        HorizontalAlignment="Stretch">
+        <!--Title. Text set automatically.-->
+        <TextBox Name="TxtblkCollectionName"
+            Padding="4px"
+            HorizontalAlignment="Stretch"
+            TextAlignment="Center"
+            VerticalAlignment="Center"
+            FontWeight="Bold"
+            FontSize="24px"/>
+
+        <!--Template. Text appended automatically.-->
+        <TextBlock Name="TxtblkTemplateName" 
+            Padding="4px"
+            Margin="0,10px,0,0"
+            HorizontalAlignment="Stretch"/>
+
+        <!--Description. Text set automatically.-->
+        <TextBox Name="TxtbxDescription"
+                 Margin="4px,10px,4px,0"
+                 AcceptsReturn="True"
+                 TextWrapping="Wrap"
+                 MinHeight="80px"
+                 HorizontalAlignment="Stretch">
+            <TextBox.Style>
+                <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                    <Style.Resources>
+                        <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Top" Stretch="None">
+                            <VisualBrush.Visual>
+                                <Label Content="Collection description" Foreground="LightGray"/>
+                            </VisualBrush.Visual>
+                        </VisualBrush>
+                    </Style.Resources>
+                    <Style.Triggers>
+                        <Trigger Property="Text" Value="{x:Static sys:String.Empty}">
+                            <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                        </Trigger>
+                        <Trigger Property="Text" Value="{x:Null}">
+                            <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter Property="Background" Value="White" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>
+        </TextBox>
+    </StackPanel>
+</UserControl>
