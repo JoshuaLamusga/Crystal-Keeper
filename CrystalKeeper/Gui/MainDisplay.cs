@@ -54,17 +54,12 @@ namespace CrystalKeeper.Gui
         /// <summary>
         /// The template field to filter results with.
         /// </summary>
-        private DataItem treeviewFilterTemplateField;
+        private DataItem treeviewFilterField;
 
         /// <summary>
         /// The text used to filter treeview results.
         /// </summary>
         private string treeviewFilterText;
-
-        /// <summary>
-        /// The item selected during filtering.
-        /// </summary>
-        private TreeViewDataItem treeviewFilterItem;
         #endregion
 
         #region Constructors
@@ -901,6 +896,10 @@ namespace CrystalKeeper.Gui
             //Tracks the selected item.
             selection = item;
 
+            //Resets all filters.
+            treeviewFilterText = String.Empty;
+            treeviewFilterField = null;
+
             //No fields searchable from the database itself.
             if (item.GetItem().type == DataItemTypes.Database)
             {
@@ -977,7 +976,7 @@ namespace CrystalKeeper.Gui
                 defaultItem.Content = "Name";
                 defaultItem.MouseDown += (c, d) =>
                 {
-                    treeviewFilterTemplateField = null;
+                    treeviewFilterField = null;
                 };
                 gui.GuiSearchField.Items.Add(defaultItem);
                 
@@ -1000,7 +999,7 @@ namespace CrystalKeeper.Gui
                     //Sets the filter field on click.
                     comboItem.MouseDown += (c, d) =>
                     {
-                        treeviewFilterTemplateField = comboItem.GetItem();
+                        treeviewFilterField = comboItem.GetItem();
                     };
 
                     //Adds the item.
@@ -1017,7 +1016,14 @@ namespace CrystalKeeper.Gui
         /// </summary>
         private void RefreshTreeviewFilter(object sender, TextChangedEventArgs e)
         {
-            ConstructVisuals(gui.GuiTreeViewSearch.Text);
+            //FIXME: Prevents focus from resetting to the database and
+            //disabling the search textbox. Sloppy, find a better method.
+            gui.GuiTreeView.SelectedItemChanged -= GuiTreeView_SelectedItemChanged;
+
+            treeviewFilterText = gui.GuiTreeViewSearch.Text;
+            ConstructVisuals();
+
+            gui.GuiTreeView.SelectedItemChanged += GuiTreeView_SelectedItemChanged;
         }
 
         /// <summary>
@@ -1287,8 +1293,19 @@ namespace CrystalKeeper.Gui
         /// <summary>
         /// Constructs visual information based on project data.
         /// </summary>
-        private void ConstructVisuals(string filterText = "")
+        private void ConstructVisuals()
         {
+            //Acquires the filter collection dataitem.
+            TreeViewDataItem treeviewFilterItem = selection;
+            while (treeviewFilterItem != null &&
+                treeviewFilterItem.GetItem() != null &&
+                treeviewFilterItem.GetItem().type !=
+                DataItemTypes.Collection)
+            {
+                treeviewFilterItem =
+                    treeviewFilterItem.GetParent();
+            }
+
             //Erases old data.
             gui.GuiTreeView.Items.Clear();
             gui.GuiContent.Content = null;
@@ -1336,7 +1353,61 @@ namespace CrystalKeeper.Gui
                         var entryRef = new TreeViewDataItem(grpRefs[k]);
                         entryRef.Header = project.GetEntryRefEntry(grpRefs[k]).GetData("name");
                         entryRef.SetParent(grp);
-                        grp.Items.Add(entryRef);
+
+                        //Filters entries by their field values if applicable.
+                        if (treeviewFilterField != null &&
+                            !string.IsNullOrEmpty(treeviewFilterText) &&
+                            col.GetItem().guid == treeviewFilterItem?.GetItem()?.guid)
+                        {
+                            //Gets the entry from the reference and the field
+                            //that matches the filter field.
+                            var entry = project.GetEntryRefEntry(grpRefs[k]);
+                            var fields = project.GetEntryFields(entry).Where((item) =>
+                            {
+                                return item.guid == treeviewFilterField.guid;
+                            });
+                            var field = fields.FirstOrDefault();
+
+                            //Gets the type of data to search.
+                            object fieldData = field.GetData("data");
+                            var templateType = (TemplateFieldType)(int)field.GetData("dataType");
+                            if (templateType == TemplateFieldType.Text ||
+                                templateType == TemplateFieldType.Text_Formula ||
+                                templateType == TemplateFieldType.Text_Minerals ||
+                                templateType == TemplateFieldType.Hyperlink)
+                            {
+                                if (((string)fieldData).ToLower()
+                                    .Contains(treeviewFilterText.ToLower()))
+                                {
+                                    grp.Items.Add(entryRef);
+                                }
+                            }
+                            else if (templateType == TemplateFieldType.MoneyUSD)
+                            {
+                                var moneyText = "$" + string.Join(".", fieldData);
+                                if (moneyText.ToLower()
+                                    .Contains(treeviewFilterText.ToLower()))
+                                {
+                                    grp.Items.Add(entryRef);
+                                }
+                            }
+                        }
+                        else if (treeviewFilterField == null &&
+                            !string.IsNullOrEmpty(treeviewFilterText) &&
+                            col.GetItem().guid == treeviewFilterItem?.GetItem()?.guid)
+                        {
+                            var entry = project.GetEntryRefEntry(grpRefs[k]);
+
+                            if (((string)entry.GetData("name")).ToLower()
+                                .Contains(treeviewFilterText.ToLower()))
+                            {
+                                grp.Items.Add(entryRef);
+                            }
+                        }
+                        else
+                        {
+                            grp.Items.Add(entryRef);
+                        }
                     }
 
                     col.Items.Add(grp);
@@ -1353,7 +1424,7 @@ namespace CrystalKeeper.Gui
             }
 
             #region Populates templates
-            //Removes all but the first item.
+            //Removes all but the "New" entry for templates.
             object firstTemplateItem = gui.GuiMenuTemplates.Items[0];
             gui.GuiMenuTemplates.Items.Clear();
             gui.GuiMenuTemplates.Items.Add(firstTemplateItem);
@@ -1388,10 +1459,10 @@ namespace CrystalKeeper.Gui
                     });
                 }
             }
+            #endregion
 
             //Expands the full tree.
             dat?.ExpandSubtree();
-            #endregion
         }
 
         /// <summary>

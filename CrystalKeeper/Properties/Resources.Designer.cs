@@ -8,10 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace CrystalKeeper.Properties
-{
-
-
+namespace CrystalKeeper.Properties {
+    using System;
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -22,49 +22,60 @@ namespace CrystalKeeper.Properties
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources
-    {
-
+    internal class Resources {
+        
         private static global::System.Resources.ResourceManager resourceMan;
-
+        
         private static global::System.Globalization.CultureInfo resourceCulture;
-
+        
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal Resources()
-        {
+        internal Resources() {
         }
-
+        
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager
-        {
-            get
-            {
-                if ((resourceMan == null))
-                {
+        internal static global::System.Resources.ResourceManager ResourceManager {
+            get {
+                if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("CrystalKeeper.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
             }
         }
-
+        
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture
-        {
-            get
-            {
+        internal static global::System.Globalization.CultureInfo Culture {
+            get {
                 return resourceCulture;
             }
-            set
-            {
+            set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Abellaite||NaPb_2_(CO_3_)_2_(OH)|Spain
+        ///Abelsonite||NiC_31_H_32_N_4_|USA
+        ///Abenakiite-(Ce)||Na_26_Ce_6_(SiO_3_)_6_(PO_4_)_6_(CO_3_)_6_(SO_2_)O|Canada
+        ///Abernathyite|Natroautunite group|K(UO_2_)AsO_4_·3H_2_O|USA
+        ///Abhurite||Sn^2+^_21_O_6_(OH)_14_Cl_16_|Saudi Arabia
+        ///Abramovite||Pb_2_SnInBiS_7_|Russia
+        ///Abswurmbachite|Braunite group|Cu^2+^Mn^3+^_6_O_8_(SiO_4_)|Greece
+        ///Abuite||CaAl_2_(PO_4_)_2_F_2_|Japan
+        ///Acanthite|Acanthite group|Ag_2_S|Czech Republic
+        ///Acetamide||CH_3_CONH_2_|Ukraine
+        ///Achalaite|Wodginite group|(F [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string Minerals {
+            get {
+                return ResourceManager.GetString("Minerals", resourceCulture);
             }
         }
     }

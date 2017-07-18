@@ -28,5 +28,8 @@
 
         public const string Logo =
             "pack://application:,,,/Assets/Logo.png";
+
+        public const string MineralsTxt =
+            "pack://application:,,,/Assets/Minerals.txt";
     }
 }

@@ -189,6 +189,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Gui\SearchboxGui.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Gui\PgDatabaseEdit.cs" />
@@ -199,6 +203,10 @@
       <DependentUpon>PgGroupingGuiView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Gui\PgGroupingView.cs" />
+    <Compile Include="Gui\Searchbox.cs" />
+    <Compile Include="Gui\SearchboxGui.xaml.cs">
+      <DependentUpon>SearchboxGui.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -261,7 +269,7 @@
     <Resource Include="Assets\BttnAddHover.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Assets\Minerals.txt" />
+    <None Include="Resources\Minerals.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

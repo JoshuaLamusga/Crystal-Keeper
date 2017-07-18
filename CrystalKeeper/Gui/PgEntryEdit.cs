@@ -173,6 +173,25 @@ namespace CrystalKeeper.Gui
             });
             #endregion
 
+            #region Mineral Suggestion Lists
+            var minInfo = Properties.Resources.Minerals.Split('\n').ToList();
+            List<string> minNames = new List<string>();
+            List<string> minGroups = new List<string>();
+            List<string> minFormulas = new List<string>();
+            List<string> minLocalities = new List<string>();
+            for (int i = 0; i < minInfo.Count; i++)
+            {
+                string[] mineralParts = minInfo[i].Split('|');
+                if (mineralParts.Length >= 4)
+                {
+                    minNames.Add(mineralParts[0]);
+                    minGroups.Add(mineralParts[1]);
+                    minFormulas.Add(mineralParts[2]);
+                    minLocalities.Add(mineralParts[3]);
+                }
+            }
+            #endregion
+
             //Generates the view based on the collection template.
             var template = project.GetCollectionTemplate(project.GetEntryCollection(entry));
             var tCenterImages = (bool)template.GetData("centerImages");
@@ -228,8 +247,6 @@ namespace CrystalKeeper.Gui
                 //Displays text fields.
                 //Data is stored as a string.
                 if (templateType == TemplateFieldType.Text ||
-                    templateType == TemplateFieldType.Text_Formula ||
-                    templateType == TemplateFieldType.Text_Minerals ||
                     templateType == TemplateFieldType.Hyperlink)
                 {
                     TextBox fieldDataGui = new TextBox();
@@ -245,19 +262,52 @@ namespace CrystalKeeper.Gui
                         field.SetData("data", fieldDataGui.Text);
                     };
 
-                    if (templateType == TemplateFieldType.Text_Minerals)
-                    {
-                        //TODO: Handle support for mineral-type fields.
-                    }
-                    else if (templateType == TemplateFieldType.Text_Formula)
-                    {
-                        //TODO: Handle support for formula-type fields.
-                    }
-
                     elementsContainer.Children.Add(fieldNameGui);
                     elementsContainer.Children.Add(fieldDataGui);
                 }
 
+                //Displays text with mineral name suggestions.
+                //Text is stored as a string.
+                else if (templateType == TemplateFieldType.Text_Minerals)
+                {
+                    SearchBox fieldDataGui = new SearchBox(minNames);
+                    fieldDataGui.Gui.Margin = new Thickness(2, 4, 2, 0);
+                    fieldDataGui.Gui.textbox.MinWidth = 32;
+                    fieldDataGui.Gui.textbox.Text = (string)fieldData;
+                    fieldDataGui.Gui.textbox.TextWrapping = TextWrapping.Wrap;
+                    fieldDataGui.SearchByWord = true;
+
+                    //Enables the data to be changed.
+                    fieldDataGui.Gui.textbox.TextChanged += (a, b) =>
+                    {
+                        field.SetData("data", fieldDataGui.Gui.textbox.Text);
+                    };
+
+                    elementsContainer.Children.Add(fieldNameGui);
+                    elementsContainer.Children.Add(fieldDataGui.Gui);
+                }
+
+                //Displays text with mineral formula suggestions.
+                //Text is stored as a string.
+                else if (templateType == TemplateFieldType.Text_Formula)
+                {
+                    SearchBox fieldDataGui = new SearchBox(minFormulas);
+                    fieldDataGui.Gui.Margin = new Thickness(2, 4, 2, 0);
+                    fieldDataGui.Gui.textbox.MinWidth = 32;
+                    fieldDataGui.Gui.textbox.Text = (string)fieldData;
+                    fieldDataGui.Gui.textbox.TextWrapping = TextWrapping.Wrap;
+                    fieldDataGui.SearchByWord = true;
+
+                    //Enables the data to be changed.
+                    fieldDataGui.Gui.textbox.TextChanged += (a, b) =>
+                    {
+                        field.SetData("data", fieldDataGui.Gui.textbox.Text);
+                    };
+
+                    elementsContainer.Children.Add(fieldNameGui);
+                    elementsContainer.Children.Add(fieldDataGui.Gui);
+                }
+                
                 //Displays money in the USD format.
                 //Data is stored as a 2-element string array.
                 else if (templateType == TemplateFieldType.MoneyUSD)
