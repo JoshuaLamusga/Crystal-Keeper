@@ -245,7 +245,54 @@ namespace CrystalKeeper.Gui
 
                     if (templateType == TemplateFieldType.Text_Formula)
                     {
-                        //TODO: Handle support for formula-type fields.
+                        //Gets text, tracks alignment, and makes a run.
+                        string text = fieldDataGui.Text;
+                        BaselineAlignment align = BaselineAlignment.Baseline;
+                        Run run = new Run();
+
+                        //Clears text from field.
+                        fieldDataGui.Inlines.Clear();
+
+                        //Toggles align to subscript on _ and superscript on ^.
+                        for (int j = 0; j < text.Length; j++)
+                        {
+                            if (text[j] == '_' ||
+                                text[j] == '^')
+                            {
+                                fieldDataGui.Inlines.Add(run);
+                                run = new Run();
+
+                                if (text[j] == '_')
+                                {
+                                    if (align != BaselineAlignment.Subscript)
+                                    {
+                                        align = BaselineAlignment.Subscript;
+                                    }
+                                    else
+                                    {
+                                        align = BaselineAlignment.Baseline;
+                                    }
+                                }
+                                else if (text[j] == '^')
+                                {
+                                    if (align != BaselineAlignment.Superscript)
+                                    {
+                                        align = BaselineAlignment.Superscript;
+                                    }
+                                    else
+                                    {
+                                        align = BaselineAlignment.Baseline;
+                                    }
+                                }
+
+                                run.BaselineAlignment = align;
+                            }
+                            else
+                            {
+                                run.Text += text[j];
+                            }
+                        }
+                        fieldDataGui.Inlines.Add(run);
                     }
 
                     //Sets whether the title is visible or not.

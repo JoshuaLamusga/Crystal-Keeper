@@ -174,20 +174,39 @@ namespace CrystalKeeper.Gui
             #endregion
 
             #region Mineral Suggestion Lists
+            //Reads mineral names, group classifications, formulas, localities,
+            //and whether the mineral is an official IMA mineral from the
+            //mineral list. Splits into tuples for the searchbox.
             var minInfo = Properties.Resources.Minerals.Split('\n').ToList();
-            List<string> minNames = new List<string>();
-            List<string> minGroups = new List<string>();
-            List<string> minFormulas = new List<string>();
-            List<string> minLocalities = new List<string>();
+            var minNames = new List<Tuple<string, string>>();
+            var minGroups = new List<Tuple<string, string>>();
+            var minFormulas = new List<Tuple<string, string>>();
+            var minLocalities = new List<Tuple<string, string>>();
+            var minIsReal = new List<bool>();
             for (int i = 0; i < minInfo.Count; i++)
             {
                 string[] mineralParts = minInfo[i].Split('|');
-                if (mineralParts.Length >= 4)
+                if (mineralParts.Length >= 5)
                 {
-                    minNames.Add(mineralParts[0]);
-                    minGroups.Add(mineralParts[1]);
-                    minFormulas.Add(mineralParts[2]);
-                    minLocalities.Add(mineralParts[3]);
+                    minNames.Add(new Tuple<string, string>
+                        (mineralParts[0], null));
+                    if (mineralParts[1] != "")
+                    {
+                        minGroups.Add(new Tuple<string, string>
+                            (mineralParts[0], mineralParts[1]));
+                    }
+                    if (mineralParts[2] != "")
+                    {
+                        minFormulas.Add(new Tuple<string, string>
+                            (mineralParts[0], mineralParts[2]));
+                    }
+                    if (mineralParts[3] != "")
+                    {
+                        minLocalities.Add(new Tuple<string, string>
+                            (mineralParts[0], mineralParts[3]));
+                    }
+
+                    minIsReal.Add(mineralParts[4].StartsWith("1"));
                 }
             }
             #endregion
@@ -283,6 +302,18 @@ namespace CrystalKeeper.Gui
                         field.SetData("data", fieldDataGui.Gui.textbox.Text);
                     };
 
+                    //Decorates real minerals in italic.
+                    fieldDataGui.MenuItemAdded += (a) =>
+                    {
+                        int pos = minNames.FindIndex(
+                            (b) => b.Item1 == (string)a.Content);
+
+                        if (pos != -1 && minIsReal[pos])
+                        {
+                            a.FontStyle = FontStyles.Italic;
+                        }
+                    };
+
                     elementsContainer.Children.Add(fieldNameGui);
                     elementsContainer.Children.Add(fieldDataGui.Gui);
                 }
@@ -302,6 +333,18 @@ namespace CrystalKeeper.Gui
                     fieldDataGui.Gui.textbox.TextChanged += (a, b) =>
                     {
                         field.SetData("data", fieldDataGui.Gui.textbox.Text);
+                    };
+
+                    //Decorates real minerals in italic.
+                    fieldDataGui.MenuItemAdded += (a) =>
+                    {
+                        int pos = minNames.FindIndex(
+                            (b) => b.Item1 == (string)a.Content);
+
+                        if (pos != -1 && minIsReal[pos])
+                        {
+                            a.FontStyle = FontStyles.Italic;
+                        }
                     };
 
                     elementsContainer.Children.Add(fieldNameGui);

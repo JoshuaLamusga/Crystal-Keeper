@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Windows.Controls;
 
 namespace CrystalKeeper.Gui
@@ -24,9 +26,9 @@ namespace CrystalKeeper.Gui
         private bool searchByWord;
 
         /// <summary>
-        /// A list of all suggestions.
+        /// A list of all suggestions and replacements.
         /// </summary>
-        private List<string> suggestions;
+        private List<Tuple<string, string>> suggestions;
         #endregion
 
         #region Properties
@@ -50,7 +52,7 @@ namespace CrystalKeeper.Gui
         /// Gets or sets the suggestions for the listbox. Suggestions are
         /// automatically sorted with duplicates removed.
         /// </summary>
-        public List<string> Suggestions
+        public List<Tuple<string, string>> Suggestions
         {
             get
             {
@@ -58,8 +60,10 @@ namespace CrystalKeeper.Gui
             }
             set
             {
-                suggestions = value.Distinct().ToList();
-                suggestions.Sort();
+                suggestions = value
+                    .Distinct()
+                    .OrderBy((n) => n.Item1)
+                    .ToList();
                 RefreshSuggestions();
             }
         }
@@ -76,6 +80,13 @@ namespace CrystalKeeper.Gui
         }
         #endregion
 
+        #region Events
+        /// <summary>
+        /// Raised after menu items for the dropdown are created.
+        /// </summary>
+        public event Action<ListBoxItem> MenuItemAdded;
+        #endregion
+
         #region Constructors
         /// <summary>
         /// Constructs an empty searchbox.
@@ -84,7 +95,7 @@ namespace CrystalKeeper.Gui
         {
             gui = new SearchboxGui();
             searchByWord = false;
-            suggestions = new List<string>();
+            suggestions = new List<Tuple<string, string>>();
 
             SetHandlers();
         }
@@ -92,7 +103,7 @@ namespace CrystalKeeper.Gui
         /// <summary>
         /// Constructs a searchbox with suggestions.
         /// </summary>
-        public SearchBox(List<string> suggestions)
+        public SearchBox(List<Tuple<string, string>> suggestions)
         {
             gui = new SearchboxGui();
             searchByWord = false;
@@ -131,15 +142,23 @@ namespace CrystalKeeper.Gui
         /// </param>
         private void SelectSuggestion(string headerName)
         {
-            //Disconnects the refresh suggestions functionality.
-            //FIXME: This avoids a threading race condition. Sloppy.
+            //Disconnects refresh suggestions to prevent circular calls.
             gui.textbox.TextChanged -= HandlerRefreshSuggestions;
 
             HideSuggestions();
 
             if (!searchByWord)
             {
-                gui.textbox.Text = headerName;
+                //Uses the replacement if specified, else suggestion.
+                var match = suggestions.FindIndex((a) => a.Item1 == headerName);
+                if (match != -1 && suggestions[match].Item2 != null)
+                {
+                    gui.textbox.Text = suggestions[match].Item2;
+                }
+                else
+                {
+                    gui.textbox.Text = headerName;
+                }
             }
             else
             {
@@ -147,8 +166,18 @@ namespace CrystalKeeper.Gui
 
                 if (words.Length > 0)
                 {
-                    words[words.Length - 1] = headerName;
-                    gui.textbox.Text = string.Join(" ", words);
+                    //Uses the replacement if specified, else suggestion.
+                    var match = suggestions.FindIndex((a) => a.Item1 == headerName);
+                    if (match != -1 && suggestions[match].Item2 != null)
+                    {
+                        words[words.Length - 1] = suggestions[match].Item2;
+                        gui.textbox.Text = string.Join(" ", words);
+                    }
+                    else
+                    {
+                        words[words.Length - 1] = headerName;
+                        gui.textbox.Text = string.Join(" ", words);
+                    }
                 }
             }
 
@@ -166,19 +195,19 @@ namespace CrystalKeeper.Gui
             gui.suggestions.Items.Clear();
 
             //Builds a list of all suggested items.
-            List<string> filteredSuggestions = new List<string>();
+            var filteredSuggestions = new List<Tuple<string, string>>();
             filteredSuggestions = suggestions.Where((suggestion) =>
             {
                 if (!searchByWord || gui.textbox.Text == string.Empty)
                 {
-                    return suggestion.ToLower()
-                    .Contains(gui.textbox.Text.ToLower());
+                    return RemoveDiacritics(suggestion.Item1.ToLower())
+                        .Contains(RemoveDiacritics(gui.textbox.Text.ToLower()));
                 }
                 else
                 {
                     var words = gui.textbox.Text.Split(' ');
-                    return suggestion.ToLower()
-                    .Contains(words[words.Length - 1].ToLower());
+                    return RemoveDiacritics(suggestion.Item1.ToLower())
+                        .Contains(RemoveDiacritics(words[words.Length - 1].ToLower()));
                 }
             }).ToList();
 
@@ -187,12 +216,14 @@ namespace CrystalKeeper.Gui
             for (int i = 0; i < filteredSuggestions.Count && i < 50; i++)
             {
                 ListBoxItem item = new ListBoxItem();
-                item.Content = filteredSuggestions[i];
+                item.Content = filteredSuggestions[i].Item1;
                 item.Selected += (a, b) =>
                 {
                     SelectSuggestion((string)item.Content);
                 };
                 gui.suggestions.Items.Add(item);
+
+                MenuItemAdded?.Invoke(item);
             }
 
             //Hides or un-hides the suggestions as appropriate.
@@ -217,6 +248,31 @@ namespace CrystalKeeper.Gui
 
             //Hides the suggestions and adds the text.
             gui.suggestions.Visibility = System.Windows.Visibility.Collapsed;
+        }
+
+        /// <summary>
+        /// Returns an un-accented copy of the given string.
+        /// </summary>
+        public static string RemoveDiacritics(string str)
+        {
+            /*
+            Code copied from Dana on SE, licensed under CC-By-SA
+            https://stackoverflow.com/questions/5459641/replacing-characters-in-c-sharp-ascii/13154805#13154805
+            */
+
+            string strNorm = str.Normalize(NormalizationForm.FormD);
+            StringBuilder sb = new StringBuilder();
+
+            for (int i = 0; i < strNorm.Length; i++)
+            {
+                UnicodeCategory uc = CharUnicodeInfo.GetUnicodeCategory(strNorm[i]);
+                if (uc != UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(strNorm[i]);
+                }
+            }
+
+            return (sb.ToString().Normalize(NormalizationForm.FormC));
         }
         #endregion
     }
