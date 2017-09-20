@@ -186,13 +186,13 @@ namespace CrystalKeeper.Gui
             project.AddTemplateField("Extra Images", col1Guid,
                 TemplateFieldType.Images, true, false, false, 1);
             project.AddTemplateField("Primary Mineral Species", col1Guid,
-                TemplateFieldType.Text_Minerals, true, true, false, 2);
+                TemplateFieldType.Min_Name, true, true, false, 2);
             project.AddTemplateField("Secondary Mineral Species", col1Guid,
-                TemplateFieldType.Text_Minerals, true, true, false, 3);
+                TemplateFieldType.Min_Name, true, true, false, 3);
             project.AddTemplateField("Primary Chemical Formula", col2Guid,
-                TemplateFieldType.Text_Formula, true, true, false, 0);
+                TemplateFieldType.Min_Formula, true, true, false, 0);
             project.AddTemplateField("Species Group", col2Guid,
-                TemplateFieldType.Text, true, true, false, 1);
+                TemplateFieldType.Min_Group, true, true, false, 1);
             project.AddTemplateField("Origin / Location", col2Guid,
                 TemplateFieldType.Text, true, true, false, 2);
             project.AddTemplateField("GPS Location", col2Guid,
@@ -420,8 +420,10 @@ namespace CrystalKeeper.Gui
 
                             //Adds default values matching the represented data.
                             if (dataType == TemplateFieldType.Text ||
-                                dataType == TemplateFieldType.Text_Formula ||
-                                dataType == TemplateFieldType.Text_Minerals ||
+                                dataType == TemplateFieldType.Min_Formula ||
+                                dataType == TemplateFieldType.Min_Name ||
+                                dataType == TemplateFieldType.Min_Group ||
+                                dataType == TemplateFieldType.Min_Locality ||
                                 dataType == TemplateFieldType.Hyperlink ||
                                 dataType == TemplateFieldType.EntryImages ||
                                 dataType == TemplateFieldType.Images)
@@ -1372,8 +1374,10 @@ namespace CrystalKeeper.Gui
                             object fieldData = field.GetData("data");
                             var templateType = (TemplateFieldType)(int)field.GetData("dataType");
                             if (templateType == TemplateFieldType.Text ||
-                                templateType == TemplateFieldType.Text_Formula ||
-                                templateType == TemplateFieldType.Text_Minerals ||
+                                templateType == TemplateFieldType.Min_Formula ||
+                                templateType == TemplateFieldType.Min_Name ||
+                                templateType == TemplateFieldType.Min_Group ||
+                                templateType == TemplateFieldType.Min_Locality ||
                                 templateType == TemplateFieldType.Hyperlink)
                             {
                                 if (((string)fieldData).ToLower()

@@ -16,7 +16,7 @@
         Text = 1,
 
         /// <summary>
-        /// Two separate text fields.
+        /// Stores and displays value in U.S. currency.
         /// </summary>
         MoneyUSD = 2,
 
@@ -31,13 +31,23 @@
         Hyperlink = 4,
 
         /// <summary>
-        /// Used for mineral formula auto-fill.
+        /// Used for auto-suggesting mineral formulas.
         /// </summary>
-        Text_Formula = 5,
+        Min_Formula = 5,
 
         /// <summary>
         /// Used for auto-suggesting mineral names word-by-word.
         /// </summary>
-        Text_Minerals = 6
+        Min_Name = 6,
+
+        /// <summary>
+        /// Used for auto-suggesting mineral groups.
+        /// </summary>
+        Min_Group = 7,
+
+        /// <summary>
+        /// Used for auto-suggesting mineral localities.
+        /// </summary>
+        Min_Locality = 8
     }
 }

@@ -226,8 +226,10 @@ namespace CrystalKeeper.Gui
                 //Displays text fields.
                 //Data is stored as a string.
                 if (templateType == TemplateFieldType.Text ||
-                    templateType == TemplateFieldType.Text_Formula ||
-                    templateType == TemplateFieldType.Text_Minerals)
+                    templateType == TemplateFieldType.Min_Formula ||
+                    templateType == TemplateFieldType.Min_Name ||
+                    templateType == TemplateFieldType.Min_Group ||
+                    templateType == TemplateFieldType.Min_Locality)
                 {
                     //Does not display empty text fields.
                     if (String.IsNullOrWhiteSpace((string)fieldData))
@@ -243,7 +245,7 @@ namespace CrystalKeeper.Gui
                     fieldDataGui.Text = (string)fieldData;
                     fieldDataGui.TextWrapping = TextWrapping.Wrap;
 
-                    if (templateType == TemplateFieldType.Text_Formula)
+                    if (templateType == TemplateFieldType.Min_Formula)
                     {
                         //Gets text, tracks alignment, and makes a run.
                         string text = fieldDataGui.Text;
@@ -495,7 +497,8 @@ namespace CrystalKeeper.Gui
                             {
                                 if (thumbnail.ActualWidth > 0)
                                 {
-                                    thumbnail.SetSize(150);
+                                    thumbnail.MaxWidth = thumbnail.GetSourceWidth();
+                                    thumbnail.MaxHeight = thumbnail.GetSourceHeight();
                                 }
                                 else
                                 {
@@ -524,13 +527,22 @@ namespace CrystalKeeper.Gui
                             try
                             {
                                 media.Source = new Uri(loadedUrls[0]);
+                                media.MediaOpened += (a, b) =>
+                                {
+                                    media.MaxWidth = media.NaturalVideoWidth;
+                                    media.MaxHeight = media.NaturalVideoHeight;
+                                };
+                                media.MediaEnded += (a, b) =>
+                                {
+                                    media.Position = new TimeSpan(0, 0, 1);
+                                };
                             }
                             catch (InvalidOperationException) { } //Ignores loading errors.
                             catch (ArgumentNullException) { } //Ignores loading errors.
                             catch (UriFormatException) { } //Ignores loading errors.
                             catch (Exception e) //Logs unknown errors.
                             {
-                                Utils.Log(e.Message);
+                                Utils.Log("While loading media: " + e.Message);
                             }
                         }
 
@@ -539,6 +551,8 @@ namespace CrystalKeeper.Gui
                         {
                             thumbnail = new ImgAnimated(loadedUrls, true);
                             thumbnail.Margin = new Thickness(2, 4, 2, 12);
+                            thumbnail.MaxWidth = thumbnail.GetSourceWidth();
+                            thumbnail.MaxHeight = thumbnail.GetSourceHeight();
                         }
 
                         if (media != null)

@@ -119,10 +119,16 @@ namespace CrystalKeeper.Gui
                 case TemplateFieldType.Text:
                     gui.CmbxDataType.SelectedItem = gui.ItemTypeText;
                     break;
-                case TemplateFieldType.Text_Formula:
+                case TemplateFieldType.Min_Group:
+                    gui.CmbxDataType.SelectedItem = gui.ItemTypeEntryMinGroup;
+                    break;
+                case TemplateFieldType.Min_Formula:
                     gui.CmbxDataType.SelectedItem = gui.ItemTypeEntryMinFormula;
                     break;
-                case TemplateFieldType.Text_Minerals:
+                case TemplateFieldType.Min_Locality:
+                    gui.CmbxDataType.SelectedItem = gui.ItemTypeEntryMinLocality;
+                    break;
+                case TemplateFieldType.Min_Name:
                     gui.CmbxDataType.SelectedItem = gui.ItemTypeEntryMinName;
                     break;
                 case TemplateFieldType.MoneyUSD:
@@ -919,12 +925,22 @@ namespace CrystalKeeper.Gui
             else if (gui.ItemTypeEntryMinFormula.IsSelected)
             {
                 activeField.GetItem().SetData("dataType",
-                    (int)TemplateFieldType.Text_Formula);
+                    (int)TemplateFieldType.Min_Formula);
             }
             else if (gui.ItemTypeEntryMinName.IsSelected)
             {
                 activeField.GetItem().SetData("dataType",
-                    (int)TemplateFieldType.Text_Minerals);
+                    (int)TemplateFieldType.Min_Name);
+            }
+            else if (gui.ItemTypeEntryMinGroup.IsSelected)
+            {
+                activeField.GetItem().SetData("dataType",
+                    (int)TemplateFieldType.Min_Group);
+            }
+            else if (gui.ItemTypeEntryMinLocality.IsSelected)
+            {
+                activeField.GetItem().SetData("dataType",
+                    (int)TemplateFieldType.Min_Locality);
             }
 
             //Sets the field's visibility.

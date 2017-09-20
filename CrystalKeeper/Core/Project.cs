@@ -223,7 +223,20 @@ namespace CrystalKeeper.Core
 
                             //Declares the size of the data chunk, then loads it.
                             int numBytes = reader.ReadInt32();
-                            item.SetData("data", Utils.ByteArrayToObject(reader.ReadBytes(numBytes)));
+                            try
+                            {
+                                item.SetData("data", Utils.ByteArrayToObject(reader.ReadBytes(numBytes)));
+                            }
+                            catch (System.Runtime.Serialization.SerializationException)
+                            {
+                                Utils.Log("Cannot serialize " + url + "to load.");
+
+                                //Tell the user the file did not load and cancel it.
+                                MessageBox.Show("The file could not be loaded because " +
+                                    "it is not a Crystal Keeper file.");
+
+                                return null;
+                            }
                             break;
                         case DataItemTypes.Grouping:
                             item.SetData("name", reader.ReadString());

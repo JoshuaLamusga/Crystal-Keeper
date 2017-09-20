@@ -216,6 +216,8 @@
                                 <ComboBoxItem Name="ItemTypeEntryImages">Entry Images</ComboBoxItem>
                                 <ComboBoxItem Name="ItemTypeEntryMinName">Mineral Name</ComboBoxItem>
                                 <ComboBoxItem Name="ItemTypeEntryMinFormula">Mineral Formula</ComboBoxItem>
+                                <ComboBoxItem Name="ItemTypeEntryMinGroup">Mineral Grouping</ComboBoxItem>
+                                <ComboBoxItem Name="ItemTypeEntryMinLocality">Mineral Locality</ComboBoxItem>
                                 <ComboBoxItem Name="ItemTypeText">Text</ComboBoxItem>
                                 <ComboBoxItem Name="ItemTypeImages">Images</ComboBoxItem>
                                 <ComboBoxItem Name="ItemTypeMoneyUSD">Money (USD)</ComboBoxItem>

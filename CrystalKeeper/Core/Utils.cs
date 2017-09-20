@@ -115,11 +115,15 @@ namespace CrystalKeeper.Core
 
         /// <summary>
         /// Converts an array of bytes representing an object to the object.
-        /// Cast it to the appropriate instance as necessary.
+        /// Cast it to the appropriate instance as necessary. May throw
+        /// SerializableException.
         /// </summary>
         /// <param name="byteArray">
         /// The array of bytes representing the object.
         /// </param>
+        /// <exception cref="System.Runtime.Serialization.SerializationException">
+        /// Thrown when the byte array to decode isn't recognized.
+        /// </exception>
         public static Object ByteArrayToObject(byte[] byteArray)
         {
             Object obj;

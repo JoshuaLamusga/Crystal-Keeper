@@ -264,7 +264,7 @@ namespace CrystalKeeper.Gui
                 StackPanel elementsContainer = new StackPanel();
 
                 //Displays text fields.
-                //Data is stored as a string.
+                //Text is stored as a string.
                 if (templateType == TemplateFieldType.Text ||
                     templateType == TemplateFieldType.Hyperlink)
                 {
@@ -285,44 +285,31 @@ namespace CrystalKeeper.Gui
                     elementsContainer.Children.Add(fieldDataGui);
                 }
 
-                //Displays text with mineral name suggestions.
+                //Displays text with mineral suggestions.
                 //Text is stored as a string.
-                else if (templateType == TemplateFieldType.Text_Minerals)
+                else if (templateType == TemplateFieldType.Min_Name ||
+                    templateType == TemplateFieldType.Min_Formula ||
+                    templateType == TemplateFieldType.Min_Group ||
+                    templateType == TemplateFieldType.Min_Locality)
                 {
-                    SearchBox fieldDataGui = new SearchBox(minNames);
-                    fieldDataGui.Gui.Margin = new Thickness(2, 4, 2, 0);
-                    fieldDataGui.Gui.textbox.MinWidth = 32;
-                    fieldDataGui.Gui.textbox.Text = (string)fieldData;
-                    fieldDataGui.Gui.textbox.TextWrapping = TextWrapping.Wrap;
-                    fieldDataGui.SearchByWord = true;
-
-                    //Enables the data to be changed.
-                    fieldDataGui.Gui.textbox.TextChanged += (a, b) =>
+                    SearchBox fieldDataGui = null;
+                    if (templateType == TemplateFieldType.Min_Name)
                     {
-                        field.SetData("data", fieldDataGui.Gui.textbox.Text);
-                    };
-
-                    //Decorates real minerals in italic.
-                    fieldDataGui.MenuItemAdded += (a) =>
+                        fieldDataGui = new SearchBox(minNames);
+                    }
+                    if (templateType == TemplateFieldType.Min_Formula)
                     {
-                        int pos = minNames.FindIndex(
-                            (b) => b.Item1 == (string)a.Content);
+                        fieldDataGui = new SearchBox(minFormulas);
+                    }
+                    if (templateType == TemplateFieldType.Min_Group)
+                    {
+                        fieldDataGui = new SearchBox(minGroups);
+                    }
+                    if (templateType == TemplateFieldType.Min_Locality)
+                    {
+                        fieldDataGui = new SearchBox(minLocalities);
+                    }
 
-                        if (pos != -1 && minIsReal[pos])
-                        {
-                            a.FontStyle = FontStyles.Italic;
-                        }
-                    };
-
-                    elementsContainer.Children.Add(fieldNameGui);
-                    elementsContainer.Children.Add(fieldDataGui.Gui);
-                }
-
-                //Displays text with mineral formula suggestions.
-                //Text is stored as a string.
-                else if (templateType == TemplateFieldType.Text_Formula)
-                {
-                    SearchBox fieldDataGui = new SearchBox(minFormulas);
                     fieldDataGui.Gui.Margin = new Thickness(2, 4, 2, 0);
                     fieldDataGui.Gui.textbox.MinWidth = 32;
                     fieldDataGui.Gui.textbox.Text = (string)fieldData;
@@ -484,37 +471,18 @@ namespace CrystalKeeper.Gui
                         for (int j = 0; j < loadedUrls.Count; j++)
                         {
                             ImgThumbnail thumbnail = new ImgThumbnail(loadedUrls[j], false);
-
-                            //Resizes the image.
-                            thumbnail.Loaded += (a, b) =>
-                            {
-                                if (thumbnail.ActualWidth > 0)
-                                {
-                                    thumbnail.SetSize(150);
-                                }
-                                else
-                                {
-                                    thumbnail.SetSize(0);
-                                }
-                            };
-
+                            bool isUrlValid = true;
                             int index = j; //For lambda capture.
 
                             //Sets up an upload image button.
                             var bttnUpload = new Image();
-                            BitmapImage newImg = new BitmapImage();
-                            newImg.BeginInit();
-                            newImg.UriSource = new Uri("pack://application:,,,/Assets/BttnAdd.png");
-                            newImg.EndInit();
+                            BitmapImage newImg = new BitmapImage(new Uri("pack://application:,,,/Assets/BttnAdd.png"));
                             bttnUpload.Source = newImg;
                             bttnUpload.ToolTip = "Click to select images.";
 
                             //Sets up a delete image button.
                             var bttnDelete = new Image();
-                            newImg = new BitmapImage();
-                            newImg.BeginInit();
-                            newImg.UriSource = new Uri("pack://application:,,,/Assets/BttnDelete.png");
-                            newImg.EndInit();
+                            newImg = new BitmapImage(new Uri("pack://application:,,,/Assets/BttnDelete.png"));
                             bttnDelete.Source = newImg;
                             bttnDelete.ToolTip = "Click to delete all images.";
 
@@ -615,6 +583,21 @@ namespace CrystalKeeper.Gui
                                 }
                             };
 
+                            //Resizes the image.
+                            thumbnail.Loaded += (a, b) =>
+                            {
+                                if (thumbnail.ActualWidth > 0)
+                                {
+                                    thumbnail.MaxWidth = thumbnail.GetSourceWidth();
+                                    thumbnail.MaxHeight = thumbnail.GetSourceHeight();
+                                }
+                                else
+                                {
+                                    thumbnail.SetSize(0);
+                                    isUrlValid = (thumbnail.ImgUrl != "");
+                                }
+                            };
+
                             StackPanel contentControls = new StackPanel();
                             contentControls.Orientation = Orientation.Horizontal;
                             contentControls.Children.Add(bttnDelete);
@@ -631,6 +614,59 @@ namespace CrystalKeeper.Gui
                             imageControls.Children.Add(thumbnail);
 
                             elementsContainer.Children.Add(imageControls);
+
+                            //Waits until the image is fully loaded.
+                            thumbnail.Loaded += (a, b) =>
+                            {
+
+                                if (thumbnail.ActualWidth <= 0 &&
+                                    thumbnail.ImgUrl != "")
+                                {
+                                    //Sets up a broken image button.
+                                    var bttnBrokenImage = new Image();
+                                    newImg = new BitmapImage(new Uri("pack://application:,,,/Assets/BrokenImage.png"));
+                                    bttnBrokenImage.Source = newImg;
+                                    bttnBrokenImage.MaxWidth = newImg.Width;
+                                    bttnBrokenImage.MaxHeight = newImg.Height;
+                                    bttnBrokenImage.ToolTip = "Image link is broken " +
+                                        "-- click to locate or reset image.";
+
+                                    //Allows user to select a new image url.
+                                    bttnBrokenImage.MouseDown += (c, d) =>
+                                    {
+                                        OpenFileDialog dlg = new OpenFileDialog();
+
+                                        //Opens to the location of the missing image.
+                                        string dirName = Path.GetDirectoryName(
+                                            Path.GetFullPath(thumbnail.ImgUrl));
+                                        if (Directory.Exists(dirName))
+                                        {
+                                            dlg.InitialDirectory = dirName;
+                                        }
+                                        dlg.FileName = Path.GetFileName(thumbnail.ImgUrl);
+
+                                        dlg.CheckPathExists = true;
+                                        dlg.Filter = "images|*.bmp;*.jpg;*.jpeg;*.gif;*.tif;*.tiff;*.png";
+                                        dlg.FilterIndex = 0;
+                                        dlg.Title = "Load image";
+
+                                        if (dlg.ShowDialog() == true)
+                                        {
+                                            loadedUrls[index] = dlg.FileName;
+                                            string options = (isAnimated) ? "True" : "False";
+                                            string newData = string.Join("|", loadedUrls);
+                                            newData = options + "|" + newData;
+                                            field.SetData("data", newData);
+
+                                            //Invalidates the page to update.
+                                            InvalidateEntirePage?.Invoke(this, null);
+                                        }
+                                    };
+
+                                    imageControls.Children.Remove(thumbnail);
+                                    imageControls.Children.Add(bttnBrokenImage);
+                                }
+                            };
                         }
                     }
                     else
@@ -647,6 +683,15 @@ namespace CrystalKeeper.Gui
                             try
                             {
                                 media.Source = new Uri(loadedUrls[0]);
+                                media.MediaOpened += (a, b) =>
+                                {
+                                    media.MaxWidth = media.NaturalVideoWidth;
+                                    media.MaxHeight = media.NaturalVideoHeight;
+                                };
+                                media.MediaEnded += (a, b) =>
+                                {
+                                    media.Position = new TimeSpan(0, 0, 1);
+                                };
                             }
                             catch (Exception)
                             {
@@ -667,23 +712,19 @@ namespace CrystalKeeper.Gui
                         else
                         {
                             thumbnail = new ImgAnimated(loadedUrls, true);
+                            thumbnail.MaxWidth = thumbnail.GetSourceWidth();
+                            thumbnail.MaxHeight = thumbnail.GetSourceHeight();
                         }
 
                         //Sets up an upload image button.
                         var bttnUpload = new Image();
-                        BitmapImage newImg = new BitmapImage();
-                        newImg.BeginInit();
-                        newImg.UriSource = new Uri("pack://application:,,,/Assets/BttnAdd.png");
-                        newImg.EndInit();
+                        BitmapImage newImg = new BitmapImage(new Uri("pack://application:,,,/Assets/BttnAdd.png"));
                         bttnUpload.Source = newImg;
-                        bttnUpload.ToolTip = "Click to select images.";
+                        bttnUpload.ToolTip = "Click to select images or a movie.";
 
                         //Sets up a delete image button.
                         var bttnDelete = new Image();
-                        newImg = new BitmapImage();
-                        newImg.BeginInit();
-                        newImg.UriSource = new Uri("pack://application:,,,/Assets/BttnDelete.png");
-                        newImg.EndInit();
+                        newImg = new BitmapImage(new Uri("pack://application:,,,/Assets/BttnDelete.png"));
                         bttnDelete.Source = newImg;
                         bttnDelete.ToolTip = "Click to delete all images.";
 
