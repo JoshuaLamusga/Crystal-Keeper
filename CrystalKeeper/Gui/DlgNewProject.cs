@@ -1,6 +1,8 @@
 ﻿using CrystalKeeper.Core;
 using Microsoft.Win32;
+using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace CrystalKeeper.Gui
 {
@@ -23,6 +25,35 @@ namespace CrystalKeeper.Gui
             gui.GuiNew.Click += GuiNew_Click;
             gui.GuiOpen.Click += GuiOpen_Click;
             gui.KeyDown += Gui_KeyDown;
+
+            //Constructs a list of recent files.
+            var recentFiles = Utils.GetRecentlyOpened();
+            for (int i = 0; i < recentFiles.Count; i++)
+            {
+                TextBlock txtblk = new TextBlock();
+                txtblk.Tag = recentFiles[i];
+                txtblk.Text = recentFiles[i];
+                txtblk.ToolTip = txtblk.Tag.ToString();
+                if (txtblk.Text.Length > 30)
+                {
+                    txtblk.Text = txtblk.Text.Substring(0, 30) + "...";
+                }
+
+                txtblk.MouseDown += (a, b) =>
+                {
+                    if (File.Exists(txtblk.Text))
+                    {
+                        //Constructs project from the file.
+                        MainDisplay display = new MainDisplay(Project.Load(txtblk.Text), txtblk.Text);
+
+                        //Show the new display and close this one.
+                        display.Show();
+                        gui.Close();
+                    }
+                };
+
+                gui.GuiPanel.Children.Add(txtblk);
+            }
         }
         #endregion
 

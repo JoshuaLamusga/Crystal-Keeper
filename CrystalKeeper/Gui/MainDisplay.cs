@@ -37,6 +37,25 @@ namespace CrystalKeeper.Gui
         private string saveUrl;
 
         /// <summary>
+        /// The location to save the project; set on first save.
+        /// </summary>
+        private string SaveUrl
+        {
+            get
+            {
+                return saveUrl;
+            }
+            set
+            {
+                saveUrl = value;
+                if (value != "")
+                {
+                    Utils.RegAddRecentlyOpen(value);
+                }
+            }
+        }
+
+        /// <summary>
         /// Stores the treeview selected item whenever it's not null.
         /// </summary>
         private TreeViewDataItem selection;
@@ -81,7 +100,7 @@ namespace CrystalKeeper.Gui
         public MainDisplay(Project project, string saveUrl)
         {
             Initialize(project);
-            this.saveUrl = saveUrl;
+            SaveUrl = saveUrl;
         }
         #endregion
 
@@ -686,7 +705,7 @@ namespace CrystalKeeper.Gui
             //If selected, saved the project data.
             if (dlg.ShowDialog() == true)
             {
-                saveUrl = dlg.FileName;
+                SaveUrl = dlg.FileName;
                 project.Save(saveUrl);
             };
         }
@@ -710,7 +729,7 @@ namespace CrystalKeeper.Gui
 
                 if (dlg.ShowDialog() == true)
                 {
-                    saveUrl = dlg.FileName;
+                    SaveUrl = dlg.FileName;
                     project.Save(saveUrl);
                 }
             }
@@ -731,7 +750,7 @@ namespace CrystalKeeper.Gui
                 Project tempProj = Project.Load(dlg.FileName);
                 if (tempProj != null)
                 {
-                    saveUrl = dlg.FileName;
+                    SaveUrl = dlg.FileName;
 
                     //Sets the project and resets bindings.
                     project = tempProj;
