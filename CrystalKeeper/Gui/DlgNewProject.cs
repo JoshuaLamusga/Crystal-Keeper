@@ -1,8 +1,10 @@
 ﻿using CrystalKeeper.Core;
 using Microsoft.Win32;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace CrystalKeeper.Gui
 {
@@ -26,29 +28,65 @@ namespace CrystalKeeper.Gui
             gui.GuiOpen.Click += GuiOpen_Click;
             gui.KeyDown += Gui_KeyDown;
 
-            //Constructs a list of recent files.
-            var recentFiles = Utils.GetRecentlyOpened();
+            //Gets recently-opened URLs.
+            var recentFiles = Utils.GetRecentlyOpened().Split('|').ToList();
+
+            //Constructs a textblock noting recent files.
+            if (recentFiles.Count > 0 && recentFiles.FirstOrDefault() != "")
+            {
+                TextBlock txtblkRecentFiles = new TextBlock();
+                txtblkRecentFiles.Text = "Recent Files";
+                txtblkRecentFiles.Foreground = Brushes.DarkGray;
+                txtblkRecentFiles.Margin = new Thickness(4);
+                txtblkRecentFiles.HorizontalAlignment = HorizontalAlignment.Center;
+                gui.GuiPanel.Children.Add(txtblkRecentFiles);
+            }
+            
+            //Adds an entry for each recent file.
             for (int i = 0; i < recentFiles.Count; i++)
             {
                 TextBlock txtblk = new TextBlock();
-                txtblk.Tag = recentFiles[i];
-                txtblk.Text = recentFiles[i];
-                txtblk.ToolTip = txtblk.Tag.ToString();
-                if (txtblk.Text.Length > 30)
+                txtblk.Tag = recentFiles[i].ToString();
+                txtblk.Text = Path.GetFileName(recentFiles[i]);
+                txtblk.ToolTip = txtblk.Tag;
+                txtblk.Margin = new Thickness(4);
+                txtblk.HorizontalAlignment = HorizontalAlignment.Center;
+                if (txtblk.Text.Length > 40)
                 {
-                    txtblk.Text = txtblk.Text.Substring(0, 30) + "...";
+                    txtblk.Text = txtblk.Text.Substring(0, 40) + "...";
                 }
 
+                //Highlights in bold when hovering the mouse.
+                txtblk.MouseEnter += (a, b) =>
+                {
+                    txtblk.FontWeight = FontWeights.Bold;
+                };
+
+                txtblk.MouseLeave += (a, b) =>
+                {
+                    txtblk.FontWeight = FontWeights.Normal;
+                };
+
+                //Attempts to load the given file.
                 txtblk.MouseDown += (a, b) =>
                 {
-                    if (File.Exists(txtblk.Text))
+                    if (File.Exists((string)txtblk.Tag))
                     {
                         //Constructs project from the file.
-                        MainDisplay display = new MainDisplay(Project.Load(txtblk.Text), txtblk.Text);
+                        MainDisplay display = new MainDisplay(Project.Load((string)txtblk.Tag), (string)txtblk.Tag);
 
-                        //Show the new display and close this one.
+                        //Shows the new display and close this one.
                         display.Show();
                         gui.Close();
+                    }
+                    else
+                    {
+                        //Removes the file if it can't be found.
+                        MessageBox.Show("The project at " + (string)txtblk.Tag +
+                            " could not be found.");
+
+                        Utils.RegRemoveRecentlyOpen((string)txtblk.Tag);
+                        gui.GuiPanel.Children.Remove(txtblk);
                     }
                 };
 

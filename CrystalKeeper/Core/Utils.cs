@@ -38,7 +38,10 @@ namespace CrystalKeeper.Core
 
             //Gets recent files.
             object recentFiles = key.GetValue("recentFiles");
-            regOpenRecent = (string)recentFiles;
+            if (recentFiles != null)
+            {
+                regOpenRecent = (string)recentFiles;
+            }
 
             key.Close();
         }
@@ -58,17 +61,22 @@ namespace CrystalKeeper.Core
         /// </summary>
         public static void RegAddRecentlyOpen(string url)
         {
-            List<string> urls = regOpenRecent.Split('|').ToList();
+            List<string> urls = new List<string>();
+            if (regOpenRecent != "")
+            {
+                urls = regOpenRecent.Split('|').ToList();
+            }
 
             //Inserts the url at the start of the pipe-separated list.
             urls.Remove(url);
             urls.Insert(0, url);
-            if (urls.Count > 10)
+            if (urls.Count > 3)
             {
                 urls.RemoveAt(urls.Count - 1);
             }
 
             //Merges all urls into one string.
+            url = "";
             for (int i = 0; i < urls.Count; i++)
             {
                 url += urls[i];
@@ -78,6 +86,7 @@ namespace CrystalKeeper.Core
                 }
             }
 
+            regOpenRecent = url;
             SaveRegistryValues();
         }
 
@@ -89,32 +98,26 @@ namespace CrystalKeeper.Core
         {
             List<string> urls = regOpenRecent.Split('|').ToList();
 
-            //Inserts the url at the start of the pipe-separated list.
-            urls.Remove(url);
-            urls.Insert(0, url);
-            if (urls.Count > 10)
+            //Removes the url.
+            if (urls.Remove(url))
             {
-                urls.RemoveAt(urls.Count - 1);
-            }
-
-            //Merges all urls into one string.
-            for (int i = 0; i < urls.Count; i++)
-            {
-                url += urls[i];
-                if (i != urls.Count - 1)
+                //Merges all urls into one string.
+                url = "";
+                for (int i = 0; i < urls.Count; i++)
                 {
-                    url += "|";
+                    url += urls[i];
+                    if (i != urls.Count - 1)
+                    {
+                        url += "|";
+                    }
                 }
-            }
 
-            bool success = regOpenRecent.Remove(url);
-
-            if (success)
-            {
+                regOpenRecent = url;
                 SaveRegistryValues();
+                return true;
             }
 
-            return success;
+            return false;
         }
 
         /// <summary>

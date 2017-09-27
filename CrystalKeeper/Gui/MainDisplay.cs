@@ -48,10 +48,7 @@ namespace CrystalKeeper.Gui
             set
             {
                 saveUrl = value;
-                if (value != "")
-                {
-                    Utils.RegAddRecentlyOpen(value);
-                }
+                UpdateRecentFiles();
             }
         }
 
@@ -187,6 +184,7 @@ namespace CrystalKeeper.Gui
             gui.GuiToggleMode.MouseDown += GuiToggleMode_MouseDown;
             gui.GuiTemplateNew.Click += GuiTemplateNew_Click;
 
+            UpdateRecentFiles();
             ConstructVisuals();
         }
 
@@ -1848,6 +1846,83 @@ namespace CrystalKeeper.Gui
                 gui.GuiContent.Content = page.Gui;
             }
             #endregion
+        }
+
+        /// <summary>
+        /// Updates the gui and recent files in response to the save location.
+        /// </summary>
+        private void UpdateRecentFiles()
+        {
+            //Adds the url.
+            if (saveUrl != "")
+            {
+                Utils.RegAddRecentlyOpen(saveUrl);
+            }
+
+            var urls = Utils.GetRecentlyOpened().Split('|');
+            gui.GuiFileRecent.Items.Clear();
+
+            //Shows the url only if recent files are recorded.
+            if (urls.Length == 0 || (urls.Length == 1 && urls[0] == ""))
+            {
+                gui.GuiFileRecent.Visibility = Visibility.Collapsed;
+                gui.GuiFileRecent.IsEnabled = false;
+            }
+            else
+            {
+                gui.GuiFileRecent.Visibility = Visibility.Visible;
+                gui.GuiFileRecent.IsEnabled = true;
+            }
+
+            //Adds each recent file.
+            for (int i = 0; i < urls.Length; i++)
+            {
+                MenuItem item = new MenuItem();
+                item.Header = Path.GetFileName(urls[i]);
+                item.Tag = urls[i];
+                item.ToolTip = urls[i];
+
+                //Loads the project if possible.
+                item.Click += (a, b) =>
+                {
+                    string url = (string)item.Tag;
+                    if (File.Exists(url))
+                    {
+                        Project tempProj = Project.Load(url);
+                        if (tempProj != null)
+                        {
+                            SaveUrl = url;
+
+                            //Sets the project and resets bindings.
+                            project = tempProj;
+                            project.Items.CollectionChanged += ChangeTreeview;
+
+                            //Reconstructs the treeview and expands it.
+                            ConstructVisuals();
+                        }
+                        else
+                        {
+                            //Removes the file if it can't be found.
+                            MessageBox.Show("The project at " + url +
+                                " could not be loaded.");
+
+                            Utils.RegRemoveRecentlyOpen(url);
+                            gui.GuiFileRecent.Items.Remove(item);
+                        }
+                    }
+                    else
+                    {
+                        //Removes the file if it can't be found.
+                        MessageBox.Show("The project at " + url +
+                            " could not be found.");
+
+                        Utils.RegRemoveRecentlyOpen(url);
+                        gui.GuiFileRecent.Items.Remove(item);
+                    }
+                };
+
+                gui.GuiFileRecent.Items.Add(item);
+            }
         }
         #endregion
 
