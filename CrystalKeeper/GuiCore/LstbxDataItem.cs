@@ -56,7 +56,6 @@ namespace CrystalKeeper.GuiCore
         /// <summary>
         /// Gets the DataItem associated with the combobox item.
         /// </summary>
-        /// <returns></returns>
         public DataItem GetItem()
         {
             return _data;

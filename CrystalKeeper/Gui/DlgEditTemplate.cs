@@ -100,7 +100,7 @@ namespace CrystalKeeper.Gui
 
         #region Private methods
         /// <summary>
-        /// Updates the gui field data.
+        /// Updates the gui fields to match the active field.
         /// </summary>
         private void UpdateFieldData()
         {
@@ -154,6 +154,42 @@ namespace CrystalKeeper.Gui
             gui.ChkbxFieldNameInline.IsChecked =
                 (bool)activeField.GetItem().GetData("isTitleInline");
 
+            //Sets visibility of image-specific field options.
+            if (dataType == TemplateFieldType.Images)
+            {
+                gui.FieldImageOptions.Visibility = Visibility.Visible;
+                gui.FieldImageOptions.IsEnabled = true;
+            }
+            else
+            {
+                gui.FieldImageOptions.Visibility = Visibility.Collapsed;
+                gui.FieldImageOptions.IsEnabled = false;
+            }
+
+            if (activeField != null)
+            {
+                //For image-specific fields, sets the anchor position.
+                switch ((TemplateImagePos)(int)activeField.GetItem().GetData("extraImagePos"))
+                {
+                    case TemplateImagePos.Above:
+                        gui.CmbxItemAbove.IsSelected = true;
+                        break;
+                    case TemplateImagePos.Left:
+                        gui.CmbxItemLeft.IsSelected = true;
+                        break;
+                    case TemplateImagePos.Right:
+                        gui.CmbxItemRight.IsSelected = true;
+                        break;
+                    case TemplateImagePos.Under:
+                        gui.CmbxItemUnder.IsSelected = true;
+                        break;
+                }
+
+                //Sets the default number of extra images.
+                gui.TxtbxNumImages.Text =
+                    ((byte)activeField.GetItem().GetData("numExtraImages")).ToString();
+            }
+
             //Shows or hides the unchangeable image field.
             if ((TemplateFieldType)ActiveField.GetItem()
                     .GetData("dataType") == TemplateFieldType.EntryImages)
@@ -175,8 +211,71 @@ namespace CrystalKeeper.Gui
         {
             gui = new DlgEditTemplateGui();
 
-            //Hides the images field by default.
+            //Hides the entry images field by default.
             gui.ItemTypeEntryImages.Visibility = Visibility.Collapsed;
+
+            #region Delete template
+            gui.TxtblkDelete.MouseDown += (a, b) =>
+            {
+                var cols = project.GetTemplateCollections(template);
+                MessageBoxResult result = MessageBoxResult.Yes;
+                if (cols.Count > 0)
+                {
+                    result = MessageBox.Show("This template is used by " +
+                        cols.Count + "collection(s). Deleting it will " +
+                        "delete all associated collections. Are you sure?",
+                        "Confirm deleting template", MessageBoxButton.YesNo);
+                }
+                else
+                {
+                    result = MessageBox.Show("You are about to delete " +
+                        "this template. Are you sure?", "Confirm deleting " +
+                        "template", MessageBoxButton.YesNo);
+                }
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    //Deletes all template collections.
+                    for (int i = 0; i < cols.Count; i++)
+                    {
+                        //Deletes all groups and their entry references.
+                        var childGrps = project.GetCollectionGroupings(cols[i]);
+                        for (int j = 0; j < childGrps.Count; j++)
+                        {
+                            //Deletes all entry references per group.
+                            var grpEntryRefs = project.GetGroupingEntryRefs(childGrps[j]);
+                            for (int k = 0; k < grpEntryRefs.Count; k++)
+                            {
+                                project.DeleteItem(grpEntryRefs[k]);
+                            }
+
+                            project.DeleteItem(childGrps[j]);
+                        }
+
+                        //Deletes all entries.
+                        var childEnts = project.GetCollectionEntries(cols[i]);
+                        for (int j = 0; j < childEnts.Count; j++)
+                        {
+                            //Deletes all entry fields per entry.
+                            var entryFields = project.GetEntryFields(childEnts[j]);
+                            for (int k = 0; k < entryFields.Count; k++)
+                            {
+                                project.DeleteItem(entryFields[k]);
+                            }
+
+                            project.DeleteItem(childEnts[j]);
+                        }
+
+                        project.DeleteItem(cols[i]);
+                    }
+
+                    project.DeleteItem(template);
+                }
+
+                gui.DialogResult = false;
+                gui.Close();
+            };
+            #endregion
 
             #region Template name
             //Sets the template name.
@@ -267,16 +366,20 @@ namespace CrystalKeeper.Gui
             });
             #endregion
 
-            #region Use one column
+            #region Use one column, Use two columns
+            bool isTwoColumn = (bool)template.GetData("twoColumns");
             //Is enabled when the template uses only one column.
-            gui.RadOneColumn.IsChecked = (!(bool)template.GetData("twoColumns"));
+            gui.RadOneColumn.IsChecked = (!isTwoColumn);
             gui.RadOneColumn.Checked += RadOneColumn_Checked;
-            #endregion
 
-            #region Use two columns
             //Is enabled when the template uses two columns.
-            gui.RadTwoColumns.IsChecked = (bool)template.GetData("twoColumns");
+            gui.RadTwoColumns.IsChecked = isTwoColumn;
             gui.RadTwoColumns.Checked += RadTwoColumns_Checked;
+
+            //Disables/enables the columns on load.
+            gui.LstbxCol2.IsEnabled = isTwoColumn;
+            gui.BttnMoveLeft.IsEnabled = isTwoColumn;
+            gui.BttnMoveRight.IsEnabled = isTwoColumn;
             #endregion
 
             #region Title font color
@@ -356,18 +459,15 @@ namespace CrystalKeeper.Gui
                 //Stores the template with the new column and position.
                 DataItem template = project.GetTemplateItemTemplate(ActiveField.GetItem());
                 DataItem newColumn;
-                int newOrder;
 
                 //Gets the new position of the field in the other column.
                 if (gui.LstbxCol1.Items.Contains(ActiveField))
                 {
                     newColumn = project.GetTemplateColumns(template).ElementAtOrDefault(1);
-                    newOrder = gui.LstbxCol2.Items.Count;
                 }
                 else
                 {
                     newColumn = project.GetTemplateColumns(template).ElementAtOrDefault(0);
-                    newOrder = gui.LstbxCol1.Items.Count;
                 }
 
                 ActiveField.GetItem().SetData("refGuid", newColumn.guid);
@@ -655,6 +755,12 @@ namespace CrystalKeeper.Gui
                 if (b.Key == Key.Delete && b.IsDown &&
                     ActiveField != null)
                 {
+                    //Cannot delete the special entry images field.
+                    if ((TemplateFieldType)(int)(ActiveField.GetItem().GetData("dataType")) == TemplateFieldType.EntryImages)
+                    {
+                        return;
+                    }
+
                     //Warns the user and asks for confirmation.
                     if (!funcWarnUser())
                     {
@@ -763,7 +869,7 @@ namespace CrystalKeeper.Gui
                     }
 
                     int indPos = activeBox.Items.IndexOf(ActiveField);
-                    if (indPos != 0)
+                    if (indPos > 0)
                     {
                         LstbxDataItem otherField = ((LstbxDataItem)(activeBox
                             .Items.GetItemAt(indPos - 1)));
@@ -830,8 +936,94 @@ namespace CrystalKeeper.Gui
             gui.CmbxDataType.SelectionChanged += CmbxDataType_SelectionChanged;
             gui.ChkbxFieldInvisible.Click += ChkbxFieldInvisible_Click;
             gui.ChkbxFieldNameInvisible.Click += ChkbxFieldNameInvisible_Click;
-            gui.ChkbxFieldNameInline.Click += ChkbxFieldNameInline_Click; ;
+            gui.ChkbxFieldNameInline.Click += ChkbxFieldNameInline_Click;
+            gui.CmbxFieldImageAnchor.SelectionChanged += CmbxFieldImageAnchor_SelectionChanged;
+            gui.TxtbxFieldNumImages.TextChanged += TxtbxFieldNumImages_TextChanged;
             gui.BttnSaveChanges.Click += BttnSaveChanges_Click;
+        }
+
+        /// <summary>
+        /// Stores the number of images for the associated image field.
+        /// </summary>
+        private void TxtbxFieldNumImages_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (activeField == null)
+            {
+                return;
+            }
+
+            //Filters non-numeric input.
+            string data = String.Empty;
+            for (int i = 0; i < gui.TxtbxNumImages.Text.Length; i++)
+            {
+                switch (gui.TxtbxNumImages.Text[i])
+                {
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        data += gui.TxtbxNumImages.Text[i];
+                        break;
+                    default:
+                        break;
+                }
+            }
+            gui.TxtbxNumImages.Text = data;
+
+            //Handles empty text.
+            if (String.IsNullOrWhiteSpace(gui.TxtbxNumImages.Text))
+            {
+                gui.TxtbxNumImages.Text = "0";
+            }
+
+            //Handles copy/pasted giant numbers.
+            byte testByte;
+            if (!Byte.TryParse(gui.TxtbxNumImages.Text, out testByte))
+            {
+                gui.TxtbxNumImages.Text = "100";
+            }
+            //Handles numbers in the byte range above 100.
+            else if (Byte.Parse(gui.TxtbxNumImages.Text) > 100)
+            {
+                gui.TxtbxNumImages.Text = "100";
+            }
+
+            //Sets the underlying data.
+            activeField.GetItem().SetData("numExtraImages", Byte.Parse(gui.TxtbxNumImages.Text));
+        }
+
+        /// <summary>
+        /// Stores the anchor position for the associated image field.
+        /// </summary>
+        private void CmbxFieldImageAnchor_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (activeField == null)
+            {
+                return;
+            }
+
+            if (gui.CmbxItemAbove.IsSelected)
+            {
+                activeField.GetItem().SetData("extraImagePos", (int)TemplateImagePos.Above);
+            }
+            else if (gui.CmbxItemLeft.IsSelected)
+            {
+                activeField.GetItem().SetData("extraImagePos", (int)TemplateImagePos.Left);
+            }
+            else if (gui.CmbxItemRight.IsSelected)
+            {
+                activeField.GetItem().SetData("extraImagePos", (int)TemplateImagePos.Right);
+            }
+            else if (gui.CmbxItemUnder.IsSelected)
+            {
+                activeField.GetItem().SetData("extraImagePos", (int)TemplateImagePos.Under);
+            }
         }
 
         /// <summary>
@@ -954,6 +1146,42 @@ namespace CrystalKeeper.Gui
             //Sets the field name's location relative to the field.
             gui.ChkbxFieldNameInline.IsChecked =
                 (bool)activeField.GetItem().GetData("isTitleInline");
+
+            //Sets visibility of image-specific field options.
+            if (gui.ItemTypeImages.IsSelected)
+            {
+                gui.FieldImageOptions.Visibility = Visibility.Visible;
+                gui.FieldImageOptions.IsEnabled = true;
+            }
+            else
+            {
+                gui.FieldImageOptions.Visibility = Visibility.Collapsed;
+                gui.FieldImageOptions.IsEnabled = false;
+            }
+
+            if (activeField != null)
+            {
+                //For image-specific fields, sets the anchor position.
+                switch ((TemplateImagePos)(int)activeField.GetItem().GetData("extraImagePos"))
+                {
+                    case TemplateImagePos.Above:
+                        gui.CmbxItemAbove.IsSelected = true;
+                        break;
+                    case TemplateImagePos.Left:
+                        gui.CmbxItemLeft.IsSelected = true;
+                        break;
+                    case TemplateImagePos.Right:
+                        gui.CmbxItemRight.IsSelected = true;
+                        break;
+                    case TemplateImagePos.Under:
+                        gui.CmbxItemUnder.IsSelected = true;
+                        break;
+                }
+
+                //Sets the default number of extra images.
+                gui.TxtbxNumImages.Text =
+                    ((byte)activeField.GetItem().GetData("numExtraImages")).ToString();
+            }
         }
 
         /// <summary>
@@ -1021,6 +1249,8 @@ namespace CrystalKeeper.Gui
 
             //Enables column 2.
             gui.LstbxCol2.IsEnabled = true;
+            gui.BttnMoveLeft.IsEnabled = true;
+            gui.BttnMoveRight.IsEnabled = true;
         }
 
         /// <summary>
@@ -1034,12 +1264,31 @@ namespace CrystalKeeper.Gui
             //Appends all items from column 2 to column 1.
             for (int i = 0; i < gui.LstbxCol2.Items.Count; i++)
             {
-                gui.LstbxCol1.Items.Add(gui.LstbxCol2.Items.GetItemAt(i));
+                var item = (LstbxDataItem)gui.LstbxCol2.Items.GetItemAt(i);
+
+                //Stores the template with the new column and position.
+                DataItem template = project.GetTemplateItemTemplate(item.GetItem());
+                DataItem leftCol = project.GetTemplateColumns(template).ElementAt(0);
+
+                item.GetItem().SetData("refGuid", leftCol.guid);
+
+                //Moves the item to the other column.
+                gui.LstbxCol2.Items.Remove(item);
+                gui.LstbxCol1.Items.Add(item);
+                i--;
             }
-            gui.LstbxCol2.Items.Clear();
+
+            //Refreshes column order.
+            for (int i = 0; i < gui.LstbxCol1.Items.Count; i++)
+            {
+                ((LstbxDataItem)gui.LstbxCol1.Items.GetItemAt(i))
+                    .GetItem().SetData("columnOrder", i);
+            }
 
             //Disables column 2.
             gui.LstbxCol2.IsEnabled = false;
+            gui.BttnMoveLeft.IsEnabled = false;
+            gui.BttnMoveRight.IsEnabled = false;
         }
 
         /// <summary>
@@ -1078,7 +1327,8 @@ namespace CrystalKeeper.Gui
             }
 
             //Handles copy/pasted giant numbers.
-            if (!Byte.TryParse(gui.TxtbxNumImages.Text, out byte testByte))
+            byte testByte;
+            if (!Byte.TryParse(gui.TxtbxNumImages.Text, out testByte))
             {
                 gui.TxtbxNumImages.Text = "100";
             }

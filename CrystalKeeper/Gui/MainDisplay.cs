@@ -321,6 +321,13 @@ namespace CrystalKeeper.Gui
                     SetPage();
                 };
             }
+
+            //Handles template deletion.
+            else if (!projectCopy.Items.Contains(template))
+            {
+                project.Items.Remove(template);
+                gui.GuiMenuTemplates.Items.Remove(newMenuItem);
+            }
         }
 
         /// <summary>
@@ -901,7 +908,7 @@ namespace CrystalKeeper.Gui
 
         /// <summary>
         /// Displays items selected in the treeview. Sets the visibility of
-        /// search fields and add textboxes.
+        /// search fields and new item textboxes.
         /// </summary>
         private void GuiTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
@@ -987,7 +994,7 @@ namespace CrystalKeeper.Gui
                     items.AddRange(project.GetTemplateColumnFields(cols[i]));
                 }
 
-                //Populates each item and handles filtering.
+                //Clears filter field options before recreating them.
                 gui.GuiSearchField.Items.Clear();
 
                 //Adds an item to search by name.
@@ -998,7 +1005,8 @@ namespace CrystalKeeper.Gui
                     treeviewFilterField = null;
                 };
                 gui.GuiSearchField.Items.Add(defaultItem);
-                
+                defaultItem.IsSelected = true;
+
 
                 //Adds each other non-image template field for searching.
                 for (int i = 0; i < items.Count; i++)
@@ -1016,7 +1024,7 @@ namespace CrystalKeeper.Gui
                     CmbxDataItem comboItem = new CmbxDataItem(items[i]);
 
                     //Sets the filter field on click.
-                    comboItem.MouseDown += (c, d) =>
+                    comboItem.Selected += (c, d) =>
                     {
                         treeviewFilterField = comboItem.GetItem();
                     };
@@ -1036,7 +1044,8 @@ namespace CrystalKeeper.Gui
         private void RefreshTreeviewFilter(object sender, TextChangedEventArgs e)
         {
             //FIXME: Prevents focus from resetting to the database and
-            //disabling the search textbox. Sloppy, find a better method.
+            //disabling the search textbox. Filter all collections when
+            //database is selected instead, then don't disable event.
             gui.GuiTreeView.SelectedItemChanged -= GuiTreeView_SelectedItemChanged;
 
             treeviewFilterText = gui.GuiTreeViewSearch.Text;
@@ -1072,7 +1081,7 @@ namespace CrystalKeeper.Gui
                     }
                 }
             }
-            
+
             //Handles removing items from the treeview.
             else if (e.Action == NotifyCollectionChangedAction.Remove)
             {
@@ -1381,15 +1390,16 @@ namespace CrystalKeeper.Gui
                             //Gets the entry from the reference and the field
                             //that matches the filter field.
                             var entry = project.GetEntryRefEntry(grpRefs[k]);
-                            var fields = project.GetEntryFields(entry).Where((item) =>
+                            var fields = project.GetEntryFields(entry);
+                            var field = fields.FirstOrDefault((item) =>
                             {
-                                return item.guid == treeviewFilterField.guid;
+                                return project.GetFieldTemplateField(item) ==
+                                    treeviewFilterField;
                             });
-                            var field = fields.FirstOrDefault();
 
                             //Gets the type of data to search.
                             object fieldData = field.GetData("data");
-                            var templateType = (TemplateFieldType)(int)field.GetData("dataType");
+                            var templateType = (TemplateFieldType)(int)treeviewFilterField.GetData("dataType");
                             if (templateType == TemplateFieldType.Text ||
                                 templateType == TemplateFieldType.Min_Formula ||
                                 templateType == TemplateFieldType.Min_Name ||
@@ -1462,8 +1472,6 @@ namespace CrystalKeeper.Gui
                     {
                         //Opens the edit template dialog for it.
                         var dlg = new DlgEditTemplate(project, itemTemplate);
-                        dlg.ShowDialog();
-                        item.Refresh();
 
                         //Updates the template name to match.
                         dlg.DataNameChanged += new EventHandler((c, d) =>
@@ -1471,12 +1479,21 @@ namespace CrystalKeeper.Gui
                             item.Refresh();
                         });
 
+                        //Updates the template list for a deleted template.
+                        if (dlg.ShowDialog() == false &&
+                            !project.Items.Contains(itemTemplate))
+                        {
+                            gui.GuiMenuTemplates.Items.Remove(item);
+                        }
+
+                        item.Refresh();
+
                         //Updates the gui if non-template data changes.
                         if (dlg.ReferencesInvalidated)
                         {
                             ConstructVisuals();
                             SetPage();
-                        };
+                        }
                     });
                 }
             }
@@ -1837,7 +1854,7 @@ namespace CrystalKeeper.Gui
 
                 //Images don't refresh dynamically, so rebuild the page.
                 //TODO: Stop tearing down the house to kill a spider...
-                page.InvalidateEntirePage += new EventHandler((a, b) =>
+                page.InvalidatePage += new EventHandler((a, b) =>
                 {
                     SetPage();
                     return;
