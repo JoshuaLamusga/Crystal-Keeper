@@ -492,18 +492,39 @@ namespace CrystalKeeper.Gui
             var funcFieldSelected = new Action<LstbxDataItem>((newItem) =>
             {
                 ActiveField = newItem;
+                var type = (TemplateFieldType)newItem.GetItem().GetData("dataType");
 
-                //Shows or hides the images field.
-                if ((TemplateFieldType)newItem.GetItem()
-                        .GetData("dataType") == TemplateFieldType.EntryImages)
+                //Disables the combobox when there are no interchangeable fields.
+                gui.CmbxDataType.IsEnabled = !(type == TemplateFieldType.Images ||
+                    type == TemplateFieldType.EntryImages ||
+                    type == TemplateFieldType.MoneyUSD);
+
+                //Hides non-interchangeable fields.
+                if (type == TemplateFieldType.Hyperlink ||
+                type == TemplateFieldType.Min_Formula ||
+                type == TemplateFieldType.Min_Group ||
+                type == TemplateFieldType.Min_Locality ||
+                type == TemplateFieldType.Min_Name ||
+                type == TemplateFieldType.Text)
+                {
+                    gui.CmbxDataType.IsEnabled = true;
+                    gui.ItemTypeImages.Visibility = Visibility.Collapsed;
+                    gui.ItemTypeMoneyUSD.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    gui.ItemTypeImages.Visibility = Visibility.Visible;
+                    gui.ItemTypeMoneyUSD.Visibility = Visibility.Visible;
+                }
+
+                //Shows or hides the entry images field.
+                if (type == TemplateFieldType.EntryImages)
                 {
                     gui.ItemTypeEntryImages.Visibility = Visibility.Visible;
-                    gui.CmbxDataType.IsEnabled = false;
                 }
                 else
                 {
                     gui.ItemTypeEntryImages.Visibility = Visibility.Collapsed;
-                    gui.CmbxDataType.IsEnabled = true;
                 }
 
                 //Ensures only one item is selected at once.
@@ -587,11 +608,46 @@ namespace CrystalKeeper.Gui
                         {
                             if ((bool)cols[i].GetData("isFirstColumn"))
                             {
+                                //Sets the new field's data type.
+                                TemplateFieldType newType = TemplateFieldType.Text;
+                                if (gui.NewItemTypeEntryMinFormula.IsSelected)
+                                {
+                                    newType = TemplateFieldType.Min_Formula;
+                                }
+                                else if (gui.NewItemTypeEntryMinGroup.IsSelected)
+                                {
+                                    newType = TemplateFieldType.Min_Group;
+                                }
+                                else if (gui.NewItemTypeEntryMinLocality.IsSelected)
+                                {
+                                    newType = TemplateFieldType.Min_Locality;
+                                }
+                                else if (gui.NewItemTypeEntryMinName.IsSelected)
+                                {
+                                    newType = TemplateFieldType.Min_Name;
+                                }
+                                else if (gui.NewItemTypeHyperlink.IsSelected)
+                                {
+                                    newType = TemplateFieldType.Hyperlink;
+                                }
+                                else if (gui.NewItemTypeImages.IsSelected)
+                                {
+                                    newType = TemplateFieldType.Images;
+                                }
+                                else if (gui.NewItemTypeMoneyUSD.IsSelected)
+                                {
+                                    newType = TemplateFieldType.MoneyUSD;
+                                }
+                                else if (gui.NewItemTypeText.IsSelected)
+                                {
+                                    newType = TemplateFieldType.Text;
+                                }
+
                                 //Adds the new field to the left-hand column by default.
                                 ulong newField = project.AddTemplateField(
                                     gui.TxtbxNewField.Text,
                                     cols[i].guid,
-                                    TemplateFieldType.Text,
+                                    newType,
                                     true, true, true,
                                     project.GetTemplateColumnFields(cols[i]).Count);
 
@@ -623,7 +679,19 @@ namespace CrystalKeeper.Gui
                                     }
                                 });
 
+                                //Adds the new field to each entry in the template.
+                                List<DataItem> collections = project.GetTemplateCollections(template);
+                                for (int j = 0; j < collections.Count; j++)
+                                {
+                                    List<DataItem> entries = project.GetCollectionEntries(collections[j]);
+                                    for (int k = 0; k < entries.Count; k++)
+                                    {
+                                        project.AddField(entries[k].guid, newField, "");
+                                    }
+                                }
+
                                 newItem.IsSelected = true;
+                                break;
                             }
                         }
                     }
@@ -674,7 +742,8 @@ namespace CrystalKeeper.Gui
                     ActiveField != null)
                 {
                     //Cannot delete the special entry images field.
-                    if ((TemplateFieldType)(int)(ActiveField.GetItem().GetData("dataType")) == TemplateFieldType.EntryImages)
+                    if ((TemplateFieldType)(int)(ActiveField.GetItem().GetData("dataType")) ==
+                        TemplateFieldType.EntryImages)
                     {
                         return;
                     }
@@ -751,12 +820,12 @@ namespace CrystalKeeper.Gui
             gui.LstbxCol2.KeyDown += new KeyEventHandler((a, b) =>
             {
                 #region Delete key pressed: Delete field
-                //Deletes a field and moves all fields under it up 1.
                 if (b.Key == Key.Delete && b.IsDown &&
                     ActiveField != null)
                 {
                     //Cannot delete the special entry images field.
-                    if ((TemplateFieldType)(int)(ActiveField.GetItem().GetData("dataType")) == TemplateFieldType.EntryImages)
+                    if ((TemplateFieldType)(int)(ActiveField.GetItem().GetData("dataType")) ==
+                        TemplateFieldType.EntryImages)
                     {
                         return;
                     }
@@ -768,10 +837,6 @@ namespace CrystalKeeper.Gui
                     }
 
                     gui.LstbxCol2.Items.Remove(ActiveField);
-                    project.Items.Remove(ActiveField.GetItem());
-
-                    //Stores fields removed by the following procedure.
-                    List<DataItem> removedFields = new List<DataItem>();
 
                     //For each collection using this template.
                     DataItem template = project.GetTemplateItemTemplate(ActiveField.GetItem());
@@ -788,16 +853,22 @@ namespace CrystalKeeper.Gui
                             for (int k = 0; k < entryFields.Count; k++)
                             {
                                 DataItem field = project.GetFieldTemplateField(entryFields[k]);
-                                if (ActiveField.GetItem().Equals(field))
+                                if (ActiveField.GetItem().guid == field.guid)
                                 {
-                                    removedFields.Add(field);
-                                    project.Items.Remove(field);
+                                    project.Items.Remove(entryFields[k]);
                                 }
                             }
                         }
-
-                        funcRefreshOrder();
                     }
+
+                    //Deletes the template field last.
+                    project.Items.Remove(ActiveField.GetItem());
+
+                    //Refreshes the gui.
+                    funcRefreshOrder();
+
+                    //Indicates the main display needs to be refreshed.
+                    referencesInvalidated = true;
                 }
                 #endregion
 
@@ -1089,11 +1160,7 @@ namespace CrystalKeeper.Gui
                 return;
             }
 
-            if (gui.ItemTypeEntryImages.IsSelected)
-            {
-                activeField.GetItem().SetData("dataType",
-                    (int)TemplateFieldType.EntryImages);
-            }
+            //Sets the desired data type.
             else if (gui.ItemTypeText.IsSelected)
             {
                 activeField.GetItem().SetData("dataType",

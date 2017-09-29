@@ -5,24 +5,19 @@
         Title="Images" Height="600" Width="800"
         WindowStartupLocation="CenterScreen">
     <Grid Name="GuiGrid">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto"></ColumnDefinition>
-            <ColumnDefinition></ColumnDefinition>
-        </Grid.ColumnDefinitions>
         <ScrollViewer
-            Grid.Column="0"
             HorizontalScrollBarVisibility="Auto"
             VerticalScrollBarVisibility="Auto">
-        <ListBox Name="GuiList"
+            <ListBox Name="GuiList"
             HorizontalAlignment="Left"
             Height="{Binding ElementName=GuiGrid, Path=ActualHeight}"
-            VerticalAlignment="Top"
-            Width="100px"/>
+            MaxWidth="300px"
+            VerticalAlignment="Top"/>
         </ScrollViewer>
-        <local:ZoomBorder ClipToBounds="True">
-        <Image Name="GuiImage"
-                Grid.Column="1"
-                Stretch="None"/>
+        <local:ZoomBorder x:Name="GuiImageBorder">
+            <Image Name="GuiImage"
+                Stretch="None"
+                HorizontalAlignment="Center"/>
         </local:ZoomBorder>
     </Grid>
 </Window>

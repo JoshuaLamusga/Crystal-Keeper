@@ -315,6 +315,7 @@ namespace CrystalKeeper.Gui
                     fieldDataGui.Gui.textbox.Text = (string)fieldData;
                     fieldDataGui.Gui.textbox.TextWrapping = TextWrapping.Wrap;
                     fieldDataGui.SearchByWord = true;
+                    fieldDataGui.HideSuggestions();
 
                     //Enables the data to be changed.
                     fieldDataGui.Gui.textbox.TextChanged += (a, b) =>

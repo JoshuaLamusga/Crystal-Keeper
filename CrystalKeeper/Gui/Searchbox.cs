@@ -136,17 +136,36 @@ namespace CrystalKeeper.Gui
         {
             gui.suggestions.Visibility = System.Windows.Visibility.Collapsed;
             gui.textbox.TextChanged += HandlerRefreshSuggestions;
-            gui.textbox.PreviewKeyDown += SwitchToSuggestionBox;
+            gui.textbox.PreviewKeyDown += Textbox_TextChanged;
+            gui.suggestions.PreviewKeyDown += Suggestions_PreviewKeyDown;
         }
 
         /// <summary>
-        /// Handles keyboard shortcuts to switch from textbox to suggestions.
+        /// Hides the suggestions when they lose focus.
         /// </summary>
-        private void SwitchToSuggestionBox(object sender, System.Windows.Input.KeyEventArgs e)
+        private void Suggestions_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
+            if (e.Key == System.Windows.Input.Key.Tab)
+            {
+                HideSuggestions();
+            }
+        }
+
+        /// <summary>
+        /// Simulates functionality of searchboxes from other gui systems.
+        /// </summary>
+        private void Textbox_TextChanged(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            //Switches from textbox to suggestions box.
             if (e.Key == System.Windows.Input.Key.Down)
             {
                 gui.suggestions.Focus();
+            }
+
+            //Closes suggestions when escape is pressed.
+            else if (e.Key == System.Windows.Input.Key.Escape)
+            {
+                HideSuggestions();
             }
         }
 
