@@ -335,7 +335,8 @@ namespace CrystalKeeper.Gui
                     }
 
                     //Creates the hyperlink only if it's a valid internet url.
-                    if (Uri.TryCreate(url, UriKind.Absolute, out Uri uriResult) &&
+                    Uri uriResult;
+                    if (Uri.TryCreate(url, UriKind.Absolute, out uriResult) &&
                         (uriResult.Scheme == Uri.UriSchemeHttp ||
                         uriResult.Scheme == Uri.UriSchemeHttps))
                     {
@@ -449,11 +450,7 @@ namespace CrystalKeeper.Gui
                     }
 
                     //Gets whether the image is animated or not.
-                    string isAnimatedStr = allData[0];
-                    if (isAnimatedStr == "True")
-                    {
-                        isAnimated = true;
-                    }
+                    isAnimated = (allData[0] == "True");
 
                     //Gets url data.
                     loadedUrls = allData.GetRange(1, allData.Count - 1);
@@ -486,11 +483,24 @@ namespace CrystalKeeper.Gui
                     //Still images that do not rotate and are not movies.
                     if (!isAnimated)
                     {
+                        StackPanel imagesContainer = new StackPanel();
+
                         //Creates an image for each url.
                         for (int j = 0; j < loadedUrls.Count; j++)
                         {
                             ImgThumbnail thumbnail = new ImgThumbnail(loadedUrls[j]);
-                            thumbnail.Margin = new Thickness(2, 4, 2, 12);
+
+                            //Sets margins based on orientation.
+                            if (templateType == TemplateFieldType.EntryImages &&
+                                (tExtraImagePos == TemplateImagePos.Left ||
+                                tExtraImagePos == TemplateImagePos.Right))
+                            {
+                                thumbnail.Margin = new Thickness(4, 2, 12, 2);
+                            }
+                            else
+                            {
+                                thumbnail.Margin = new Thickness(2, 4, 2, 12);
+                            }
 
                             //Resizes the image.
                             thumbnail.Loaded += (a, b) =>
@@ -506,8 +516,45 @@ namespace CrystalKeeper.Gui
                                 }
                             };
 
-                            elementsContainer.Children.Add(thumbnail);
+                            imagesContainer.Children.Add(thumbnail);
+
+                            //Exits when 1 + number of extra images are displayed.
+                            if (templateType == TemplateFieldType.EntryImages &&
+                                j == tNumExtraImages &&
+                                tNumExtraImages > 0)
+                            {
+                                break;
+                            }
                         }
+
+                        if (templateType == TemplateFieldType.EntryImages)
+                        {
+                            //Reverses element order.
+                            if (tExtraImagePos == TemplateImagePos.Above ||
+                                tExtraImagePos == TemplateImagePos.Left)
+                            {
+                                List<UIElement> elements = new List<UIElement>();
+                                for (int j = 0; j < imagesContainer.Children.Count; j++)
+                                {
+                                    elements.Add(imagesContainer.Children[j]);
+                                }
+                                elements.Reverse();
+                                imagesContainer.Children.Clear();
+                                for (int j = 0; j < elements.Count; j++)
+                                {
+                                    imagesContainer.Children.Add(elements[j]);
+                                }
+                            }
+
+                            //Changes orientation.
+                            if (tExtraImagePos == TemplateImagePos.Left ||
+                                tExtraImagePos == TemplateImagePos.Right)
+                            {
+                                imagesContainer.Orientation = Orientation.Horizontal;
+                            }
+                        }
+
+                        elementsContainer.Children.Add(imagesContainer);
                     }
 
                     //Images that rotate or are movies.

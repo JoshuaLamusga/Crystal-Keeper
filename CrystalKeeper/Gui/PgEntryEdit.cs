@@ -49,7 +49,7 @@ namespace CrystalKeeper.Gui
         /// <summary>
         /// TODO: Find a better way to get an image to refresh dynamically...
         /// </summary>
-        public event EventHandler InvalidateEntirePage;
+        public event EventHandler InvalidatePage;
         #endregion
 
         #region Properties
@@ -315,6 +315,7 @@ namespace CrystalKeeper.Gui
                     fieldDataGui.Gui.textbox.Text = (string)fieldData;
                     fieldDataGui.Gui.textbox.TextWrapping = TextWrapping.Wrap;
                     fieldDataGui.SearchByWord = true;
+                    fieldDataGui.HideSuggestions();
 
                     //Enables the data to be changed.
                     fieldDataGui.Gui.textbox.TextChanged += (a, b) =>
@@ -337,7 +338,7 @@ namespace CrystalKeeper.Gui
                     elementsContainer.Children.Add(fieldNameGui);
                     elementsContainer.Children.Add(fieldDataGui.Gui);
                 }
-                
+
                 //Displays money in the USD format.
                 //Data is stored as a 2-element string array.
                 else if (templateType == TemplateFieldType.MoneyUSD)
@@ -383,7 +384,7 @@ namespace CrystalKeeper.Gui
                         var strings = (string[])field.GetData("data");
                         strings[1] = fieldData2Gui.Text;
                     };
-                    
+
                     WrapPanel fieldsContainer = new WrapPanel();
                     fieldsContainer.Margin = new Thickness(2, 4, 2, 0);
                     fieldsContainer.Orientation = Orientation.Horizontal;
@@ -462,16 +463,31 @@ namespace CrystalKeeper.Gui
                         string newData = options + "|" + string.Join("|", loadedUrls);
                         field.SetData("data", newData);
 
-                        InvalidateEntirePage?.Invoke(this, null);
+                        InvalidatePage?.Invoke(this, null);
                     };
 
                     if (!isAnimated)
                     {
+                        StackPanel imagesContainer = new StackPanel();
+
                         //Creates an image for each url.
                         for (int j = 0; j < loadedUrls.Count; j++)
                         {
                             ImgThumbnail thumbnail = new ImgThumbnail(loadedUrls[j], false);
                             bool isUrlValid = true;
+
+                            //Sets margins based on orientation.
+                            if (templateType == TemplateFieldType.EntryImages &&
+                                (tExtraImagePos == TemplateImagePos.Left ||
+                                tExtraImagePos == TemplateImagePos.Right))
+                            {
+                                thumbnail.Margin = new Thickness(4, 2, 12, 2);
+                            }
+                            else
+                            {
+                                thumbnail.Margin = new Thickness(2, 4, 2, 12);
+                            }
+
                             int index = j; //For lambda capture.
 
                             //Sets up an upload image button.
@@ -513,7 +529,7 @@ namespace CrystalKeeper.Gui
                                 bttnUpload.Source = newImg;
                             };
 
-                            //Handles uploading an image to change it.
+                            //Handles uploading images.
                             bttnUpload.MouseDown += (a, b) =>
                             {
                                 OpenFileDialog dlg = new OpenFileDialog();
@@ -524,6 +540,7 @@ namespace CrystalKeeper.Gui
                                     dlg.InitialDirectory = loadedUrls.First();
                                 }
 
+                                dlg.Multiselect = true;
                                 dlg.CheckPathExists = true;
                                 dlg.Filter = "images|*.bmp;*.jpg;*.jpeg;*.gif;*.tif;*.tiff;*.png";
                                 dlg.FilterIndex = 0;
@@ -531,14 +548,24 @@ namespace CrystalKeeper.Gui
 
                                 if (dlg.ShowDialog() == true)
                                 {
-                                    loadedUrls[index] = dlg.FileName;
-                                    string options = (isAnimated) ? "True" : "False";
-                                    string newData = string.Join("|", loadedUrls);
-                                    newData = options + "|" + newData;
-                                    field.SetData("data", newData);
+                                    for (int k = 0; k < dlg.FileNames.Length; k++)
+                                    {
+                                        if (k == 0)
+                                        {
+                                            loadedUrls[index] = dlg.FileNames[k];
+                                        }
+                                        else
+                                        {
+                                            loadedUrls.Add(dlg.FileNames[k]);
+                                        }
+                                        string options = (isAnimated) ? "True" : "False";
+                                        string newData = string.Join("|", loadedUrls);
+                                        newData = options + "|" + newData;
+                                        field.SetData("data", newData);
+                                    }
 
                                     //TODO: Invalidates the page to update.
-                                    InvalidateEntirePage?.Invoke(this, null);
+                                    InvalidatePage?.Invoke(this, null);
                                 }
                             };
 
@@ -579,7 +606,7 @@ namespace CrystalKeeper.Gui
                                     field.SetData("data", newData);
 
                                     //TODO: Invalidates the page to update.
-                                    InvalidateEntirePage?.Invoke(this, null);
+                                    InvalidatePage?.Invoke(this, null);
                                 }
                             };
 
@@ -607,6 +634,33 @@ namespace CrystalKeeper.Gui
                             if (templateType == TemplateFieldType.EntryImages && tCenterImages)
                             {
                                 contentControls.HorizontalAlignment = HorizontalAlignment.Center;
+                            }
+
+                            if (templateType == TemplateFieldType.EntryImages)
+                            {
+                                //Reverses element order.
+                                if (tExtraImagePos == TemplateImagePos.Above ||
+                                    tExtraImagePos == TemplateImagePos.Left)
+                                {
+                                    List<UIElement> elements = new List<UIElement>();
+                                    for (int k = 0; k < imagesContainer.Children.Count; k++)
+                                    {
+                                        elements.Add(imagesContainer.Children[k]);
+                                    }
+                                    elements.Reverse();
+                                    imagesContainer.Children.Clear();
+                                    for (int k = 0; k < elements.Count; k++)
+                                    {
+                                        imagesContainer.Children.Add(elements[k]);
+                                    }
+                                }
+
+                                //Changes orientation.
+                                if (tExtraImagePos == TemplateImagePos.Left ||
+                                    tExtraImagePos == TemplateImagePos.Right)
+                                {
+                                    imagesContainer.Orientation = Orientation.Horizontal;
+                                }
                             }
 
                             StackPanel imageControls = new StackPanel();
@@ -659,7 +713,7 @@ namespace CrystalKeeper.Gui
                                             field.SetData("data", newData);
 
                                             //Invalidates the page to update.
-                                            InvalidateEntirePage?.Invoke(this, null);
+                                            InvalidatePage?.Invoke(this, null);
                                         }
                                     };
 
@@ -705,7 +759,7 @@ namespace CrystalKeeper.Gui
                                 newData = options + "|" + newData;
                                 field.SetData("data", newData);
 
-                                InvalidateEntirePage?.Invoke(this, null);
+                                InvalidatePage?.Invoke(this, null);
                                 return;
                             }
                         }
@@ -780,7 +834,7 @@ namespace CrystalKeeper.Gui
                                 field.SetData("data", newData);
 
                                 //TODO: Invalidates the page to update.
-                                InvalidateEntirePage?.Invoke(this, null);
+                                InvalidatePage?.Invoke(this, null);
                             }
                         };
 
@@ -817,7 +871,7 @@ namespace CrystalKeeper.Gui
                                 field.SetData("data", options);
 
                                 //TODO: Invalidates the page to update.
-                                InvalidateEntirePage?.Invoke(this, null);
+                                InvalidatePage?.Invoke(this, null);
                             }
                         };
 

@@ -65,7 +65,7 @@ namespace CrystalKeeper.Core
         /// </summary>
         public bool Equals(DataItem item)
         {
-            return (guid == item.guid);
+            return (guid == item?.guid);
         }
 
         /// <summary>

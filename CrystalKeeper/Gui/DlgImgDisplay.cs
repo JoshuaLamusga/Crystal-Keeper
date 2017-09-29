@@ -112,9 +112,11 @@ namespace CrystalKeeper.Gui
                 return;
             }
 
-            //Load the image from the url and write errors to a log.
+            //Loads the image from the url and writes errors to a log.
             try
             {
+                gui.GuiImageBorder.Reset();
+
                 //Synchronizes thread access to change source.
                 Action action = delegate
                 {

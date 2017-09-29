@@ -207,6 +207,7 @@
     <Compile Include="Gui\SearchboxGui.xaml.cs">
       <DependentUpon>SearchboxGui.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Gui\ZoomBorder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

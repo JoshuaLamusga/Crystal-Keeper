@@ -2,6 +2,9 @@
 using System.IO;
 using CrystalKeeper.GuiCore;
 using System.Runtime.Serialization.Formatters.Binary;
+using Microsoft.Win32;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CrystalKeeper.Core
 {
@@ -10,6 +13,113 @@ namespace CrystalKeeper.Core
     /// </summary>
     static class Utils
     {
+        #region Members
+        /// <summary>
+        /// Stores paths to recently opened files.
+        /// </summary>
+        private static string regOpenRecent;
+        #endregion
+
+        #region Static Constructor
+        /// <summary>
+        /// Initializes static members.
+        /// </summary>
+        static Utils()
+        {
+            regOpenRecent = "";
+            RegistryKey key;
+
+            //Opens or creates the main crystal keeper entry.
+            key = Registry.CurrentUser
+                .CreateSubKey("software",
+                RegistryKeyPermissionCheck.ReadWriteSubTree)
+                .CreateSubKey("Crystal Keeper",
+                RegistryKeyPermissionCheck.ReadWriteSubTree);
+
+            //Gets recent files.
+            object recentFiles = key.GetValue("recentFiles");
+            if (recentFiles != null)
+            {
+                regOpenRecent = (string)recentFiles;
+            }
+
+            key.Close();
+        }
+        #endregion
+
+        #region Public Methods
+        /// <summary>
+        /// Returns a list of recently opened urls, if any.
+        /// </summary>
+        public static string GetRecentlyOpened()
+        {
+            return regOpenRecent;
+        }
+
+        /// <summary>
+        /// Stores up to 10 unique urls as recently opened files.
+        /// </summary>
+        public static void RegAddRecentlyOpen(string url)
+        {
+            List<string> urls = new List<string>();
+            if (regOpenRecent != "")
+            {
+                urls = regOpenRecent.Split('|').ToList();
+            }
+
+            //Inserts the url at the start of the pipe-separated list.
+            urls.Remove(url);
+            urls.Insert(0, url);
+            if (urls.Count > 3)
+            {
+                urls.RemoveAt(urls.Count - 1);
+            }
+
+            //Merges all urls into one string.
+            url = "";
+            for (int i = 0; i < urls.Count; i++)
+            {
+                url += urls[i];
+                if (i != urls.Count - 1)
+                {
+                    url += "|";
+                }
+            }
+
+            regOpenRecent = url;
+            SaveRegistryValues();
+        }
+
+        /// <summary>
+        /// Removes the given url from the recently open files list,
+        /// returning success.
+        /// </summary>
+        public static bool RegRemoveRecentlyOpen(string url)
+        {
+            List<string> urls = regOpenRecent.Split('|').ToList();
+
+            //Removes the url.
+            if (urls.Remove(url))
+            {
+                //Merges all urls into one string.
+                url = "";
+                for (int i = 0; i < urls.Count; i++)
+                {
+                    url += urls[i];
+                    if (i != urls.Count - 1)
+                    {
+                        url += "|";
+                    }
+                }
+
+                regOpenRecent = url;
+                SaveRegistryValues();
+                return true;
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Logs a message, pre-formatted with the date, to logs.txt.
         /// </summary>
@@ -223,5 +333,27 @@ namespace CrystalKeeper.Core
                 return absUrl;
             }
         }
+        #endregion
+
+        #region Private Methods
+        /// <summary>
+        /// Saves all values for the registry in their current state.
+        /// </summary>
+        private static void SaveRegistryValues()
+        {
+            RegistryKey key;
+
+            //Opens or creates the main crystal keeper entry.
+            key = Registry.CurrentUser
+                .CreateSubKey("software",
+                RegistryKeyPermissionCheck.ReadWriteSubTree)
+                .CreateSubKey("Crystal Keeper",
+                RegistryKeyPermissionCheck.ReadWriteSubTree);
+
+            //Stores recent file URLs.
+            key.SetValue("recentFiles", regOpenRecent);
+            key.Close();
+        }
+        #endregion
     }
 }

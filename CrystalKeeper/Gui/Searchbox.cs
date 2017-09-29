@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CrystalKeeper.GuiCore;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -113,6 +114,20 @@ namespace CrystalKeeper.Gui
         }
         #endregion
 
+        #region Public Methods
+        /// <summary>
+        /// Hides all suggestions to display only the text field.
+        /// </summary>
+        public void HideSuggestions()
+        {
+            //Clears all old suggestions.
+            gui.suggestions.Items.Clear();
+
+            //Hides the suggestions and adds the text.
+            gui.suggestions.Visibility = System.Windows.Visibility.Collapsed;
+        }
+        #endregion
+
         #region Private Methods
         /// <summary>
         /// Sets handlers for all default behavior.
@@ -120,9 +135,38 @@ namespace CrystalKeeper.Gui
         private void SetHandlers()
         {
             gui.suggestions.Visibility = System.Windows.Visibility.Collapsed;
-
-            //Simulates filtering.
             gui.textbox.TextChanged += HandlerRefreshSuggestions;
+            gui.textbox.PreviewKeyDown += Textbox_TextChanged;
+            gui.suggestions.PreviewKeyDown += Suggestions_PreviewKeyDown;
+        }
+
+        /// <summary>
+        /// Hides the suggestions when they lose focus.
+        /// </summary>
+        private void Suggestions_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Tab)
+            {
+                HideSuggestions();
+            }
+        }
+
+        /// <summary>
+        /// Simulates functionality of searchboxes from other gui systems.
+        /// </summary>
+        private void Textbox_TextChanged(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            //Switches from textbox to suggestions box.
+            if (e.Key == System.Windows.Input.Key.Down)
+            {
+                gui.suggestions.Focus();
+            }
+
+            //Closes suggestions when escape is pressed.
+            else if (e.Key == System.Windows.Input.Key.Escape)
+            {
+                HideSuggestions();
+            }
         }
 
         /// <summary>
@@ -190,7 +234,7 @@ namespace CrystalKeeper.Gui
         /// the text changes. Opens the suggestions if they don't exist.
         /// </summary>
         private void RefreshSuggestions()
-        {            
+        {
             //Clears all old suggestions.
             gui.suggestions.Items.Clear();
 
@@ -217,10 +261,22 @@ namespace CrystalKeeper.Gui
             {
                 ListBoxItem item = new ListBoxItem();
                 item.Content = filteredSuggestions[i].Item1;
-                item.Selected += (a, b) =>
+
+                //Clicking selects the item.
+                item.PreviewMouseLeftButtonDown += (sender, e) =>
                 {
                     SelectSuggestion((string)item.Content);
                 };
+
+                //Pressing enter selects the item.
+                item.KeyDown += (sender, e) =>
+                {
+                    if (e.Key == System.Windows.Input.Key.Enter)
+                    {
+                        SelectSuggestion((string)item.Content);
+                    }
+                };
+
                 gui.suggestions.Items.Add(item);
 
                 MenuItemAdded?.Invoke(item);
@@ -239,21 +295,9 @@ namespace CrystalKeeper.Gui
         }
 
         /// <summary>
-        /// Hides all suggestions to display only the text field.
-        /// </summary>
-        private void HideSuggestions()
-        {
-            //Clears all old suggestions.
-            gui.suggestions.Items.Clear();
-
-            //Hides the suggestions and adds the text.
-            gui.suggestions.Visibility = System.Windows.Visibility.Collapsed;
-        }
-
-        /// <summary>
         /// Returns an un-accented copy of the given string.
         /// </summary>
-        public static string RemoveDiacritics(string str)
+        private static string RemoveDiacritics(string str)
         {
             /*
             Code copied from Dana on SE, licensed under CC-By-SA

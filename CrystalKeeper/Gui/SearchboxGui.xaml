@@ -6,8 +6,8 @@
              xmlns:local="clr-namespace:CrystalKeeper.Gui"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-  <StackPanel>
-    <TextBox Name="textbox"></TextBox>
-    <ListBox Name="suggestions"></ListBox>
-  </StackPanel>
+    <StackPanel>
+        <TextBox Name="textbox"></TextBox>
+        <ListBox Name="suggestions" Visibility="Collapsed"></ListBox>
+    </StackPanel>
 </UserControl>

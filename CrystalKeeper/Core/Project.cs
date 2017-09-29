@@ -283,6 +283,8 @@ namespace CrystalKeeper.Core
                             item.SetData("isTitleVisible", reader.ReadBoolean());
                             item.SetData("isTitleInline", reader.ReadBoolean());
                             item.SetData("columnOrder", reader.ReadInt32());
+                            item.SetData("numExtraImages", reader.ReadByte());
+                            item.SetData("extraImagePos", reader.ReadInt32());
                             break;
                     }
 
@@ -514,6 +516,8 @@ namespace CrystalKeeper.Core
                             writer.Write((bool)item.GetData("isTitleVisible"));
                             writer.Write((bool)item.GetData("isTitleInline"));
                             writer.Write((int)item.GetData("columnOrder"));
+                            writer.Write((byte)item.GetData("numExtraImages"));
+                            writer.Write((int)item.GetData("extraImagePos"));
                             break;
                     }
                 }
@@ -645,6 +649,61 @@ namespace CrystalKeeper.Core
             item.SetData("isTitleVisible", isTitleVisible);
             item.SetData("isTitleInline", isTitleInline);
             item.SetData("columnOrder", columnOrder);
+            item.SetData("numExtraImages", (byte)3);
+            item.SetData("extraImagePos", TemplateImagePos.Under);
+
+            _items.Add(item);
+            return item.guid;
+        }
+
+        /// <summary>
+        /// Adds a field to a template.
+        /// </summary>
+        /// <param name="name">
+        /// A user-friendly name for the object.
+        /// </param>
+        /// <param name="templateColumnGuid">
+        /// The guid of the containing column this field belongs to.
+        /// </param>
+        /// <param name="isVisible">
+        /// True if the field should be visible to the user.
+        /// </param>
+        /// <param name="dataType">
+        /// Represents the type of data the field can contain.
+        /// </param>
+        /// <param name="columnOrder">
+        /// Represents the position of the field in the column.
+        /// </param>
+        /// <param name="numExtraImages">
+        /// The number of images to display (for image-related fields).
+        /// </param>
+        /// <param name="extraImagePos">
+        /// The orientation to display extra images (for image-related fields).
+        /// </param>
+        public ulong AddTemplateField(
+            string name,
+            ulong templateColumnGuid,
+            TemplateFieldType dataType,
+            bool isVisible,
+            bool isTitleVisible,
+            bool isTitleInline,
+            int columnOrder,
+            byte numExtraImages,
+            TemplateImagePos extraImagePos)
+        {
+            DataItem item = new DataItem(
+                NewGuid(),
+                DataItemTypes.TemplateField);
+
+            item.SetData("name", name);
+            item.SetData("refGuid", templateColumnGuid);
+            item.SetData("dataType", (int)dataType);
+            item.SetData("isVisible", isVisible);
+            item.SetData("isTitleVisible", isTitleVisible);
+            item.SetData("isTitleInline", isTitleInline);
+            item.SetData("columnOrder", columnOrder);
+            item.SetData("numExtraImages", numExtraImages);
+            item.SetData("extraImagePos", extraImagePos);
 
             _items.Add(item);
             return item.guid;
