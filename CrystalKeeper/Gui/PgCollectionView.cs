@@ -137,6 +137,14 @@ namespace CrystalKeeper.Gui
             }
             #endregion
 
+            #region Collection description
+            //Sets the collection description.
+            if (!string.IsNullOrWhiteSpace((string)collection.GetData("description")))
+            {
+                gui.TxtbxDescription.Text = (string)collection.GetData("description");
+            }
+            #endregion
+
             #region Groupings
             List<DataItem> grps =
                 Project.GetCollectionGroupings(collection);
