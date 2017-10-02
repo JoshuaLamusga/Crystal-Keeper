@@ -190,17 +190,17 @@ namespace CrystalKeeper.Gui
                 {
                     minNames.Add(new Tuple<string, string>
                         (mineralParts[0], null));
-                    if (mineralParts[1] != "")
+                    if (mineralParts[1] != String.Empty)
                     {
                         minGroups.Add(new Tuple<string, string>
                             (mineralParts[0], mineralParts[1]));
                     }
-                    if (mineralParts[2] != "")
+                    if (mineralParts[2] != String.Empty)
                     {
                         minFormulas.Add(new Tuple<string, string>
                             (mineralParts[0], mineralParts[2]));
                     }
-                    if (mineralParts[3] != "")
+                    if (mineralParts[3] != String.Empty)
                     {
                         minLocalities.Add(new Tuple<string, string>
                             (mineralParts[0], mineralParts[3]));
@@ -264,9 +264,30 @@ namespace CrystalKeeper.Gui
                 StackPanel elementsContainer = new StackPanel();
 
                 //Displays text fields.
+                //Text is stored in the binary XamlPackage format.
+                if (templateType == TemplateFieldType.Text)
+                {
+                    RichTextEditor textEditor = new RichTextEditor();
+                    textEditor.Gui.Margin = new Thickness(2, 4, 2, 0);
+                    textEditor.Gui.MinWidth = 32;
+                    if (fieldData is byte[])
+                    {
+                        textEditor.LoadData((byte[])fieldData);
+                    }
+
+                    //Enables the data to be changed.
+                    textEditor.Gui.Textbox.TextChanged += (a, b) =>
+                    {
+                        field.SetData("data", textEditor.SaveData());
+                    };
+
+                    elementsContainer.Children.Add(fieldNameGui);
+                    elementsContainer.Children.Add(textEditor.Gui);
+                }
+
+                //Displays hyperlinks.
                 //Text is stored as a string.
-                if (templateType == TemplateFieldType.Text ||
-                    templateType == TemplateFieldType.Hyperlink)
+                else if (templateType == TemplateFieldType.Hyperlink)
                 {
                     TextBox fieldDataGui = new TextBox();
                     fieldDataGui.AcceptsReturn = true;
@@ -355,7 +376,7 @@ namespace CrystalKeeper.Gui
                     fieldData1Gui.TextChanged += (a, b) =>
                     {
                         //Filters non-digit characters.
-                        string replacement = Regex.Replace(fieldData1Gui.Text, @"\D*", "");
+                        string replacement = Regex.Replace(fieldData1Gui.Text, @"\D*", String.Empty);
                         if (!fieldData1Gui.Text.Equals(replacement))
                         {
                             fieldData1Gui.Text = replacement;
@@ -375,7 +396,7 @@ namespace CrystalKeeper.Gui
                     fieldData2Gui.TextChanged += (a, b) =>
                     {
                         //Filters non-digit characters.
-                        string replacement = Regex.Replace(fieldData2Gui.Text, @"\D*", "");
+                        string replacement = Regex.Replace(fieldData2Gui.Text, @"\D*", String.Empty);
                         if (!fieldData2Gui.Text.Equals(replacement))
                         {
                             fieldData2Gui.Text = replacement;
@@ -406,9 +427,9 @@ namespace CrystalKeeper.Gui
                     bool isAnimated = false;
 
                     //Loads the data if it exists, or sets it if empty.
-                    if (((string)fieldData) == "")
+                    if (((string)fieldData) == String.Empty)
                     {
-                        allData = new List<string>() { "False", "" };
+                        allData = new List<string>() { "False", String.Empty };
                     }
                     else
                     {
@@ -432,9 +453,9 @@ namespace CrystalKeeper.Gui
                     }
 
                     //Adds an extra image slot if one doesn't exist.
-                    if (loadedUrls.LastOrDefault().Trim() != "")
+                    if (loadedUrls.LastOrDefault().Trim() != String.Empty)
                     {
-                        loadedUrls.Add("");
+                        loadedUrls.Add(String.Empty);
                     }
 
                     //Sets up a container for all elements.
@@ -621,7 +642,7 @@ namespace CrystalKeeper.Gui
                                 else
                                 {
                                     thumbnail.SetSize(0);
-                                    isUrlValid = (thumbnail.ImgUrl != "");
+                                    isUrlValid = (thumbnail.ImgUrl != String.Empty);
                                 }
                             };
 
@@ -674,7 +695,7 @@ namespace CrystalKeeper.Gui
                             {
 
                                 if (thumbnail.ActualWidth <= 0 &&
-                                    thumbnail.ImgUrl != "")
+                                    thumbnail.ImgUrl != String.Empty)
                                 {
                                     //Sets up a broken image button.
                                     var bttnBrokenImage = new Image();

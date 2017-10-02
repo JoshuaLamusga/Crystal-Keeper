@@ -224,9 +224,75 @@ namespace CrystalKeeper.Gui
                 StackPanel elementsContainer = new StackPanel();
 
                 //Displays text fields.
+                //Text is stored in the binary XamlPackage format.
+                if (templateType == TemplateFieldType.Text)
+                {
+                    RichTextBox fieldDataGui = new RichTextBox();
+                    fieldDataGui.FontFamily = new FontFamily(tFontFamilies);
+                    fieldDataGui.Foreground = tContentColor;
+                    fieldDataGui.Margin = new Thickness(2, 4, 2, 0);
+                    fieldDataGui.IsReadOnly = true;
+
+                    //Set thickness since border color changes dynamically.
+                    fieldDataGui.BorderThickness = new Thickness(0);
+
+                    //Loads the XamlPackage if possible.
+                    if (fieldData is byte[])
+                    {
+                        TextRange txt = new TextRange(
+                            fieldDataGui.Document.ContentStart,
+                            fieldDataGui.Document.ContentEnd);
+
+                        using (MemoryStream ms = new MemoryStream((byte[])fieldData))
+                        {
+                            try
+                            {
+                                txt.Load(ms, DataFormats.XamlPackage);
+                            }
+                            catch (ArgumentException) { }
+                        }
+
+                        //Does not display empty fields.
+                        if (String.IsNullOrWhiteSpace(txt.Text))
+                        {
+                            continue;
+                        }
+                    }
+
+                    //Skips rendering for empty strings (given if 0 bytes).
+                    else
+                    {
+                        continue;
+                    }
+
+                    //Gets whether the title is visible or not.
+                    if (tfTitleIsVisible)
+                    {
+                        //Gets whether the title is inline with the field or not.
+                        if (tfTitleIsInline)
+                        {
+                            WrapPanel inlineTitlePanel = new WrapPanel();
+                            inlineTitlePanel.Children.Add(fieldNameGui);
+                            inlineTitlePanel.Children.Add(fieldDataGui);
+                            elementsContainer.Children.Add(inlineTitlePanel);
+                        }
+                        else
+                        {
+                            elementsContainer.Children.Add(fieldNameGui);
+                            elementsContainer.Children.Add(fieldDataGui);
+                        }
+                    }
+
+                    //Adds the field.
+                    else
+                    {
+                        elementsContainer.Children.Add(fieldDataGui);
+                    }
+                }
+
+                //Displays text fields.
                 //Data is stored as a string.
-                if (templateType == TemplateFieldType.Text ||
-                    templateType == TemplateFieldType.Min_Formula ||
+                if (templateType == TemplateFieldType.Min_Formula ||
                     templateType == TemplateFieldType.Min_Name ||
                     templateType == TemplateFieldType.Min_Group ||
                     templateType == TemplateFieldType.Min_Locality)
@@ -241,10 +307,10 @@ namespace CrystalKeeper.Gui
                     fieldDataGui.FontFamily = new FontFamily(tFontFamilies);
                     fieldDataGui.Foreground = tContentColor;
                     fieldDataGui.Margin = new Thickness(2, 4, 2, 12);
-                    fieldDataGui.MinWidth = 32;
                     fieldDataGui.Text = (string)fieldData;
                     fieldDataGui.TextWrapping = TextWrapping.Wrap;
 
+                    //Parses the appearance of mineral formulas.
                     if (templateType == TemplateFieldType.Min_Formula)
                     {
                         //Gets text, tracks alignment, and makes a run.
@@ -297,10 +363,10 @@ namespace CrystalKeeper.Gui
                         fieldDataGui.Inlines.Add(run);
                     }
 
-                    //Sets whether the title is visible or not.
+                    //Gets whether the title is visible or not.
                     if (tfTitleIsVisible)
                     {
-                        //Sets whether the title is inline with the field or not.
+                        //Gets whether the title is inline with the field or not.
                         if (tfTitleIsInline)
                         {
                             WrapPanel inlineTitlePanel = new WrapPanel();
@@ -440,9 +506,9 @@ namespace CrystalKeeper.Gui
                     bool isAnimated = false;
 
                     //Loads the data if it exists, or sets it if empty.
-                    if (((string)fieldData) == "")
+                    if (((string)fieldData) == String.Empty)
                     {
-                        allData = new List<string>() { "False", "" };
+                        allData = new List<string>() { "False", String.Empty };
                     }
                     else
                     {

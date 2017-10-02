@@ -189,6 +189,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Gui\RichTextEditorGui.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Gui\SearchboxGui.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -203,10 +207,14 @@
       <DependentUpon>PgGroupingGuiView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Gui\PgGroupingView.cs" />
+    <Compile Include="Gui\RichTextEditorGui.xaml.cs">
+      <DependentUpon>RichTextEditorGui.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Gui\Searchbox.cs" />
     <Compile Include="Gui\SearchboxGui.xaml.cs">
       <DependentUpon>SearchboxGui.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Gui\RichTextEditor.cs" />
     <Compile Include="Gui\ZoomBorder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -274,6 +282,15 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\BrokenImage.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\BttnBold.png" />
+    <Resource Include="Assets\BttnFontColor.png" />
+    <Resource Include="Assets\BttnItalic.png" />
+    <Resource Include="Assets\BttnUnderline.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\BttnStrikethrough.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

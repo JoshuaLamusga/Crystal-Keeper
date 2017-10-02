@@ -26,7 +26,7 @@ namespace CrystalKeeper.Core
         /// </summary>
         static Utils()
         {
-            regOpenRecent = "";
+            regOpenRecent = String.Empty;
             RegistryKey key;
 
             //Opens or creates the main crystal keeper entry.
@@ -62,7 +62,7 @@ namespace CrystalKeeper.Core
         public static void RegAddRecentlyOpen(string url)
         {
             List<string> urls = new List<string>();
-            if (regOpenRecent != "")
+            if (regOpenRecent != String.Empty)
             {
                 urls = regOpenRecent.Split('|').ToList();
             }
@@ -76,7 +76,7 @@ namespace CrystalKeeper.Core
             }
 
             //Merges all urls into one string.
-            url = "";
+            url = String.Empty;
             for (int i = 0; i < urls.Count; i++)
             {
                 url += urls[i];
@@ -102,7 +102,7 @@ namespace CrystalKeeper.Core
             if (urls.Remove(url))
             {
                 //Merges all urls into one string.
-                url = "";
+                url = String.Empty;
                 for (int i = 0; i < urls.Count; i++)
                 {
                     url += urls[i];
@@ -214,6 +214,10 @@ namespace CrystalKeeper.Core
             {
                 return null;
             }
+            else if (obj is byte[])
+            {
+                return obj as byte[];
+            }
 
             BinaryFormatter bf = new BinaryFormatter();
             using (MemoryStream stream = new MemoryStream())
@@ -280,12 +284,12 @@ namespace CrystalKeeper.Core
                 catch (ArgumentNullException e)
                 {
                     Log("Null argument in MakeRelativeUrl: " + e.Message);
-                    return "";
+                    return String.Empty;
                 }
                 catch (UriFormatException e)
                 {
                     Log("Format exception in MakeRelativeUrl: " + e.Message);
-                    return "";
+                    return String.Empty;
                 }
             }
 

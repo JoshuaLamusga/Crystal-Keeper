@@ -1,5 +1,6 @@
 ﻿using CrystalKeeper.Core;
 using Microsoft.Win32;
+using System;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -32,7 +33,7 @@ namespace CrystalKeeper.Gui
             var recentFiles = Utils.GetRecentlyOpened().Split('|').ToList();
 
             //Constructs a textblock noting recent files.
-            if (recentFiles.Count > 0 && recentFiles.FirstOrDefault() != "")
+            if (recentFiles.Count > 0 && recentFiles.FirstOrDefault() != String.Empty)
             {
                 TextBlock txtblkRecentFiles = new TextBlock();
                 txtblkRecentFiles.Text = "Recent Files";
