@@ -190,7 +190,7 @@ namespace CrystalKeeper.Gui
                     ((byte)activeField.GetItem().GetData("numExtraImages")).ToString();
             }
 
-            //Shows or hides the unchangeable image field.
+            //Shows or hides the unchangeable entry images field.
             if ((TemplateFieldType)ActiveField.GetItem()
                     .GetData("dataType") == TemplateFieldType.EntryImages)
             {
@@ -497,24 +497,26 @@ namespace CrystalKeeper.Gui
                 //Disables the combobox when there are no interchangeable fields.
                 gui.CmbxDataType.IsEnabled = !(type == TemplateFieldType.Images ||
                     type == TemplateFieldType.EntryImages ||
-                    type == TemplateFieldType.MoneyUSD);
+                    type == TemplateFieldType.MoneyUSD ||
+                    type == TemplateFieldType.Text);
 
                 //Hides non-interchangeable fields.
                 if (type == TemplateFieldType.Hyperlink ||
                 type == TemplateFieldType.Min_Formula ||
                 type == TemplateFieldType.Min_Group ||
                 type == TemplateFieldType.Min_Locality ||
-                type == TemplateFieldType.Min_Name ||
-                type == TemplateFieldType.Text)
+                type == TemplateFieldType.Min_Name)
                 {
                     gui.CmbxDataType.IsEnabled = true;
                     gui.ItemTypeImages.Visibility = Visibility.Collapsed;
                     gui.ItemTypeMoneyUSD.Visibility = Visibility.Collapsed;
+                    gui.ItemTypeText.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
                     gui.ItemTypeImages.Visibility = Visibility.Visible;
                     gui.ItemTypeMoneyUSD.Visibility = Visibility.Visible;
+                    gui.ItemTypeText.Visibility = Visibility.Visible;
                 }
 
                 //Shows or hides the entry images field.
@@ -686,7 +688,7 @@ namespace CrystalKeeper.Gui
                                     List<DataItem> entries = project.GetCollectionEntries(collections[j]);
                                     for (int k = 0; k < entries.Count; k++)
                                     {
-                                        project.AddField(entries[k].guid, newField, "");
+                                        project.AddField(entries[k].guid, newField, String.Empty);
                                     }
                                 }
 

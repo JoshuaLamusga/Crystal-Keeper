@@ -221,22 +221,9 @@ namespace CrystalKeeper.Core
                             item.SetData("refGuid", reader.ReadUInt64());
                             item.SetData("templateFieldGuid", reader.ReadUInt64());
 
-                            //Declares the size of the data chunk, then loads it.
+                            //Gets the size of the data chunk, then loads it.
                             int numBytes = reader.ReadInt32();
-                            try
-                            {
-                                item.SetData("data", Utils.ByteArrayToObject(reader.ReadBytes(numBytes)));
-                            }
-                            catch (System.Runtime.Serialization.SerializationException)
-                            {
-                                Utils.Log("Cannot serialize " + url + "to load.");
-
-                                //Tell the user the file did not load and cancel it.
-                                MessageBox.Show("The file could not be loaded because " +
-                                    "it is not a Crystal Keeper file.");
-
-                                return null;
-                            }
+                            item.SetData("data", reader.ReadBytes(numBytes));
                             break;
                         case DataItemTypes.Grouping:
                             item.SetData("name", reader.ReadString());
@@ -289,6 +276,33 @@ namespace CrystalKeeper.Core
                     }
 
                     newItems.Add(item);
+                }
+
+                //Parses non-binary entry field data. Text fields are XamlPackage.
+                var fields = newItems.Where(o => o.type == DataItemTypes.EntryField).ToList();
+                for (int i = 0; i < fields.Count; i++)
+                {
+                    var tField = newItems.FirstOrDefault(
+                        o => o.guid == (ulong)fields[i].GetData("templateFieldGuid"));
+
+                    if ((TemplateFieldType)tField?.GetData("dataType") != TemplateFieldType.Text)
+                    {
+                        try
+                        {
+                            fields[i].SetData("data", Utils.ByteArrayToObject(
+                                (byte[])fields[i].GetData("data")));
+                        }
+                        catch (System.Runtime.Serialization.SerializationException)
+                        {
+                            Utils.Log("Cannot serialize " + url + " to load.");
+
+                            //Tell the user the file did not load and cancel it.
+                            MessageBox.Show("The file could not be loaded because " +
+                                "it is unrecognizable or not a Crystal Keeper file.");
+
+                            return null;
+                        }
+                    }
                 }
 
                 //Constructs the new project instance.
@@ -387,7 +401,7 @@ namespace CrystalKeeper.Core
 
             //Ensures the database image path is relative.
             string newPath = Utils.MakeRelativeUrl(url, (string)GetDatabase().GetData("imageUrl"));
-            if (newPath != "")
+            if (newPath != String.Empty)
             {
                 GetDatabase().SetData("imageUrl", newPath);
             }
@@ -417,7 +431,7 @@ namespace CrystalKeeper.Core
                         for (int k = 1; k < data.Length; k++)
                         {
                             string newUrl = Utils.MakeRelativeUrl(url, data[k]);
-                            if (newUrl != "")
+                            if (newUrl != String.Empty)
                             {
                                 newData += newUrl;
                             }

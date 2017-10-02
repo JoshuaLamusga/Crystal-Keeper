@@ -85,7 +85,7 @@ namespace CrystalKeeper.Gui
         public MainDisplay()
         {
             Initialize(null);
-            saveUrl = String.Empty;
+            SaveUrl = String.Empty;
         }
 
         /// <summary>
@@ -1871,7 +1871,7 @@ namespace CrystalKeeper.Gui
         private void UpdateRecentFiles()
         {
             //Adds the url.
-            if (saveUrl != "")
+            if (saveUrl != String.Empty && saveUrl != null)
             {
                 Utils.RegAddRecentlyOpen(saveUrl);
             }
@@ -1880,7 +1880,7 @@ namespace CrystalKeeper.Gui
             gui.GuiFileRecent.Items.Clear();
 
             //Shows the url only if recent files are recorded.
-            if (urls.Length == 0 || (urls.Length == 1 && urls[0] == ""))
+            if (urls.Length == 0 || (urls.Length == 1 && urls[0] == String.Empty))
             {
                 gui.GuiFileRecent.Visibility = Visibility.Collapsed;
                 gui.GuiFileRecent.IsEnabled = false;
@@ -1899,7 +1899,7 @@ namespace CrystalKeeper.Gui
                 item.Tag = urls[i];
                 item.ToolTip = urls[i];
 
-                //Loads the project if possible.
+                //Loads from the recent URL if possible.
                 item.Click += (a, b) =>
                 {
                     string url = (string)item.Tag;
@@ -1938,7 +1938,21 @@ namespace CrystalKeeper.Gui
                     }
                 };
 
-                gui.GuiFileRecent.Items.Add(item);
+                //Adds the option only if the file exists.
+                if (File.Exists((string)item.Tag))
+                {
+                    gui.GuiFileRecent.Items.Add(item);
+                }
+            }
+
+            //Hides the recent files if none were added.
+            if (gui.GuiFileRecent.Items.Count == 0)
+            {
+                gui.GuiFileRecent.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                gui.GuiFileRecent.Visibility = Visibility.Visible;
             }
         }
         #endregion
