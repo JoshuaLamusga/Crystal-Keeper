@@ -208,13 +208,22 @@
                     HorizontalScrollBarVisibility="Disabled"
                     VerticalScrollBarVisibility="Visible">
                 </ScrollViewer>
+                <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top">
+                    <Image Name="GuiPrint"
+                   DockPanel.Dock="Left"
+                   Margin="0,4,24,0"
+                   Visibility="Visible"
+                   Source="pack://application:,,,/Assets/BttnPrint.png"
+                   Stretch="None"/>
                 <Image Name="GuiToggleMode"
-                   HorizontalAlignment="Right"
-                   VerticalAlignment="Top"
+                   DockPanel.Dock="Right"
                    Margin="0,4,24,0"
                    Visibility="Visible"
                    Source="pack://application:,,,/Assets/BttnEdit.png"
                    Stretch="None"/>
+                </StackPanel>
             </Grid>
         </Grid>
         <!--Tooltip content automatically added.-->

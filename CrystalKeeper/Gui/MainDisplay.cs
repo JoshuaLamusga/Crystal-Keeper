@@ -182,6 +182,9 @@ namespace CrystalKeeper.Gui
             gui.GuiToggleMode.MouseEnter += GuiToggleMode_MouseEnter;
             gui.GuiToggleMode.MouseLeave += GuiToggleMode_MouseLeave;
             gui.GuiToggleMode.MouseDown += GuiToggleMode_MouseDown;
+            gui.GuiPrint.MouseDown += GuiPrint_MouseDown;
+            gui.GuiPrint.MouseLeave += GuiPrint_MouseLeave;
+            gui.GuiPrint.MouseDown += GuiPrint_MouseDown;
             gui.GuiTemplateNew.Click += GuiTemplateNew_Click;
 
             UpdateRecentFiles();
@@ -385,6 +388,33 @@ namespace CrystalKeeper.Gui
                 gui.GuiToggleMode.Source = new BitmapImage(new Uri(
                     Assets.BttnEditHover));
             }
+        }
+
+        /// <summary>
+        /// Shows a dialog for the user to print the current page.
+        /// </summary>
+        private void GuiPrint_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true; //Prevents an unknown double-call of the method.
+            Print();
+        }
+
+        /// <summary>
+        /// Sets the bitmap for the print icon to acknowledge no hovering.
+        /// </summary>
+        private void GuiPrint_MouseLeave(object sender, MouseEventArgs e)
+        {
+            gui.GuiPrint.Source = new BitmapImage(new Uri(
+                Assets.BttnPrint));
+        }
+
+        /// <summary>
+        /// Sets the bitmap for the print icon to acknowledge hovering.
+        /// </summary>
+        private void GuiPrint_MouseEnter(object sender, MouseEventArgs e)
+        {
+            gui.GuiPrint.Source = new BitmapImage(new Uri(
+                Assets.BttnPrintHover));
         }
 
         /// <summary>
@@ -667,6 +697,13 @@ namespace CrystalKeeper.Gui
                 {
                     e.Handled = true;
                     GuiFileNew_Click(null, null);
+                }
+
+                //If Ctrl + P is pressed, print the current page.
+                if (e.KeyboardDevice.IsKeyDown(Key.P))
+                {
+                    e.Handled = true;
+                    Print();
                 }
             }
         }
@@ -1954,6 +1991,14 @@ namespace CrystalKeeper.Gui
             {
                 gui.GuiFileRecent.Visibility = Visibility.Visible;
             }
+        }
+
+        /// <summary>
+        /// Shows a dialog to print the current page view.
+        /// </summary>
+        private void Print()
+        {
+            MessageBox.Show("Print activated.");
         }
         #endregion
 
