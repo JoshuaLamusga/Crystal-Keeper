@@ -227,21 +227,21 @@ namespace CrystalKeeper.Gui
                 //Text is stored in the binary XamlPackage format.
                 if (templateType == TemplateFieldType.Text)
                 {
-                    RichTextBox fieldDataGui = new RichTextBox();
-                    fieldDataGui.FontFamily = new FontFamily(tFontFamilies);
-                    fieldDataGui.Foreground = tContentColor;
-                    fieldDataGui.Margin = new Thickness(2, 4, 2, 0);
-                    fieldDataGui.IsReadOnly = true;
+                    RichTextBoxNoMargins fieldDataGui = new RichTextBoxNoMargins();
+                    fieldDataGui.Textbox.FontFamily = new FontFamily(tFontFamilies);
+                    fieldDataGui.Textbox.Foreground = tContentColor;
+                    fieldDataGui.Textbox.Margin = new Thickness(0, 4, 0, 12);
+                    fieldDataGui.Textbox.IsReadOnly = true;
 
                     //Set thickness since border color changes dynamically.
-                    fieldDataGui.BorderThickness = new Thickness(0);
+                    fieldDataGui.Textbox.BorderThickness = new Thickness(0);
 
                     //Loads the XamlPackage if possible.
                     if (fieldData is byte[])
                     {
                         TextRange txt = new TextRange(
-                            fieldDataGui.Document.ContentStart,
-                            fieldDataGui.Document.ContentEnd);
+                            fieldDataGui.Textbox.Document.ContentStart,
+                            fieldDataGui.Textbox.Document.ContentEnd);
 
                         using (MemoryStream ms = new MemoryStream((byte[])fieldData))
                         {

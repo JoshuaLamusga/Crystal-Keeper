@@ -182,7 +182,7 @@ namespace CrystalKeeper.Gui
             gui.GuiToggleMode.MouseEnter += GuiToggleMode_MouseEnter;
             gui.GuiToggleMode.MouseLeave += GuiToggleMode_MouseLeave;
             gui.GuiToggleMode.MouseDown += GuiToggleMode_MouseDown;
-            gui.GuiPrint.MouseDown += GuiPrint_MouseDown;
+            gui.GuiPrint.MouseEnter += GuiPrint_MouseEnter;
             gui.GuiPrint.MouseLeave += GuiPrint_MouseLeave;
             gui.GuiPrint.MouseDown += GuiPrint_MouseDown;
             gui.GuiTemplateNew.Click += GuiTemplateNew_Click;
@@ -1998,7 +1998,40 @@ namespace CrystalKeeper.Gui
         /// </summary>
         private void Print()
         {
-            MessageBox.Show("Print activated.");
+            //Prompts the user with printing options.
+            PrintDialog dlg = new PrintDialog();
+            dlg.UserPageRangeEnabled = false;
+
+            //Prints content area with overlying gui elements hidden.
+            if (dlg.ShowDialog() == true)
+            {
+                bool wasEditing = isEditing;
+
+                //Switches to view mode (editing becomes false).
+                if (isEditing == true)
+                {
+                    GuiToggleMode_MouseDown(null, null);
+                }
+
+                //Hides surrounding elements.
+                gui.GuiPrint.Visibility = Visibility.Hidden;
+                gui.GuiToggleMode.Visibility = Visibility.Hidden;
+                gui.GuiContent.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+
+                //Prints.
+                VisualPrinter.PrintAcrossPages(dlg, gui.GuiContent);
+
+                //Reveals surrounding elements.
+                gui.GuiPrint.Visibility = Visibility.Visible;
+                gui.GuiToggleMode.Visibility = Visibility.Visible;
+                gui.GuiContent.VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
+
+                //Switches back to edit mode (editing becomes true).
+                if (wasEditing != isEditing)
+                {
+                    GuiToggleMode_MouseDown(null, null);
+                }
+            }
         }
         #endregion
 

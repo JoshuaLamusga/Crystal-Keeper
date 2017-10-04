@@ -268,7 +268,7 @@ namespace CrystalKeeper.Gui
                 if (templateType == TemplateFieldType.Text)
                 {
                     RichTextEditor textEditor = new RichTextEditor();
-                    textEditor.Gui.Margin = new Thickness(2, 4, 2, 0);
+                    textEditor.Gui.Margin = new Thickness(0, 4, 0, 12);
                     textEditor.Gui.MinWidth = 32;
                     if (fieldData is byte[])
                     {
@@ -287,7 +287,7 @@ namespace CrystalKeeper.Gui
 
                 //Displays hyperlinks.
                 //Text is stored as a string.
-                else if (templateType == TemplateFieldType.Hyperlink)
+                 if (templateType == TemplateFieldType.Hyperlink)
                 {
                     TextBox fieldDataGui = new TextBox();
                     fieldDataGui.AcceptsReturn = true;

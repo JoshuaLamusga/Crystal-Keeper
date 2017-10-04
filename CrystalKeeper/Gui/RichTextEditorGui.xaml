@@ -10,23 +10,43 @@
             <RowDefinition Height="auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <StackPanel
+        <StackPanel KeyboardNavigation.TabNavigation="None"
             Background="WhiteSmoke"
             Orientation="Horizontal"
             Grid.Row="0">
-            <ToggleButton Name="BttnBold" Background="WhiteSmoke" BorderBrush="Transparent" MaxWidth="16" MaxHeight="16">
+            <ToggleButton Name="BttnBold"
+                Background="WhiteSmoke"
+                BorderBrush="Transparent"
+                MaxWidth="16"
+                MaxHeight="16">
                 <Image Source="pack://application:,,,/Assets/BttnBold.png"/>
             </ToggleButton>
-            <ToggleButton Name="BttnItalic" Background="WhiteSmoke" BorderBrush="Transparent" MaxWidth="16" MaxHeight="16">
+            <ToggleButton Name="BttnItalic"
+                Background="WhiteSmoke"
+                BorderBrush="Transparent"
+                MaxWidth="16"
+                MaxHeight="16">
                 <Image Source="pack://application:,,,/Assets/BttnItalic.png"/>
             </ToggleButton>
-            <ToggleButton Name="BttnUnderline" Background="WhiteSmoke" BorderBrush="Transparent" MaxWidth="16" MaxHeight="16">
+            <ToggleButton Name="BttnUnderline"
+                Background="WhiteSmoke"
+                BorderBrush="Transparent"
+                MaxWidth="16"
+                MaxHeight="16">
                 <Image Source="pack://application:,,,/Assets/BttnUnderline.png"/>
             </ToggleButton>
-            <ToggleButton Name="BttnStrikethrough" Background="WhiteSmoke" BorderBrush="Transparent" MaxWidth="16" MaxHeight="16">
+            <ToggleButton Name="BttnStrikethrough"
+                Background="WhiteSmoke"
+                BorderBrush="Transparent"
+                MaxWidth="16"
+                MaxHeight="16">
                 <Image Source="pack://application:,,,/Assets/BttnStrikethrough.png"/>
             </ToggleButton>
-            <Button Name="BttnFontColor" Background="WhiteSmoke" BorderBrush="Transparent" MaxWidth="16" MaxHeight="16">
+            <Button Name="BttnFontColor"
+                Background="WhiteSmoke"
+                BorderBrush="Transparent"
+                MaxWidth="16"
+                MaxHeight="16">
                 <Border Name="FontColorBg">
                     <Image Source="pack://application:,,,/Assets/BttnFontColor.png"/>
                 </Border>
@@ -48,6 +68,12 @@
             </StackPanel>
         </StackPanel>
         <RichTextBox Name="Textbox"
-            Grid.Row="1"/>
+            Grid.Row="1">
+            <RichTextBox.Resources>
+                <Style TargetType="{x:Type Paragraph}">
+                    <Setter Property="Margin" Value="0"/>
+                </Style>
+            </RichTextBox.Resources>
+        </RichTextBox>
     </Grid>
 </UserControl>
