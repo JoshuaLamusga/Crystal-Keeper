@@ -1785,7 +1785,7 @@ namespace CrystalKeeper.Gui
             }
             else if (selItem.type == DataItemTypes.Collection)
             {
-                PgCollectionView page = new PgCollectionView(project, selItem);
+                PgCollectionView page = new PgCollectionView(project, selItem, saveUrl);
 
                 if (!string.IsNullOrWhiteSpace(page.BgImage))
                 {
@@ -1869,7 +1869,7 @@ namespace CrystalKeeper.Gui
             }
             else if (selItem.type == DataItemTypes.Grouping)
             {
-                PgGroupingView page = new PgGroupingView(project, selItem);
+                PgGroupingView page = new PgGroupingView(project, selItem, saveUrl);
 
                 if (!string.IsNullOrWhiteSpace(page.BgImage))
                 {

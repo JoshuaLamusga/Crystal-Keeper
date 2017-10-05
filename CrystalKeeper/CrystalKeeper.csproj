@@ -130,6 +130,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Gui\FixedColumnPanel.cs" />
     <Compile Include="Gui\PgCollectionGuiView.xaml.cs">
       <DependentUpon>PgCollectionGuiView.xaml</DependentUpon>
     </Compile>
