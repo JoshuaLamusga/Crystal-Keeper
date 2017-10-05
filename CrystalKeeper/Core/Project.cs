@@ -234,10 +234,9 @@ namespace CrystalKeeper.Core
                             item.SetData("numConditions", numConditions);
                             for (int i = 0; i < numConditions; i++)
                             {
-                                item.SetData("conditionType" + i, reader.ReadByte());
-                                item.SetData("name1" + i, reader.ReadString());
-                                item.SetData("name2" + i, reader.ReadString());
-                                item.SetData("fieldGuid" + i, reader.ReadUInt64());
+                                item.SetData("conditionType" + i, (GroupingCondType)reader.ReadInt32());
+                                item.SetData("condAddFromLetter" + i, reader.ReadString());
+                                item.SetData("condAddToLetter" + i, reader.ReadString());
                             }
                             break;
                         case DataItemTypes.GroupingEntryRef:
@@ -494,10 +493,9 @@ namespace CrystalKeeper.Core
                             //Sets group conditions.
                             for (int j = 0; j < (uint)item.GetData("numConditions"); j++)
                             {
-                                writer.Write((byte)item.GetData("conditionType" + j));
-                                writer.Write((string)item.GetData("name1" + j));
-                                writer.Write((string)item.GetData("name2" + j));
-                                writer.Write((ulong)item.GetData("fieldGuid" + j));
+                                writer.Write((int)(GroupingCondType)item.GetData("conditionType" + j));
+                                writer.Write((string)item.GetData("condAddFromLetter" + j));
+                                writer.Write((string)item.GetData("condAddToLetter" + j));
                             }
                             break;
                         case DataItemTypes.GroupingEntryRef:
@@ -839,16 +837,13 @@ namespace CrystalKeeper.Core
             }
 
             //Gets the number of conditions and adds 1.
-            uint numConditions = 0;
-            uint.TryParse((string)item.GetData("numConditions"), out numConditions);
-            numConditions += 1;
+            uint numConditions = (uint)item.GetData("numConditions") + 1;
             item.SetData("numConditions", numConditions);
 
             //Sets condition data.
-            item.SetData("conditionType" + numConditions, (byte)0);
-            item.SetData("name1" + numConditions, startingLetter);
-            item.SetData("name2" + numConditions, endingLetter);
-            item.SetData("fieldGuid" + numConditions, (ulong)0);
+            item.SetData("conditionType" + numConditions, GroupingCondType.ByLetter);
+            item.SetData("condAddFromLetter" + numConditions, startingLetter);
+            item.SetData("condAddToLetter" + numConditions, endingLetter);
             return true;
         }
 

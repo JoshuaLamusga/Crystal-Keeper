@@ -458,7 +458,7 @@ namespace CrystalKeeper.Gui
                 if (col != null &&
                     col.GetItem().type == DataItemTypes.Collection)
                 {
-                    ulong entryguid = project.AddEntry(gui.GuiNewEntry.Text,
+                    ulong entryGuid = project.AddEntry(gui.GuiNewEntry.Text,
                         col.GetItem().guid);
 
                     //Adds all fields to the entry.
@@ -482,15 +482,11 @@ namespace CrystalKeeper.Gui
                                 dataType == TemplateFieldType.EntryImages ||
                                 dataType == TemplateFieldType.Images)
                             {
-                                project.AddField(entryguid, templateColFields[j].guid, String.Empty);
+                                project.AddField(entryGuid, templateColFields[j].guid, String.Empty);
                             }
                             else if (dataType == TemplateFieldType.MoneyUSD)
                             {
-                                project.AddField(entryguid, templateColFields[j].guid, new string[2]);
-                            }
-                            else if (dataType == TemplateFieldType.EntryImages)
-                            {
-                                //TODO: Handle the generation of empty image data in fields.
+                                project.AddField(entryGuid, templateColFields[j].guid, new string[2]);
                             }
                         }
                     }
@@ -525,7 +521,7 @@ namespace CrystalKeeper.Gui
 
                         //Entry references are created for the 'all'
                         //group and the selected group (if distinct).
-                        project.AddGroupingEntryRef(allGrp, entryguid);
+                        project.AddGroupingEntryRef(allGrp, entryGuid);
 
                         //If adding an entry with a grouping selected.
                         if (item.GetParent() == col &&
@@ -534,7 +530,7 @@ namespace CrystalKeeper.Gui
                         {
                             selection = oldSel;
                             project.AddGroupingEntryRef(
-                                item.GetItem().guid, entryguid);
+                                item.GetItem().guid, entryGuid);
                         }
 
                         //If adding an entry with an entry reference selected.
@@ -544,9 +540,12 @@ namespace CrystalKeeper.Gui
                         {
                             selection = oldSel;
                             project.AddGroupingEntryRef(
-                                item.GetParent().GetItem().guid, entryguid);
+                                item.GetParent().GetItem().guid, entryGuid);
                         }
                     }
+
+                    //Automatically adds the entry to matching groups.
+                    AddEntryToMatchingGroups(entryGuid);
                 }
 
                 //Resets the text for the entry naming box.
@@ -1584,6 +1583,62 @@ namespace CrystalKeeper.Gui
             }
 
             return ulong.MaxValue;
+        }
+
+        /// <summary>
+        /// Adds a reference of the given entry to any group with patterns
+        /// that match it. A reference will be added even if the group
+        /// already has a reference to it.
+        /// </summary>
+        private void AddEntryToMatchingGroups(ulong entryGuid)
+        {
+            var entry = project.GetItemByGuid(entryGuid);
+            var col = project.GetEntryCollection(entry);
+            var grps = project.GetCollectionGroupings(col);
+
+            //Gets entry-specific details.
+            string name = ((string)entry.GetData("name")).ToLower();
+
+            //Attempts to match the entry with each group's patterns.
+            for (int i = 0; i < grps.Count; i++)
+            {
+                uint numConditions = (uint)grps[i].GetData("numConditions");
+
+                //Iterates through each condition.
+                for (int j = 0; j < numConditions; j++)
+                {
+                    var condType = (GroupingCondType)
+                        grps[i].GetData("conditionType" + j);
+
+                    if (condType == GroupingCondType.ByLetter)
+                    {
+                        //Gets condition data.
+                        var condFromLetter = ((string)
+                            grps[i].GetData("condAddFromLetter" + j))
+                            .ToLower();
+                        var condToLetter = ((string)
+                            grps[i].GetData("condAddToLetter" + j))
+                            .ToLower();
+
+                        //Skips invalid conditions.
+                        if (condFromLetter?.Length == 0 ||
+                            condToLetter?.Length == 0)
+                        {
+                            continue;
+                        }
+
+                        //Adds if the character range matches.
+                        if (condFromLetter.CompareTo(name) <= 0 &&
+                            condToLetter.CompareTo(name) >= 0)
+                        {
+                            project.AddGroupingEntryRef(
+                                grps[i].guid,
+                                entry.guid);
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>

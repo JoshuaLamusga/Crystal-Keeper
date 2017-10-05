@@ -68,6 +68,7 @@
     <Compile Include="Core\Assets.cs" />
     <Compile Include="Core\DataItem.cs" />
     <Compile Include="Core\DataItemTypes.cs" />
+    <Compile Include="Core\GroupingCondType.cs" />
     <Compile Include="Core\VisualPrinter.cs" />
     <Compile Include="Core\Project.cs" />
     <Compile Include="Core\TemplateFieldType.cs" />
