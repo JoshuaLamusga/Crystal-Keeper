@@ -37,6 +37,22 @@ namespace CrystalKeeper.Gui
         private string saveUrl;
 
         /// <summary>
+        /// The location to save the project; set on first save.
+        /// </summary>
+        private string SaveUrl
+        {
+            get
+            {
+                return saveUrl;
+            }
+            set
+            {
+                saveUrl = value;
+                UpdateRecentFiles();
+            }
+        }
+
+        /// <summary>
         /// Stores the treeview selected item whenever it's not null.
         /// </summary>
         private TreeViewDataItem selection;
@@ -69,7 +85,7 @@ namespace CrystalKeeper.Gui
         public MainDisplay()
         {
             Initialize(null);
-            saveUrl = String.Empty;
+            SaveUrl = String.Empty;
         }
 
         /// <summary>
@@ -81,7 +97,7 @@ namespace CrystalKeeper.Gui
         public MainDisplay(Project project, string saveUrl)
         {
             Initialize(project);
-            this.saveUrl = saveUrl;
+            SaveUrl = saveUrl;
         }
         #endregion
 
@@ -166,8 +182,12 @@ namespace CrystalKeeper.Gui
             gui.GuiToggleMode.MouseEnter += GuiToggleMode_MouseEnter;
             gui.GuiToggleMode.MouseLeave += GuiToggleMode_MouseLeave;
             gui.GuiToggleMode.MouseDown += GuiToggleMode_MouseDown;
+            gui.GuiPrint.MouseEnter += GuiPrint_MouseEnter;
+            gui.GuiPrint.MouseLeave += GuiPrint_MouseLeave;
+            gui.GuiPrint.MouseDown += GuiPrint_MouseDown;
             gui.GuiTemplateNew.Click += GuiTemplateNew_Click;
 
+            UpdateRecentFiles();
             ConstructVisuals();
         }
 
@@ -186,13 +206,13 @@ namespace CrystalKeeper.Gui
             project.AddTemplateField("Extra Images", col1Guid,
                 TemplateFieldType.Images, true, false, false, 1);
             project.AddTemplateField("Primary Mineral Species", col1Guid,
-                TemplateFieldType.Text_Minerals, true, true, false, 2);
+                TemplateFieldType.Min_Name, true, true, false, 2);
             project.AddTemplateField("Secondary Mineral Species", col1Guid,
-                TemplateFieldType.Text_Minerals, true, true, false, 3);
+                TemplateFieldType.Min_Name, true, true, false, 3);
             project.AddTemplateField("Primary Chemical Formula", col2Guid,
-                TemplateFieldType.Text_Formula, true, true, false, 0);
+                TemplateFieldType.Min_Formula, true, true, false, 0);
             project.AddTemplateField("Species Group", col2Guid,
-                TemplateFieldType.Text, true, true, false, 1);
+                TemplateFieldType.Min_Group, true, true, false, 1);
             project.AddTemplateField("Origin / Location", col2Guid,
                 TemplateFieldType.Text, true, true, false, 2);
             project.AddTemplateField("GPS Location", col2Guid,
@@ -304,6 +324,13 @@ namespace CrystalKeeper.Gui
                     SetPage();
                 };
             }
+
+            //Handles template deletion.
+            else if (!projectCopy.Items.Contains(template))
+            {
+                project.Items.Remove(template);
+                gui.GuiMenuTemplates.Items.Remove(newMenuItem);
+            }
         }
 
         /// <summary>
@@ -364,6 +391,33 @@ namespace CrystalKeeper.Gui
         }
 
         /// <summary>
+        /// Shows a dialog for the user to print the current page.
+        /// </summary>
+        private void GuiPrint_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true; //Prevents an unknown double-call of the method.
+            Print();
+        }
+
+        /// <summary>
+        /// Sets the bitmap for the print icon to acknowledge no hovering.
+        /// </summary>
+        private void GuiPrint_MouseLeave(object sender, MouseEventArgs e)
+        {
+            gui.GuiPrint.Source = new BitmapImage(new Uri(
+                Assets.BttnPrint));
+        }
+
+        /// <summary>
+        /// Sets the bitmap for the print icon to acknowledge hovering.
+        /// </summary>
+        private void GuiPrint_MouseEnter(object sender, MouseEventArgs e)
+        {
+            gui.GuiPrint.Source = new BitmapImage(new Uri(
+                Assets.BttnPrintHover));
+        }
+
+        /// <summary>
         /// Generates a new entry object.
         /// </summary>
         private void GuiNewEntry_KeyDown(object sender, KeyEventArgs e)
@@ -404,7 +458,7 @@ namespace CrystalKeeper.Gui
                 if (col != null &&
                     col.GetItem().type == DataItemTypes.Collection)
                 {
-                    ulong entryguid = project.AddEntry(gui.GuiNewEntry.Text,
+                    ulong entryGuid = project.AddEntry(gui.GuiNewEntry.Text,
                         col.GetItem().guid);
 
                     //Adds all fields to the entry.
@@ -420,21 +474,19 @@ namespace CrystalKeeper.Gui
 
                             //Adds default values matching the represented data.
                             if (dataType == TemplateFieldType.Text ||
-                                dataType == TemplateFieldType.Text_Formula ||
-                                dataType == TemplateFieldType.Text_Minerals ||
+                                dataType == TemplateFieldType.Min_Formula ||
+                                dataType == TemplateFieldType.Min_Name ||
+                                dataType == TemplateFieldType.Min_Group ||
+                                dataType == TemplateFieldType.Min_Locality ||
                                 dataType == TemplateFieldType.Hyperlink ||
                                 dataType == TemplateFieldType.EntryImages ||
                                 dataType == TemplateFieldType.Images)
                             {
-                                project.AddField(entryguid, templateColFields[j].guid, String.Empty);
+                                project.AddField(entryGuid, templateColFields[j].guid, String.Empty);
                             }
                             else if (dataType == TemplateFieldType.MoneyUSD)
                             {
-                                project.AddField(entryguid, templateColFields[j].guid, new string[2]);
-                            }
-                            else if (dataType == TemplateFieldType.EntryImages)
-                            {
-                                //TODO: Handle the generation of empty image data in fields.
+                                project.AddField(entryGuid, templateColFields[j].guid, new string[2]);
                             }
                         }
                     }
@@ -469,7 +521,7 @@ namespace CrystalKeeper.Gui
 
                         //Entry references are created for the 'all'
                         //group and the selected group (if distinct).
-                        project.AddGroupingEntryRef(allGrp, entryguid);
+                        project.AddGroupingEntryRef(allGrp, entryGuid);
 
                         //If adding an entry with a grouping selected.
                         if (item.GetParent() == col &&
@@ -478,7 +530,7 @@ namespace CrystalKeeper.Gui
                         {
                             selection = oldSel;
                             project.AddGroupingEntryRef(
-                                item.GetItem().guid, entryguid);
+                                item.GetItem().guid, entryGuid);
                         }
 
                         //If adding an entry with an entry reference selected.
@@ -488,9 +540,12 @@ namespace CrystalKeeper.Gui
                         {
                             selection = oldSel;
                             project.AddGroupingEntryRef(
-                                item.GetParent().GetItem().guid, entryguid);
+                                item.GetParent().GetItem().guid, entryGuid);
                         }
                     }
+
+                    //Automatically adds the entry to matching groups.
+                    AddEntryToMatchingGroups(entryGuid);
                 }
 
                 //Resets the text for the entry naming box.
@@ -642,6 +697,13 @@ namespace CrystalKeeper.Gui
                     e.Handled = true;
                     GuiFileNew_Click(null, null);
                 }
+
+                //If Ctrl + P is pressed, print the current page.
+                if (e.KeyboardDevice.IsKeyDown(Key.P))
+                {
+                    e.Handled = true;
+                    Print();
+                }
             }
         }
 
@@ -684,7 +746,7 @@ namespace CrystalKeeper.Gui
             //If selected, saved the project data.
             if (dlg.ShowDialog() == true)
             {
-                saveUrl = dlg.FileName;
+                SaveUrl = dlg.FileName;
                 project.Save(saveUrl);
             };
         }
@@ -708,7 +770,7 @@ namespace CrystalKeeper.Gui
 
                 if (dlg.ShowDialog() == true)
                 {
-                    saveUrl = dlg.FileName;
+                    SaveUrl = dlg.FileName;
                     project.Save(saveUrl);
                 }
             }
@@ -729,7 +791,7 @@ namespace CrystalKeeper.Gui
                 Project tempProj = Project.Load(dlg.FileName);
                 if (tempProj != null)
                 {
-                    saveUrl = dlg.FileName;
+                    SaveUrl = dlg.FileName;
 
                     //Sets the project and resets bindings.
                     project = tempProj;
@@ -882,7 +944,7 @@ namespace CrystalKeeper.Gui
 
         /// <summary>
         /// Displays items selected in the treeview. Sets the visibility of
-        /// search fields and add textboxes.
+        /// search fields and new item textboxes.
         /// </summary>
         private void GuiTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
@@ -968,7 +1030,7 @@ namespace CrystalKeeper.Gui
                     items.AddRange(project.GetTemplateColumnFields(cols[i]));
                 }
 
-                //Populates each item and handles filtering.
+                //Clears filter field options before recreating them.
                 gui.GuiSearchField.Items.Clear();
 
                 //Adds an item to search by name.
@@ -979,7 +1041,8 @@ namespace CrystalKeeper.Gui
                     treeviewFilterField = null;
                 };
                 gui.GuiSearchField.Items.Add(defaultItem);
-                
+                defaultItem.IsSelected = true;
+
 
                 //Adds each other non-image template field for searching.
                 for (int i = 0; i < items.Count; i++)
@@ -997,7 +1060,7 @@ namespace CrystalKeeper.Gui
                     CmbxDataItem comboItem = new CmbxDataItem(items[i]);
 
                     //Sets the filter field on click.
-                    comboItem.MouseDown += (c, d) =>
+                    comboItem.Selected += (c, d) =>
                     {
                         treeviewFilterField = comboItem.GetItem();
                     };
@@ -1017,7 +1080,8 @@ namespace CrystalKeeper.Gui
         private void RefreshTreeviewFilter(object sender, TextChangedEventArgs e)
         {
             //FIXME: Prevents focus from resetting to the database and
-            //disabling the search textbox. Sloppy, find a better method.
+            //disabling the search textbox. Filter all collections when
+            //database is selected instead, then don't disable event.
             gui.GuiTreeView.SelectedItemChanged -= GuiTreeView_SelectedItemChanged;
 
             treeviewFilterText = gui.GuiTreeViewSearch.Text;
@@ -1053,7 +1117,7 @@ namespace CrystalKeeper.Gui
                     }
                 }
             }
-            
+
             //Handles removing items from the treeview.
             else if (e.Action == NotifyCollectionChangedAction.Remove)
             {
@@ -1362,18 +1426,21 @@ namespace CrystalKeeper.Gui
                             //Gets the entry from the reference and the field
                             //that matches the filter field.
                             var entry = project.GetEntryRefEntry(grpRefs[k]);
-                            var fields = project.GetEntryFields(entry).Where((item) =>
+                            var fields = project.GetEntryFields(entry);
+                            var field = fields.FirstOrDefault((item) =>
                             {
-                                return item.guid == treeviewFilterField.guid;
+                                return project.GetFieldTemplateField(item) ==
+                                    treeviewFilterField;
                             });
-                            var field = fields.FirstOrDefault();
 
                             //Gets the type of data to search.
                             object fieldData = field.GetData("data");
-                            var templateType = (TemplateFieldType)(int)field.GetData("dataType");
+                            var templateType = (TemplateFieldType)(int)treeviewFilterField.GetData("dataType");
                             if (templateType == TemplateFieldType.Text ||
-                                templateType == TemplateFieldType.Text_Formula ||
-                                templateType == TemplateFieldType.Text_Minerals ||
+                                templateType == TemplateFieldType.Min_Formula ||
+                                templateType == TemplateFieldType.Min_Name ||
+                                templateType == TemplateFieldType.Min_Group ||
+                                templateType == TemplateFieldType.Min_Locality ||
                                 templateType == TemplateFieldType.Hyperlink)
                             {
                                 if (((string)fieldData).ToLower()
@@ -1441,8 +1508,6 @@ namespace CrystalKeeper.Gui
                     {
                         //Opens the edit template dialog for it.
                         var dlg = new DlgEditTemplate(project, itemTemplate);
-                        dlg.ShowDialog();
-                        item.Refresh();
 
                         //Updates the template name to match.
                         dlg.DataNameChanged += new EventHandler((c, d) =>
@@ -1450,12 +1515,21 @@ namespace CrystalKeeper.Gui
                             item.Refresh();
                         });
 
+                        //Updates the template list for a deleted template.
+                        if (dlg.ShowDialog() == false &&
+                            !project.Items.Contains(itemTemplate))
+                        {
+                            gui.GuiMenuTemplates.Items.Remove(item);
+                        }
+
+                        item.Refresh();
+
                         //Updates the gui if non-template data changes.
                         if (dlg.ReferencesInvalidated)
                         {
                             ConstructVisuals();
                             SetPage();
-                        };
+                        }
                     });
                 }
             }
@@ -1509,6 +1583,62 @@ namespace CrystalKeeper.Gui
             }
 
             return ulong.MaxValue;
+        }
+
+        /// <summary>
+        /// Adds a reference of the given entry to any group with patterns
+        /// that match it. A reference will be added even if the group
+        /// already has a reference to it.
+        /// </summary>
+        private void AddEntryToMatchingGroups(ulong entryGuid)
+        {
+            var entry = project.GetItemByGuid(entryGuid);
+            var col = project.GetEntryCollection(entry);
+            var grps = project.GetCollectionGroupings(col);
+
+            //Gets entry-specific details.
+            string name = ((string)entry.GetData("name")).ToLower();
+
+            //Attempts to match the entry with each group's patterns.
+            for (int i = 0; i < grps.Count; i++)
+            {
+                uint numConditions = (uint)grps[i].GetData("numConditions");
+
+                //Iterates through each condition.
+                for (int j = 0; j < numConditions; j++)
+                {
+                    var condType = (GroupingCondType)
+                        grps[i].GetData("conditionType" + j);
+
+                    if (condType == GroupingCondType.ByLetter)
+                    {
+                        //Gets condition data.
+                        var condFromLetter = ((string)
+                            grps[i].GetData("condAddFromLetter" + j))
+                            .ToLower();
+                        var condToLetter = ((string)
+                            grps[i].GetData("condAddToLetter" + j))
+                            .ToLower();
+
+                        //Skips invalid conditions.
+                        if (condFromLetter?.Length == 0 ||
+                            condToLetter?.Length == 0)
+                        {
+                            continue;
+                        }
+
+                        //Adds if the character range matches.
+                        if (condFromLetter.CompareTo(name) <= 0 &&
+                            condToLetter.CompareTo(name) >= 0)
+                        {
+                            project.AddGroupingEntryRef(
+                                grps[i].guid,
+                                entry.guid);
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -1816,7 +1946,7 @@ namespace CrystalKeeper.Gui
 
                 //Images don't refresh dynamically, so rebuild the page.
                 //TODO: Stop tearing down the house to kill a spider...
-                page.InvalidateEntirePage += new EventHandler((a, b) =>
+                page.InvalidatePage += new EventHandler((a, b) =>
                 {
                     SetPage();
                     return;
@@ -1825,6 +1955,138 @@ namespace CrystalKeeper.Gui
                 gui.GuiContent.Content = page.Gui;
             }
             #endregion
+        }
+
+        /// <summary>
+        /// Updates the gui and recent files in response to the save location.
+        /// </summary>
+        private void UpdateRecentFiles()
+        {
+            //Adds the url.
+            if (saveUrl != String.Empty && saveUrl != null)
+            {
+                Utils.RegAddRecentlyOpen(saveUrl);
+            }
+
+            var urls = Utils.GetRecentlyOpened().Split('|');
+            gui.GuiFileRecent.Items.Clear();
+
+            //Shows the url only if recent files are recorded.
+            if (urls.Length == 0 || (urls.Length == 1 && urls[0] == String.Empty))
+            {
+                gui.GuiFileRecent.Visibility = Visibility.Collapsed;
+                gui.GuiFileRecent.IsEnabled = false;
+            }
+            else
+            {
+                gui.GuiFileRecent.Visibility = Visibility.Visible;
+                gui.GuiFileRecent.IsEnabled = true;
+            }
+
+            //Adds each recent file.
+            for (int i = 0; i < urls.Length; i++)
+            {
+                MenuItem item = new MenuItem();
+                item.Header = Path.GetFileName(urls[i]);
+                item.Tag = urls[i];
+                item.ToolTip = urls[i];
+
+                //Loads from the recent URL if possible.
+                item.Click += (a, b) =>
+                {
+                    string url = (string)item.Tag;
+                    if (File.Exists(url))
+                    {
+                        Project tempProj = Project.Load(url);
+                        if (tempProj != null)
+                        {
+                            SaveUrl = url;
+
+                            //Sets the project and resets bindings.
+                            project = tempProj;
+                            project.Items.CollectionChanged += ChangeTreeview;
+
+                            //Reconstructs the treeview and expands it.
+                            ConstructVisuals();
+                        }
+                        else
+                        {
+                            //Removes the file if it can't be found.
+                            MessageBox.Show("The project at " + url +
+                                " could not be loaded.");
+
+                            Utils.RegRemoveRecentlyOpen(url);
+                            gui.GuiFileRecent.Items.Remove(item);
+                        }
+                    }
+                    else
+                    {
+                        //Removes the file if it can't be found.
+                        MessageBox.Show("The project at " + url +
+                            " could not be found.");
+
+                        Utils.RegRemoveRecentlyOpen(url);
+                        gui.GuiFileRecent.Items.Remove(item);
+                    }
+                };
+
+                //Adds the option only if the file exists.
+                if (File.Exists((string)item.Tag))
+                {
+                    gui.GuiFileRecent.Items.Add(item);
+                }
+            }
+
+            //Hides the recent files if none were added.
+            if (gui.GuiFileRecent.Items.Count == 0)
+            {
+                gui.GuiFileRecent.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                gui.GuiFileRecent.Visibility = Visibility.Visible;
+            }
+        }
+
+        /// <summary>
+        /// Shows a dialog to print the current page view.
+        /// </summary>
+        private void Print()
+        {
+            //Prompts the user with printing options.
+            PrintDialog dlg = new PrintDialog();
+            dlg.UserPageRangeEnabled = false;
+
+            //Prints content area with overlying gui elements hidden.
+            if (dlg.ShowDialog() == true)
+            {
+                bool wasEditing = isEditing;
+
+                //Switches to view mode (editing becomes false).
+                if (isEditing == true)
+                {
+                    GuiToggleMode_MouseDown(null, null);
+                }
+
+                //Hides surrounding elements.
+                gui.GuiPrint.Visibility = Visibility.Hidden;
+                gui.GuiToggleMode.Visibility = Visibility.Hidden;
+                gui.GuiContent.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+
+                //Prints.
+                VisualPrinter.PrintAcrossPages(dlg, gui.GuiContent);
+
+                //Reveals surrounding elements.
+                gui.GuiPrint.Visibility = Visibility.Visible;
+                gui.GuiToggleMode.Visibility = Visibility.Visible;
+                gui.GuiContent.VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
+
+                //Switches back to edit mode (editing becomes true).
+                if (wasEditing != isEditing)
+                {
+                    GuiToggleMode_MouseDown(null, null);
+                }
+            }
         }
         #endregion
 

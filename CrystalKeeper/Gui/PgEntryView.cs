@@ -224,10 +224,78 @@ namespace CrystalKeeper.Gui
                 StackPanel elementsContainer = new StackPanel();
 
                 //Displays text fields.
+                //Text is stored in the binary XamlPackage format.
+                if (templateType == TemplateFieldType.Text)
+                {
+                    RichTextBoxNoMargins fieldDataGui = new RichTextBoxNoMargins();
+                    fieldDataGui.Textbox.FontFamily = new FontFamily(tFontFamilies);
+                    fieldDataGui.Textbox.Foreground = tContentColor;
+                    fieldDataGui.Textbox.Margin = new Thickness(0, 4, 0, 12);
+                    fieldDataGui.Textbox.IsReadOnly = true;
+
+                    //Set thickness since border color changes dynamically.
+                    fieldDataGui.Textbox.BorderThickness = new Thickness(0);
+
+                    //Loads the XamlPackage if possible.
+                    if (fieldData is byte[])
+                    {
+                        TextRange txt = new TextRange(
+                            fieldDataGui.Textbox.Document.ContentStart,
+                            fieldDataGui.Textbox.Document.ContentEnd);
+
+                        using (MemoryStream ms = new MemoryStream((byte[])fieldData))
+                        {
+                            try
+                            {
+                                txt.Load(ms, DataFormats.XamlPackage);
+                            }
+                            catch (ArgumentException) { }
+                        }
+
+                        //Does not display empty fields.
+                        if (String.IsNullOrWhiteSpace(txt.Text))
+                        {
+                            continue;
+                        }
+                    }
+
+                    //Skips rendering for empty strings (given if 0 bytes).
+                    else
+                    {
+                        continue;
+                    }
+
+                    //Gets whether the title is visible or not.
+                    if (tfTitleIsVisible)
+                    {
+                        //Gets whether the title is inline with the field or not.
+                        if (tfTitleIsInline)
+                        {
+                            WrapPanel inlineTitlePanel = new WrapPanel();
+                            inlineTitlePanel.Children.Add(fieldNameGui);
+                            inlineTitlePanel.Children.Add(fieldDataGui);
+                            elementsContainer.Children.Add(inlineTitlePanel);
+                        }
+                        else
+                        {
+                            elementsContainer.Children.Add(fieldNameGui);
+                            elementsContainer.Children.Add(fieldDataGui);
+                        }
+                    }
+
+                    //Adds the field.
+                    else
+                    {
+                        elementsContainer.Children.Add(fieldDataGui);
+                    }
+                }
+
+                //Displays text fields.
                 //Data is stored as a string.
-                if (templateType == TemplateFieldType.Text ||
-                    templateType == TemplateFieldType.Text_Formula ||
-                    templateType == TemplateFieldType.Text_Minerals)
+                if (templateType == TemplateFieldType.Min_Formula ||
+                    templateType == TemplateFieldType.Min_Name ||
+                    templateType == TemplateFieldType.Min_Group ||
+                    templateType == TemplateFieldType.Min_Locality)
                 {
                     //Does not display empty text fields.
                     if (String.IsNullOrWhiteSpace((string)fieldData))
@@ -239,11 +307,11 @@ namespace CrystalKeeper.Gui
                     fieldDataGui.FontFamily = new FontFamily(tFontFamilies);
                     fieldDataGui.Foreground = tContentColor;
                     fieldDataGui.Margin = new Thickness(2, 4, 2, 12);
-                    fieldDataGui.MinWidth = 32;
                     fieldDataGui.Text = (string)fieldData;
                     fieldDataGui.TextWrapping = TextWrapping.Wrap;
 
-                    if (templateType == TemplateFieldType.Text_Formula)
+                    //Parses the appearance of mineral formulas.
+                    if (templateType == TemplateFieldType.Min_Formula)
                     {
                         //Gets text, tracks alignment, and makes a run.
                         string text = fieldDataGui.Text;
@@ -295,10 +363,10 @@ namespace CrystalKeeper.Gui
                         fieldDataGui.Inlines.Add(run);
                     }
 
-                    //Sets whether the title is visible or not.
+                    //Gets whether the title is visible or not.
                     if (tfTitleIsVisible)
                     {
-                        //Sets whether the title is inline with the field or not.
+                        //Gets whether the title is inline with the field or not.
                         if (tfTitleIsInline)
                         {
                             WrapPanel inlineTitlePanel = new WrapPanel();
@@ -333,7 +401,8 @@ namespace CrystalKeeper.Gui
                     }
 
                     //Creates the hyperlink only if it's a valid internet url.
-                    if (Uri.TryCreate(url, UriKind.Absolute, out Uri uriResult) &&
+                    Uri uriResult;
+                    if (Uri.TryCreate(url, UriKind.Absolute, out uriResult) &&
                         (uriResult.Scheme == Uri.UriSchemeHttp ||
                         uriResult.Scheme == Uri.UriSchemeHttps))
                     {
@@ -437,9 +506,9 @@ namespace CrystalKeeper.Gui
                     bool isAnimated = false;
 
                     //Loads the data if it exists, or sets it if empty.
-                    if (((string)fieldData) == "")
+                    if (((string)fieldData) == String.Empty)
                     {
-                        allData = new List<string>() { "False", "" };
+                        allData = new List<string>() { "False", String.Empty };
                     }
                     else
                     {
@@ -447,11 +516,7 @@ namespace CrystalKeeper.Gui
                     }
 
                     //Gets whether the image is animated or not.
-                    string isAnimatedStr = allData[0];
-                    if (isAnimatedStr == "True")
-                    {
-                        isAnimated = true;
-                    }
+                    isAnimated = (allData[0] == "True");
 
                     //Gets url data.
                     loadedUrls = allData.GetRange(1, allData.Count - 1);
@@ -484,18 +549,32 @@ namespace CrystalKeeper.Gui
                     //Still images that do not rotate and are not movies.
                     if (!isAnimated)
                     {
+                        StackPanel imagesContainer = new StackPanel();
+
                         //Creates an image for each url.
                         for (int j = 0; j < loadedUrls.Count; j++)
                         {
                             ImgThumbnail thumbnail = new ImgThumbnail(loadedUrls[j]);
-                            thumbnail.Margin = new Thickness(2, 4, 2, 12);
+
+                            //Sets margins based on orientation.
+                            if (templateType == TemplateFieldType.EntryImages &&
+                                (tExtraImagePos == TemplateImagePos.Left ||
+                                tExtraImagePos == TemplateImagePos.Right))
+                            {
+                                thumbnail.Margin = new Thickness(4, 2, 12, 2);
+                            }
+                            else
+                            {
+                                thumbnail.Margin = new Thickness(2, 4, 2, 12);
+                            }
 
                             //Resizes the image.
                             thumbnail.Loaded += (a, b) =>
                             {
                                 if (thumbnail.ActualWidth > 0)
                                 {
-                                    thumbnail.SetSize(150);
+                                    thumbnail.MaxWidth = thumbnail.GetSourceWidth();
+                                    thumbnail.MaxHeight = thumbnail.GetSourceHeight();
                                 }
                                 else
                                 {
@@ -503,8 +582,45 @@ namespace CrystalKeeper.Gui
                                 }
                             };
 
-                            elementsContainer.Children.Add(thumbnail);
+                            imagesContainer.Children.Add(thumbnail);
+
+                            //Exits when 1 + number of extra images are displayed.
+                            if (templateType == TemplateFieldType.EntryImages &&
+                                j == tNumExtraImages &&
+                                tNumExtraImages > 0)
+                            {
+                                break;
+                            }
                         }
+
+                        if (templateType == TemplateFieldType.EntryImages)
+                        {
+                            //Reverses element order.
+                            if (tExtraImagePos == TemplateImagePos.Above ||
+                                tExtraImagePos == TemplateImagePos.Left)
+                            {
+                                List<UIElement> elements = new List<UIElement>();
+                                for (int j = 0; j < imagesContainer.Children.Count; j++)
+                                {
+                                    elements.Add(imagesContainer.Children[j]);
+                                }
+                                elements.Reverse();
+                                imagesContainer.Children.Clear();
+                                for (int j = 0; j < elements.Count; j++)
+                                {
+                                    imagesContainer.Children.Add(elements[j]);
+                                }
+                            }
+
+                            //Changes orientation.
+                            if (tExtraImagePos == TemplateImagePos.Left ||
+                                tExtraImagePos == TemplateImagePos.Right)
+                            {
+                                imagesContainer.Orientation = Orientation.Horizontal;
+                            }
+                        }
+
+                        elementsContainer.Children.Add(imagesContainer);
                     }
 
                     //Images that rotate or are movies.
@@ -524,13 +640,22 @@ namespace CrystalKeeper.Gui
                             try
                             {
                                 media.Source = new Uri(loadedUrls[0]);
+                                media.MediaOpened += (a, b) =>
+                                {
+                                    media.MaxWidth = media.NaturalVideoWidth;
+                                    media.MaxHeight = media.NaturalVideoHeight;
+                                };
+                                media.MediaEnded += (a, b) =>
+                                {
+                                    media.Position = new TimeSpan(0, 0, 1);
+                                };
                             }
                             catch (InvalidOperationException) { } //Ignores loading errors.
                             catch (ArgumentNullException) { } //Ignores loading errors.
                             catch (UriFormatException) { } //Ignores loading errors.
                             catch (Exception e) //Logs unknown errors.
                             {
-                                Utils.Log(e.Message);
+                                Utils.Log("While loading media: " + e.Message);
                             }
                         }
 
@@ -539,6 +664,8 @@ namespace CrystalKeeper.Gui
                         {
                             thumbnail = new ImgAnimated(loadedUrls, true);
                             thumbnail.Margin = new Thickness(2, 4, 2, 12);
+                            thumbnail.MaxWidth = thumbnail.GetSourceWidth();
+                            thumbnail.MaxHeight = thumbnail.GetSourceHeight();
                         }
 
                         if (media != null)

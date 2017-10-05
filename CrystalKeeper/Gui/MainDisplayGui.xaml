@@ -19,6 +19,7 @@
                 <!--A submenu of recent files is auto-populated.-->
                 <MenuItem Name="GuiFileNew" Header="New" InputGestureText="Ctrl+N"/>
                 <MenuItem Name="GuiFileOpen" Header="Open" InputGestureText="Ctrl+O"/>
+                <MenuItem Name="GuiFileRecent" Header="Recent" IsEnabled="False"/>
                 <MenuItem Name="GuiFileSave" Header="Save" InputGestureText="Ctrl+S"/>
                 <MenuItem Name="GuiFileSaveAs" Header="Save As" InputGestureText="Ctrl+Alt+S"/>
             </MenuItem>
@@ -207,13 +208,22 @@
                     HorizontalScrollBarVisibility="Disabled"
                     VerticalScrollBarVisibility="Visible">
                 </ScrollViewer>
+                <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top">
+                    <Image Name="GuiPrint"
+                   DockPanel.Dock="Left"
+                   Margin="0,4,24,0"
+                   Visibility="Visible"
+                   Source="pack://application:,,,/Assets/BttnPrint.png"
+                   Stretch="None"/>
                 <Image Name="GuiToggleMode"
-                   HorizontalAlignment="Right"
-                   VerticalAlignment="Top"
+                   DockPanel.Dock="Right"
                    Margin="0,4,24,0"
                    Visibility="Visible"
                    Source="pack://application:,,,/Assets/BttnEdit.png"
                    Stretch="None"/>
+                </StackPanel>
             </Grid>
         </Grid>
         <!--Tooltip content automatically added.-->

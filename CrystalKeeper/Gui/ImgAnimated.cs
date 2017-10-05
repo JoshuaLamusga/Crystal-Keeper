@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
@@ -378,6 +379,22 @@ namespace CrystalKeeper.Gui
         public List<string> GetUrls()
         {
             return new List<string>(imgUrls);
+        }
+
+        /// <summary>
+        /// Returns the height of the underlying image source.
+        /// </summary>
+        public double GetSourceHeight()
+        {
+            return images?.ElementAtOrDefault(0)?.Height ?? 0;
+        }
+
+        /// <summary>
+        /// Returns the width of the underlying image source.
+        /// </summary>
+        public double GetSourceWidth()
+        {
+            return images?.ElementAtOrDefault(0)?.Width ?? 0;
         }
         #endregion
     }

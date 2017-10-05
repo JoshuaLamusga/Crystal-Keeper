@@ -30,7 +30,8 @@
         <!-- Creates a grid to contain all dynamic data. -->
         <Grid Name="ColumnGrid"
               Grid.Row="2"
-              HorizontalAlignment="Stretch">
+              HorizontalAlignment="Stretch"
+              MaxWidth="600">
             <!-- Defines each column. -->
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Name="LeftCol"/>
@@ -39,12 +40,12 @@
             
             <!-- Creates a stackpanel for both columns. -->
             <StackPanel Name="LeftColItems"
-                        Grid.Column="0"
-                        HorizontalAlignment="Center">
+                Grid.Column="0"
+                HorizontalAlignment="Stretch">
             </StackPanel>
             <StackPanel Name="RightColItems"
-                        Grid.Column="1"
-                        HorizontalAlignment="Center">
+                Grid.Column="1"
+                HorizontalAlignment="Stretch">
             </StackPanel>
         </Grid>
     </Grid>

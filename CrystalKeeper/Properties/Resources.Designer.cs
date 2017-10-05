@@ -61,17 +61,19 @@ namespace CrystalKeeper.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Abellaite||NaPb_2_(CO_3_)_2_(OH)|Spain
-        ///Abelsonite||NiC_31_H_32_N_4_|USA
-        ///Abenakiite-(Ce)||Na_26_Ce_6_(SiO_3_)_6_(PO_4_)_6_(CO_3_)_6_(SO_2_)O|Canada
-        ///Abernathyite|Natroautunite group|K(UO_2_)AsO_4_·3H_2_O|USA
-        ///Abhurite||Sn^2+^_21_O_6_(OH)_14_Cl_16_|Saudi Arabia
-        ///Abramovite||Pb_2_SnInBiS_7_|Russia
-        ///Abswurmbachite|Braunite group|Cu^2+^Mn^3+^_6_O_8_(SiO_4_)|Greece
-        ///Abuite||CaAl_2_(PO_4_)_2_F_2_|Japan
-        ///Acanthite|Acanthite group|Ag_2_S|Czech Republic
-        ///Acetamide||CH_3_CONH_2_|Ukraine
-        ///Achalaite|Wodginite group|(F [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to Abakusz-kő||||0
+        ///Abellaite||NaPb_2_(CO_3_)_2_(OH)|Spain|1
+        ///Abelsonite||NiC_31_H_32_N_4_|USA|1
+        ///Abenakiite-(Ce)||Na_26_Ce_6_(SiO_3_)_6_(PO_4_)_6_(CO_3_)_6_(SO_2_)O|Canada|1
+        ///Abernathyite|Natroautunite group|K(UO_2_)AsO_4_·3H_2_O|USA|1
+        ///Abhurite||Sn^2+^_21_O_6_(OH)_14_Cl_16_|Saudi Arabia|1
+        ///Ablykite||||0
+        ///Abramovite||Pb_2_SnInBiS_7_|Russia|1
+        ///Abrazite||||0
+        ///Absarokite||||0
+        ///Absite||Ti_7_U_2_ThO_20_·5H_2_0|Australia|0
+        ///Abswurmbachite|Braunite group|Cu^2+^Mn^3+^_6_O_8_(SiO_4_)|Greece|1
+        ///Abuite||CaAl_2_(PO_4_)_2 [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string Minerals {
             get {

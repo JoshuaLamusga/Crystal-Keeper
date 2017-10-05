@@ -221,9 +221,9 @@ namespace CrystalKeeper.Core
                             item.SetData("refGuid", reader.ReadUInt64());
                             item.SetData("templateFieldGuid", reader.ReadUInt64());
 
-                            //Declares the size of the data chunk, then loads it.
+                            //Gets the size of the data chunk, then loads it.
                             int numBytes = reader.ReadInt32();
-                            item.SetData("data", Utils.ByteArrayToObject(reader.ReadBytes(numBytes)));
+                            item.SetData("data", reader.ReadBytes(numBytes));
                             break;
                         case DataItemTypes.Grouping:
                             item.SetData("name", reader.ReadString());
@@ -234,10 +234,9 @@ namespace CrystalKeeper.Core
                             item.SetData("numConditions", numConditions);
                             for (int i = 0; i < numConditions; i++)
                             {
-                                item.SetData("conditionType" + i, reader.ReadByte());
-                                item.SetData("name1" + i, reader.ReadString());
-                                item.SetData("name2" + i, reader.ReadString());
-                                item.SetData("fieldGuid" + i, reader.ReadUInt64());
+                                item.SetData("conditionType" + i, (GroupingCondType)reader.ReadInt32());
+                                item.SetData("condAddFromLetter" + i, reader.ReadString());
+                                item.SetData("condAddToLetter" + i, reader.ReadString());
                             }
                             break;
                         case DataItemTypes.GroupingEntryRef:
@@ -270,10 +269,39 @@ namespace CrystalKeeper.Core
                             item.SetData("isTitleVisible", reader.ReadBoolean());
                             item.SetData("isTitleInline", reader.ReadBoolean());
                             item.SetData("columnOrder", reader.ReadInt32());
+                            item.SetData("numExtraImages", reader.ReadByte());
+                            item.SetData("extraImagePos", reader.ReadInt32());
                             break;
                     }
 
                     newItems.Add(item);
+                }
+
+                //Parses non-binary entry field data. Text fields are XamlPackage.
+                var fields = newItems.Where(o => o.type == DataItemTypes.EntryField).ToList();
+                for (int i = 0; i < fields.Count; i++)
+                {
+                    var tField = newItems.FirstOrDefault(
+                        o => o.guid == (ulong)fields[i].GetData("templateFieldGuid"));
+
+                    if ((TemplateFieldType)tField?.GetData("dataType") != TemplateFieldType.Text)
+                    {
+                        try
+                        {
+                            fields[i].SetData("data", Utils.ByteArrayToObject(
+                                (byte[])fields[i].GetData("data")));
+                        }
+                        catch (System.Runtime.Serialization.SerializationException)
+                        {
+                            Utils.Log("Cannot serialize " + url + " to load.");
+
+                            //Tell the user the file did not load and cancel it.
+                            MessageBox.Show("The file could not be loaded because " +
+                                "it is unrecognizable or not a Crystal Keeper file.");
+
+                            return null;
+                        }
+                    }
                 }
 
                 //Constructs the new project instance.
@@ -372,7 +400,7 @@ namespace CrystalKeeper.Core
 
             //Ensures the database image path is relative.
             string newPath = Utils.MakeRelativeUrl(url, (string)GetDatabase().GetData("imageUrl"));
-            if (newPath != "")
+            if (newPath != String.Empty)
             {
                 GetDatabase().SetData("imageUrl", newPath);
             }
@@ -402,7 +430,7 @@ namespace CrystalKeeper.Core
                         for (int k = 1; k < data.Length; k++)
                         {
                             string newUrl = Utils.MakeRelativeUrl(url, data[k]);
-                            if (newUrl != "")
+                            if (newUrl != String.Empty)
                             {
                                 newData += newUrl;
                             }
@@ -465,10 +493,9 @@ namespace CrystalKeeper.Core
                             //Sets group conditions.
                             for (int j = 0; j < (uint)item.GetData("numConditions"); j++)
                             {
-                                writer.Write((byte)item.GetData("conditionType" + j));
-                                writer.Write((string)item.GetData("name1" + j));
-                                writer.Write((string)item.GetData("name2" + j));
-                                writer.Write((ulong)item.GetData("fieldGuid" + j));
+                                writer.Write((int)(GroupingCondType)item.GetData("conditionType" + j));
+                                writer.Write((string)item.GetData("condAddFromLetter" + j));
+                                writer.Write((string)item.GetData("condAddToLetter" + j));
                             }
                             break;
                         case DataItemTypes.GroupingEntryRef:
@@ -501,6 +528,8 @@ namespace CrystalKeeper.Core
                             writer.Write((bool)item.GetData("isTitleVisible"));
                             writer.Write((bool)item.GetData("isTitleInline"));
                             writer.Write((int)item.GetData("columnOrder"));
+                            writer.Write((byte)item.GetData("numExtraImages"));
+                            writer.Write((int)item.GetData("extraImagePos"));
                             break;
                     }
                 }
@@ -632,6 +661,61 @@ namespace CrystalKeeper.Core
             item.SetData("isTitleVisible", isTitleVisible);
             item.SetData("isTitleInline", isTitleInline);
             item.SetData("columnOrder", columnOrder);
+            item.SetData("numExtraImages", (byte)3);
+            item.SetData("extraImagePos", TemplateImagePos.Under);
+
+            _items.Add(item);
+            return item.guid;
+        }
+
+        /// <summary>
+        /// Adds a field to a template.
+        /// </summary>
+        /// <param name="name">
+        /// A user-friendly name for the object.
+        /// </param>
+        /// <param name="templateColumnGuid">
+        /// The guid of the containing column this field belongs to.
+        /// </param>
+        /// <param name="isVisible">
+        /// True if the field should be visible to the user.
+        /// </param>
+        /// <param name="dataType">
+        /// Represents the type of data the field can contain.
+        /// </param>
+        /// <param name="columnOrder">
+        /// Represents the position of the field in the column.
+        /// </param>
+        /// <param name="numExtraImages">
+        /// The number of images to display (for image-related fields).
+        /// </param>
+        /// <param name="extraImagePos">
+        /// The orientation to display extra images (for image-related fields).
+        /// </param>
+        public ulong AddTemplateField(
+            string name,
+            ulong templateColumnGuid,
+            TemplateFieldType dataType,
+            bool isVisible,
+            bool isTitleVisible,
+            bool isTitleInline,
+            int columnOrder,
+            byte numExtraImages,
+            TemplateImagePos extraImagePos)
+        {
+            DataItem item = new DataItem(
+                NewGuid(),
+                DataItemTypes.TemplateField);
+
+            item.SetData("name", name);
+            item.SetData("refGuid", templateColumnGuid);
+            item.SetData("dataType", (int)dataType);
+            item.SetData("isVisible", isVisible);
+            item.SetData("isTitleVisible", isTitleVisible);
+            item.SetData("isTitleInline", isTitleInline);
+            item.SetData("columnOrder", columnOrder);
+            item.SetData("numExtraImages", numExtraImages);
+            item.SetData("extraImagePos", extraImagePos);
 
             _items.Add(item);
             return item.guid;
@@ -753,16 +837,13 @@ namespace CrystalKeeper.Core
             }
 
             //Gets the number of conditions and adds 1.
-            uint numConditions = 0;
-            uint.TryParse((string)item.GetData("numConditions"), out numConditions);
-            numConditions += 1;
+            uint numConditions = (uint)item.GetData("numConditions") + 1;
             item.SetData("numConditions", numConditions);
 
             //Sets condition data.
-            item.SetData("conditionType" + numConditions, (byte)0);
-            item.SetData("name1" + numConditions, startingLetter);
-            item.SetData("name2" + numConditions, endingLetter);
-            item.SetData("fieldGuid" + numConditions, (ulong)0);
+            item.SetData("conditionType" + numConditions, GroupingCondType.ByLetter);
+            item.SetData("condAddFromLetter" + numConditions, startingLetter);
+            item.SetData("condAddToLetter" + numConditions, endingLetter);
             return true;
         }
 

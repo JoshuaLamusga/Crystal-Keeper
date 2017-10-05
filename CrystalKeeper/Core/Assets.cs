@@ -26,6 +26,12 @@
         public const string BttnEditHover =
             "pack://application:,,,/Assets/BttnEditHover.png";
 
+        public const string BttnPrint =
+            "pack://application:,,,/Assets/BttnPrint.png";
+
+        public const string BttnPrintHover =
+            "pack://application:,,,/Assets/BttnPrintHover.png";
+
         public const string Logo =
             "pack://application:,,,/Assets/Logo.png";
 

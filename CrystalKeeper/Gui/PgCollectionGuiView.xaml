@@ -18,5 +18,14 @@
                    FontSize="24px"
                    Width="300px"
                    MaxWidth="300px"/>
+
+        <!--Description. Text set automatically.-->
+        <TextBlock Name="TxtbxDescription"
+            Padding="0,0,0,24px"
+            TextAlignment="Center"
+            FontSize="16px"
+            Width="300px"
+            MaxWidth="300px"
+            FontStyle="Italic"/>
     </StackPanel>
 </UserControl>

@@ -68,5 +68,24 @@
                     Margin="4px"/>
             </StackPanel>
         </Grid>
+        <Separator/>
+        <TextBlock Margin="4">
+            Conditions to automatically add entries
+        </TextBlock>
+        <StackPanel Name="GroupConditions">
+            <!--Conditions are programmatically generated.-->
+        </StackPanel>
+        <WrapPanel>
+            <Button Name="BttnCondAdd"
+                Padding="4"
+                Margin="4">
+                New condition
+            </Button>
+            <Button Name="BttnCondApply"
+                Padding="4"
+                Margin="4">
+                Evaluate conditions
+            </Button>
+        </WrapPanel>
     </StackPanel>
 </UserControl>

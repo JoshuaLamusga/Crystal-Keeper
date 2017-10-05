@@ -21,7 +21,7 @@ namespace CrystalKeeper.Gui
         /// <summary>
         /// The url storing the image location.
         /// </summary>
-        private string imgUrl;
+        public string ImgUrl { get; private set; }
         #endregion
 
         #region Constructors
@@ -32,7 +32,7 @@ namespace CrystalKeeper.Gui
             : base()
         {
             img = null;
-            imgUrl = String.Empty;
+            ImgUrl = String.Empty;
 
             SetHandlers();
             SetImage();
@@ -48,7 +48,7 @@ namespace CrystalKeeper.Gui
             : base()
         {
             img = null;
-            imgUrl = url;
+            ImgUrl = url;
 
             if (doOpenDialog)
             {
@@ -68,7 +68,7 @@ namespace CrystalKeeper.Gui
             MouseUp += new MouseButtonEventHandler((a, b) =>
             {
                 DlgImgDisplay gui = new DlgImgDisplay();
-                gui.Add(imgUrl);
+                gui.Add(ImgUrl);
                 gui.Show();
             });
         }
@@ -80,7 +80,7 @@ namespace CrystalKeeper.Gui
         private void SetImage()
         {
             //Sets no image if the url is empty or not found.
-            if (string.IsNullOrEmpty(imgUrl) || !File.Exists(imgUrl))
+            if (string.IsNullOrEmpty(ImgUrl) || !File.Exists(ImgUrl))
             {
                 return;
             }
@@ -88,7 +88,7 @@ namespace CrystalKeeper.Gui
             //Loads a bitmap and ensures it has content before using it.
             try
             {
-                BitmapImage image = new BitmapImage(new Uri(imgUrl, UriKind.Relative));
+                BitmapImage image = new BitmapImage(new Uri(ImgUrl, UriKind.Relative));
                 if (image != null && image.Width > 0 && image.Height > 0)
                 {
                     img = image;
@@ -108,7 +108,7 @@ namespace CrystalKeeper.Gui
             };
 
             //Executes the action (unless there's a race condition).
-            try { Dispatcher.Invoke(action); } catch {}
+            try { Dispatcher.Invoke(action); } catch { }
         }
 
         /// <summary>

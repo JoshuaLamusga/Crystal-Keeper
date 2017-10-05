@@ -25,6 +25,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -39,10 +41,12 @@
     <ApplicationIcon>Assets\CrystalKeeperIco.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ReachFramework" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Printing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -64,6 +68,8 @@
     <Compile Include="Core\Assets.cs" />
     <Compile Include="Core\DataItem.cs" />
     <Compile Include="Core\DataItemTypes.cs" />
+    <Compile Include="Core\GroupingCondType.cs" />
+    <Compile Include="Core\VisualPrinter.cs" />
     <Compile Include="Core\Project.cs" />
     <Compile Include="Core\TemplateFieldType.cs" />
     <Compile Include="Core\TemplateImagePos.cs" />
@@ -189,6 +195,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Gui\RichTextBoxNoMargins.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Gui\RichTextEditorGui.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Gui\SearchboxGui.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -203,10 +217,18 @@
       <DependentUpon>PgGroupingGuiView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Gui\PgGroupingView.cs" />
+    <Compile Include="Gui\RichTextBoxNoMargins.xaml.cs">
+      <DependentUpon>RichTextBoxNoMargins.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Gui\RichTextEditorGui.xaml.cs">
+      <DependentUpon>RichTextEditorGui.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Gui\Searchbox.cs" />
     <Compile Include="Gui\SearchboxGui.xaml.cs">
       <DependentUpon>SearchboxGui.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Gui\RichTextEditor.cs" />
+    <Compile Include="Gui\ZoomBorder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -270,6 +292,22 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Minerals.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\BrokenImage.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\BttnBold.png" />
+    <Resource Include="Assets\BttnFontColor.png" />
+    <Resource Include="Assets\BttnItalic.png" />
+    <Resource Include="Assets\BttnUnderline.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\BttnStrikethrough.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\BttnPrint.png" />
+    <Resource Include="Assets\BttnPrintHover.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
