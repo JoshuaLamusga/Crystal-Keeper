@@ -117,7 +117,7 @@ namespace CrystalKeeper.Core
 
                         //Breaks bitmap to fit across pages.
                         int pageBreak = 0;
-                        int previousPageBreak = 0;
+                        int lastPageBreak = 0;
                         int pageHeight = (int)
                             (capabilities.PageImageableArea.ExtentHeight * dpiScale);
 
@@ -125,33 +125,24 @@ namespace CrystalKeeper.Core
                         while (pageBreak < bmp.Height - pageHeight)
                         {
                             pageBreak += pageHeight;
+                            
+                            //Finds a page breakpoint from bottom, up.
+                            pageBreak = FindRowBreakpoint(bmp, lastPageBreak, pageBreak);
 
-                            //Moves up in rows to find a place to break the page.
-                            while (pageBreak > previousPageBreak &&
-                                !IsRowGoodBreakingPoint(bmp, pageBreak))
-                            {
-                                pageBreak--;
-                            }
-
-                            //If no good row to break on was found,
-                            //forcefully breaks at the original page size.
-                            if (pageBreak == previousPageBreak)
-                            {
-                                pageBreak += pageHeight;
-                            }
-
+                            //Adds the image segment to its own page.
                             PageContent pageContent = GeneratePageContent(
-                                bmp, previousPageBreak,
-                                pageBreak, document.DocumentPaginator.PageSize.Width,
-                                document.DocumentPaginator.PageSize.Height, capabilities);
+                                bmp, lastPageBreak, pageBreak,
+                                document.DocumentPaginator.PageSize.Width,
+                                document.DocumentPaginator.PageSize.Height,
+                                capabilities);
 
                             document.Pages.Add(pageContent);
-                            previousPageBreak = pageBreak;
+                            lastPageBreak = pageBreak;
                         }
 
                         //Adds remaining page contents.
                         PageContent lastPageContent = GeneratePageContent(
-                            bmp, previousPageBreak,
+                            bmp, lastPageBreak,
                             bmp.Height, document.DocumentPaginator.PageSize.Width,
                             document.DocumentPaginator.PageSize.Height, capabilities);
 
@@ -197,6 +188,74 @@ namespace CrystalKeeper.Core
         #endregion
 
         #region Private Methods
+        /// <summary>
+        /// Iterates from the bottom line upwards to the top (so as to trim as
+        /// little as possible from the complete page) to determine where to
+        /// separate a page. Returns the row to break, or last if none found.
+        /// </summary>
+        private static unsafe int FindRowBreakpoint(
+            System.Drawing.Bitmap bmp,
+            int topLine,
+            int bottomLine)
+        {
+            //Any computed deviation above the threshold
+            //is considered too detailed to break on.
+            double deviationThreshold = 1627500;
+
+            //Locks to read data.
+            System.Drawing.Imaging.BitmapData bmpData = bmp.LockBits(
+                new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height),
+                System.Drawing.Imaging.ImageLockMode.ReadOnly, bmp.PixelFormat);
+
+            //Sets the initial row and position.
+            int stride = bmpData.Stride;
+            IntPtr topLeftPixel = bmpData.Scan0;
+            byte* p = (byte*)(void*)topLeftPixel;
+
+            //Iterates from bottom to top to find a breakable row.
+            for (int i = bottomLine; i > topLine; i--)
+            {
+                int count = 0;
+                double total = 0;
+                double totalVariance = 0;
+
+                //Sets pointer to this row.
+                p = (byte*)(void*)topLeftPixel + stride * i;
+
+                //Iterates through each consecutive pixel in the given row.
+                for (int column = 0; column < bmp.Width; column++)
+                {
+                    count++;
+
+                    byte red = p[1];
+                    byte green = p[2];
+                    byte blue = p[3];
+
+                    //Faster than System.Drawing.Color.FromArgb(0, red, green, blue).ToArgb().
+                    int pixelValue = (red << 16) | (green << 8) | blue;
+
+                    total += pixelValue;
+                    double average = total / count;
+                    totalVariance += (pixelValue - average) * (pixelValue - average);
+
+                    //Skips to next pixel.
+                    p += 4;
+                }
+
+                //Breaks on this line if possible.
+                double standardDeviation = Math.Sqrt(totalVariance / count);
+                if (Math.Sqrt(totalVariance / count) < deviationThreshold)
+                {
+                    bmp.UnlockBits(bmpData);
+                    return i;
+                }
+            }
+
+            //Breaks on the last line given if no break row is found.
+            bmp.UnlockBits(bmpData);
+            return bottomLine;
+        }
+
         /// <summary>
         /// Sizes the given bitmap to the page size and returns it as part
         /// of a printable page.
@@ -255,73 +314,6 @@ namespace CrystalKeeper.Core
             pageImage.Width = capabilities.PageImageableArea.ExtentWidth - horzBorder*2;
             pageImage.Height = capabilities.PageImageableArea.ExtentHeight - vertBorder*2;
             return pageContent;
-        }
-
-        /// <summary>
-        /// If the colors in a bitmap row do not vary heavily, the image is
-        /// deemed to be separable at that row.
-        /// </summary>
-        private static bool IsRowGoodBreakingPoint(
-            System.Drawing.Bitmap bmp,
-            int row)
-        {
-            double maxDeviationForEmptyLine = 1627500; //A deviation tolerance
-            bool goodBreakingPoint = false;
-
-            if (RowPixelDeviation(bmp, row) < maxDeviationForEmptyLine)
-            {
-                goodBreakingPoint = true;
-            }
-
-            return goodBreakingPoint;
-        }
-
-        /// <summary>
-        /// Returns a double indicating the level of color deviation across a
-        /// row in the bitmap.
-        /// </summary>
-        private static unsafe double RowPixelDeviation(
-            System.Drawing.Bitmap bmp,
-            int row)
-        {
-            int count = 0;
-            double total = 0;
-            double totalVariance = 0;
-            double standardDeviation = 0;
-
-            //Locks to read data.
-            System.Drawing.Imaging.BitmapData bmpData = bmp.LockBits(
-                new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height),
-                System.Drawing.Imaging.ImageLockMode.ReadOnly, bmp.PixelFormat);
-            int stride = bmpData.Stride;
-            IntPtr firstPixelInImage = bmpData.Scan0;
-
-            //Gets the initial row's leftmost pixel.
-            byte* p = (byte*)(void*)firstPixelInImage;
-            p += stride * row;  //Finds starting pixel of the specified row
-
-            //Iterates through each consecutive pixel in the given row.
-            for (int column = 0; column < bmp.Width; column++)
-            {
-                count++;
-
-                byte blue = p[0];
-                byte green = p[1];
-                byte red = p[3];
-
-                int pixelValue = System.Drawing.Color.FromArgb(0, red, green, blue).ToArgb();
-                total += pixelValue;
-                double average = total / count;
-                totalVariance += Math.Pow(pixelValue - average, 2);
-                standardDeviation = Math.Sqrt(totalVariance / count);
-
-                //Skips three channels to next pixel.
-                p += 3;
-            }
-
-            bmp.UnlockBits(bmpData);
-
-            return standardDeviation;
         }
         #endregion
     }

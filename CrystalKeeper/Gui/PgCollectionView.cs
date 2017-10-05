@@ -149,7 +149,7 @@ namespace CrystalKeeper.Gui
             List<DataItem> grps =
                 Project.GetCollectionGroupings(collection);
 
-            //Adds each grouping. The "all" grouping should always exist.
+            //Adds each grouping.
             for (int i = 0; i < grps.Count; i++)
             {
                 TextBlock blk = new TextBlock();
