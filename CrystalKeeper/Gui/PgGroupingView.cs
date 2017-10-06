@@ -140,7 +140,7 @@ namespace CrystalKeeper.Gui
             //Sets the grouping name.
             if (string.IsNullOrWhiteSpace((string)grouping.GetData("name")))
             {
-                gui.TxtblkCollectionName.Text = "Untitled";
+                gui.TxtblkCollectionName.Text = GlobalStrings.NameUntitled;
             }
             else
             {
@@ -161,7 +161,7 @@ namespace CrystalKeeper.Gui
             {
                 //Creates the message as a textblock.
                 TextBlock emptyMessage = new TextBlock();
-                emptyMessage.Text = "No entries have been added to this group";
+                emptyMessage.Text = GlobalStrings.HintNoEntries;
                 emptyMessage.HorizontalAlignment = HorizontalAlignment.Center;
                 emptyMessage.VerticalAlignment = VerticalAlignment.Center;
                 emptyMessage.Foreground = Brushes.LightGray;

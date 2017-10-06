@@ -221,16 +221,18 @@ namespace CrystalKeeper.Gui
                 MessageBoxResult result = MessageBoxResult.Yes;
                 if (cols.Count > 0)
                 {
-                    result = MessageBox.Show("This template is used by " +
-                        cols.Count + "collection(s). Deleting it will " +
-                        "delete all associated collections. Are you sure?",
-                        "Confirm deleting template", MessageBoxButton.YesNo);
+                    result = MessageBox.Show(
+                        GlobalStrings.DlgDeleteTemplateWarningA + cols.Count
+                        + GlobalStrings.DlgDeleteTemplateWarningB,
+                        GlobalStrings.DlgDeleteTemplateCaption,
+                        MessageBoxButton.YesNo);
                 }
                 else
                 {
-                    result = MessageBox.Show("You are about to delete " +
-                        "this template. Are you sure?", "Confirm deleting " +
-                        "template", MessageBoxButton.YesNo);
+                    result = MessageBox.Show(
+                        GlobalStrings.DlgDeleteTemplateNoEntries,
+                        GlobalStrings.DlgDeleteTemplateCaption,
+                        MessageBoxButton.YesNo);
                 }
 
                 if (result == MessageBoxResult.Yes)
@@ -281,7 +283,7 @@ namespace CrystalKeeper.Gui
             //Sets the template name.
             if (string.IsNullOrWhiteSpace((string)template.GetData("name")))
             {
-                gui.TxtbxTemplateName.Text = "Untitled";
+                gui.TxtbxTemplateName.Text = GlobalStrings.NameUntitled;
                 template.SetData("name", gui.TxtbxTemplateName.Text);
             }
             else
@@ -312,14 +314,14 @@ namespace CrystalKeeper.Gui
             #region Extra image anchor position
             //Constructs the relevant ComboBoxItems.
             ComboBoxItem itemAbove = new ComboBoxItem();
-            itemAbove.Content = "Above";
+            itemAbove.Content = GlobalStrings.CmbxImageAnchorAbove;
             ComboBoxItem itemLeft = new ComboBoxItem();
-            itemLeft.Content = "Left of";
+            itemLeft.Content = GlobalStrings.CmbxImageAnchorLeft;
             ComboBoxItem itemRight = new ComboBoxItem();
-            itemRight.Content = "Right of";
+            itemRight.Content = GlobalStrings.CmbxImageAnchorRight;
             ComboBoxItem itemUnder = new ComboBoxItem();
 
-            itemUnder.Content = "Under";
+            itemUnder.Content = GlobalStrings.CmbxImageAnchorUnder;
             itemUnder.IsSelected = true;
 
             gui.CmbxImageAnchor.Items.Add(itemAbove);
@@ -576,7 +578,9 @@ namespace CrystalKeeper.Gui
                         //Allows renaming.
                         item.MouseDoubleClick += new MouseButtonEventHandler((a, b) =>
                         {
-                            DlgTextbox dlg = new DlgTextbox("Rename item");
+                            DlgTextbox dlg = new DlgTextbox(
+                                GlobalStrings.CaptionTextboxRename);
+
                             if (dlg.ShowDialog() == true)
                             {
                                 string result = dlg.GetText();
@@ -667,7 +671,9 @@ namespace CrystalKeeper.Gui
                                 //Allows renaming.
                                 newItem.MouseDoubleClick += new MouseButtonEventHandler((c, d) =>
                                 {
-                                    DlgTextbox dlg = new DlgTextbox("Rename item");
+                                    DlgTextbox dlg = new DlgTextbox(
+                                        GlobalStrings.CaptionTextboxRename);
+
                                     if (dlg.ShowDialog() == true)
                                     {
                                         string result = dlg.GetText();
@@ -721,11 +727,8 @@ namespace CrystalKeeper.Gui
                     }
 
                     var result = MessageBox.Show(
-                        "This template is in use. Deleting this field " +
-                            "will delete all entry data associated with " +
-                            "it. \n\nThe collections using this " +
-                            "template are: " + collectionsUsing,
-                        "Template in use",
+                        GlobalStrings.DlgDeleteField + collectionsUsing,
+                        GlobalStrings.DlgDeleteFieldCaption,
                         MessageBoxButton.OKCancel,
                         MessageBoxImage.Warning);
 
@@ -803,7 +806,9 @@ namespace CrystalKeeper.Gui
                 else if (b.Key == Key.F2 && b.IsDown && ActiveField != null)
                 {
                     //Allows renaming.
-                    DlgTextbox dlg = new DlgTextbox("Rename item");
+                    DlgTextbox dlg = new DlgTextbox(
+                        GlobalStrings.CaptionTextboxRename);
+
                     if (dlg.ShowDialog() == true)
                     {
                         string result = dlg.GetText();
@@ -886,7 +891,9 @@ namespace CrystalKeeper.Gui
                 else if (b.Key == Key.F2 && b.IsDown && ActiveField != null)
                 {
                     //Allows renaming.
-                    DlgTextbox dlg = new DlgTextbox("Rename item");
+                    DlgTextbox dlg = new DlgTextbox(
+                        GlobalStrings.CaptionTextboxRename);
+
                     if (dlg.ShowDialog() == true)
                     {
                         string result = dlg.GetText();

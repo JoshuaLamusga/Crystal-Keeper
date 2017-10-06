@@ -1,7 +1,8 @@
 ﻿<Window x:Class="CrystalKeeper.Gui.DlgAboutGui"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="About"
+        xmlns:local="clr-namespace:CrystalKeeper.Core"
+        Title="{x:Static local:GlobalStrings.CaptionAbout}"
         SizeToContent="Height"
         Width="300px"
         WindowStartupLocation="CenterScreen">
@@ -24,19 +25,19 @@
             Padding="4px, 0px, 4px, 4px"
             FontStyle="Italic"
             FontSize="10px"
-            Text="--- Version 1.0 ---"/>
+            Text="{x:Static local:GlobalStrings.TipAboutVersion}"/>
         <TextBlock
             Grid.Row="2"
             HorizontalAlignment="Center"
             TextAlignment="Center"
             Padding="4px"
-            Text="Crystal Keeper was developed as a free program for mineral collectors and hobbyists to store their mineral information in a convenient database with a neat and modern display."
+            Text="{x:Static local:GlobalStrings.TipAboutDescription}"
             TextWrapping="Wrap"
             />
         <TextBlock
             Grid.Row="3"
             HorizontalAlignment="Center"
             Padding="4px"
-            Text="Copyright © Joshua Lamusga, 2016"/>
+            Text="{x:Static local:GlobalStrings.TipAboutCopyright}"/>
     </Grid>
 </Window>

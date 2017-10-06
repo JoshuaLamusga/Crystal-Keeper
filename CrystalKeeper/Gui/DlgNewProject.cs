@@ -36,7 +36,7 @@ namespace CrystalKeeper.Gui
             if (recentFiles.Count > 0 && recentFiles.FirstOrDefault() != String.Empty)
             {
                 TextBlock txtblkRecentFiles = new TextBlock();
-                txtblkRecentFiles.Text = "Recent Files";
+                txtblkRecentFiles.Text = GlobalStrings.NewProjectRecent;
                 txtblkRecentFiles.Foreground = Brushes.DarkGray;
                 txtblkRecentFiles.Margin = new Thickness(4);
                 txtblkRecentFiles.HorizontalAlignment = HorizontalAlignment.Center;
@@ -83,8 +83,9 @@ namespace CrystalKeeper.Gui
                     else
                     {
                         //Removes the file if it can't be found.
-                        MessageBox.Show("The project at " + (string)txtblk.Tag +
-                            " could not be found.");
+                        MessageBox.Show(GlobalStrings.DlgProjectNotFoundA
+                            + (string)txtblk.Tag
+                            + GlobalStrings.DlgProjectNotFoundB);
 
                         Utils.RegRemoveRecentlyOpen((string)txtblk.Tag);
                         gui.GuiPanel.Children.Remove(txtblk);
@@ -146,8 +147,8 @@ namespace CrystalKeeper.Gui
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.CheckPathExists = true;
             dlg.DefaultExt = ".mdat";
-            dlg.Filter = "databases|*.mdat|all files|*.*";
-            dlg.Title = "Load database";
+            dlg.Filter = GlobalStrings.FilterOpenSaveDatabase;
+            dlg.Title = GlobalStrings.CaptionLoadDatabase;
             bool? result = dlg.ShowDialog();
 
             if (result == true)

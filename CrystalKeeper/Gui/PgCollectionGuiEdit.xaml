@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:CrystalKeeper.Core"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
     <!--Lists all items vertically.-->
@@ -29,13 +30,16 @@
                  AcceptsReturn="True"
                  TextWrapping="Wrap"
                  MinHeight="80px"
-                 HorizontalAlignment="Stretch">
+                 HorizontalAlignment="Stretch"
+                 ToolTip="{x:Static local:GlobalStrings.TipCollectionEditDescription}">
             <TextBox.Style>
                 <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
                     <Style.Resources>
                         <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Top" Stretch="None">
                             <VisualBrush.Visual>
-                                <Label Content="Collection description" Foreground="LightGray"/>
+                                <Label
+                                    Content="{x:Static local:GlobalStrings.HintCollectionDescription}"
+                                    Foreground="LightGray"/>
                             </VisualBrush.Visual>
                         </VisualBrush>
                     </Style.Resources>

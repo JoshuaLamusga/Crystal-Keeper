@@ -1,0 +1,686 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ApplicationName" xml:space="preserve">
+    <value>Crystal Keeper</value>
+  </data>
+  <data name="AutoAllGroup" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="AutoFilterField" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="AutoImagesField" xml:space="preserve">
+    <value>images</value>
+  </data>
+  <data name="CaptionAbout" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="CaptionEditTemplates" xml:space="preserve">
+    <value>Edit templates...</value>
+  </data>
+  <data name="CaptionImages" xml:space="preserve">
+    <value>Images</value>
+  </data>
+  <data name="CaptionLoadDatabase" xml:space="preserve">
+    <value>Load database</value>
+  </data>
+  <data name="CaptionLoadImage" xml:space="preserve">
+    <value>Load image</value>
+  </data>
+  <data name="CaptionLoadImagesOrMovie" xml:space="preserve">
+    <value>Load images or movie</value>
+  </data>
+  <data name="CaptionNewProject" xml:space="preserve">
+    <value>New Project</value>
+  </data>
+  <data name="CaptionSaveDatabase" xml:space="preserve">
+    <value>Save database</value>
+  </data>
+  <data name="CaptionTextbox" xml:space="preserve">
+    <value>Enter text</value>
+  </data>
+  <data name="CaptionTextboxRename" xml:space="preserve">
+    <value>Rename item</value>
+  </data>
+  <data name="CmbxImageAnchorAbove" xml:space="preserve">
+    <value>Above</value>
+  </data>
+  <data name="CmbxImageAnchorLeft" xml:space="preserve">
+    <value>Left</value>
+  </data>
+  <data name="CmbxImageAnchorRight" xml:space="preserve">
+    <value>Right</value>
+  </data>
+  <data name="CmbxImageAnchorUnder" xml:space="preserve">
+    <value>Under</value>
+  </data>
+  <data name="CmbxItemTypeEntryImages" xml:space="preserve">
+    <value>Entry Images</value>
+  </data>
+  <data name="CmbxItemTypeHyperlink" xml:space="preserve">
+    <value>Hyperlink</value>
+  </data>
+  <data name="CmbxItemTypeImages" xml:space="preserve">
+    <value>Images</value>
+  </data>
+  <data name="CmbxItemTypeMinFormula" xml:space="preserve">
+    <value>Mineral Formula</value>
+  </data>
+  <data name="CmbxItemTypeMinGrouping" xml:space="preserve">
+    <value>Mineral Grouping</value>
+  </data>
+  <data name="CmbxItemTypeMinLocality" xml:space="preserve">
+    <value>Mineral Locality</value>
+  </data>
+  <data name="CmbxItemTypeMinName" xml:space="preserve">
+    <value>Mineral Name</value>
+  </data>
+  <data name="CmbxItemTypeMoneyUSD" xml:space="preserve">
+    <value>Money (USD)</value>
+  </data>
+  <data name="CmbxItemTypeText" xml:space="preserve">
+    <value>Text</value>
+  </data>
+  <data name="CollectionEditTemplate" xml:space="preserve">
+    <value>Template: </value>
+  </data>
+  <data name="ConditionRemove" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DatabaseEditBackgroundImage" xml:space="preserve">
+    <value>Background image</value>
+  </data>
+  <data name="DatabaseEditDefEditModeEdit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="DatabaseEditDefEditModeView" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="DatabaseEditOpenModeA" xml:space="preserve">
+    <value>Open in</value>
+  </data>
+  <data name="DatabaseEditOpenModeB" xml:space="preserve">
+    <value>mode by default.</value>
+  </data>
+  <data name="DefaultTemplateCollectionLocalities" xml:space="preserve">
+    <value>Localities</value>
+  </data>
+  <data name="DefaultTemplateCollectionLocalitiesDescription" xml:space="preserve">
+    <value>A collection of localities.</value>
+  </data>
+  <data name="DefaultTemplateCollectionMinerals" xml:space="preserve">
+    <value>Minerals</value>
+  </data>
+  <data name="DefaultTemplateCollectionMineralsDescription" xml:space="preserve">
+    <value>My mineral collection.</value>
+  </data>
+  <data name="DefaultTemplateCollectionNotes" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="DefaultTemplateCollectionNotesDescription" xml:space="preserve">
+    <value>Some miscellaneous notes.</value>
+  </data>
+  <data name="DefaultTemplateLocalitiesGpsLocation" xml:space="preserve">
+    <value>GPS Location</value>
+  </data>
+  <data name="DefaultTemplateLocalitiesImages" xml:space="preserve">
+    <value>Images</value>
+  </data>
+  <data name="DefaultTemplateLocalitiesLocalityName" xml:space="preserve">
+    <value>Locality Name</value>
+  </data>
+  <data name="DefaultTemplateLocalitiesNotes" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="DefaultTemplateLocalitiesTitle" xml:space="preserve">
+    <value>Localities</value>
+  </data>
+  <data name="DefaultTemplateMineralsExtraImages" xml:space="preserve">
+    <value>Extra Images</value>
+  </data>
+  <data name="DefaultTemplateMineralsGpsLocation" xml:space="preserve">
+    <value>GPS Location</value>
+  </data>
+  <data name="DefaultTemplateMineralsImages" xml:space="preserve">
+    <value>Images</value>
+  </data>
+  <data name="DefaultTemplateMineralsMarketValue" xml:space="preserve">
+    <value>Market Value</value>
+  </data>
+  <data name="DefaultTemplateMineralsNotes" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="DefaultTemplateMineralsOriginLocation" xml:space="preserve">
+    <value>Origin / Location</value>
+  </data>
+  <data name="DefaultTemplateMineralsPrimaryChemicalFormula" xml:space="preserve">
+    <value>Primary Chemical Formula</value>
+  </data>
+  <data name="DefaultTemplateMineralsPrimaryMineralSpecies" xml:space="preserve">
+    <value>Primary Mineral Species</value>
+  </data>
+  <data name="DefaultTemplateMineralsSecondaryMineralSpecies" xml:space="preserve">
+    <value>Secondary Mineral Species</value>
+  </data>
+  <data name="DefaultTemplateMineralsSpeciesGroup" xml:space="preserve">
+    <value>Species Group</value>
+  </data>
+  <data name="DefaultTemplateMineralsTitle" xml:space="preserve">
+    <value>Minerals</value>
+  </data>
+  <data name="DefaultTemplateNotesImages" xml:space="preserve">
+    <value>Images</value>
+  </data>
+  <data name="DefaultTemplateNotesNotes" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="DefaultTemplateNotesTitle" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="DlgCannotOpenCorrupt" xml:space="preserve">
+    <value>The file could not be loaded because it is corrupted.</value>
+  </data>
+  <data name="DlgCannotOpenForRead" xml:space="preserve">
+    <value>The file was not loaded because it was prevented from being loaded in that location.</value>
+  </data>
+  <data name="DlgCannotOpenNotFound" xml:space="preserve">
+    <value>The file was not loaded because the location to load it in was changed while trying to load.</value>
+  </data>
+  <data name="DlgCannotOpenTooLong" xml:space="preserve">
+    <value>The file was not loaded because the filename is too long to process.</value>
+  </data>
+  <data name="DlgCannotOpenUnknown" xml:space="preserve">
+    <value>The file could not be loaded for an unknown reason.</value>
+  </data>
+  <data name="DlgCannotOpenUnrecognized" xml:space="preserve">
+    <value>The file could not be loaded because it is unrecognizable or not a Crystal Keeper file.</value>
+  </data>
+  <data name="DlgCannotSaveCorrupt" xml:space="preserve">
+    <value>The file is corrupt and cannot be saved.</value>
+  </data>
+  <data name="DlgCannotSaveForWrite" xml:space="preserve">
+    <value>The file was not saved because it was prevented from being saved in that location.</value>
+  </data>
+  <data name="DlgCannotSaveNotFound" xml:space="preserve">
+    <value>The file was not saved because the location to save it in was changed while trying to save.</value>
+  </data>
+  <data name="DlgCannotSaveTooLong" xml:space="preserve">
+    <value>The file was not saved because the filename is too long. Please use a shorter name.</value>
+  </data>
+  <data name="DlgCannotSaveUnknown" xml:space="preserve">
+    <value>The file could not be saved. Try specifying a different location or filename.</value>
+  </data>
+  <data name="DlgConfirmCloseCaption" xml:space="preserve">
+    <value>Confirm closing the program</value>
+  </data>
+  <data name="DlgConfirmCloseWarning" xml:space="preserve">
+    <value>Close and discard any unsaved changes?</value>
+  </data>
+  <data name="DlgDeleteEntryCaption" xml:space="preserve">
+    <value>Confirm deletion</value>
+  </data>
+  <data name="DlgDeleteEntryWarning" xml:space="preserve">
+    <value>Deleting this entry will delete it everywhere. Continue?</value>
+  </data>
+  <data name="DlgDeleteField" xml:space="preserve">
+    <value>This template is in use. Deleting this field will delete all entry data associated with it.
+
+The collections using this template are: </value>
+  </data>
+  <data name="DlgDeleteFieldCaption" xml:space="preserve">
+    <value>Template in use</value>
+  </data>
+  <data name="DlgDeleteImageCaption" xml:space="preserve">
+    <value>Confirm deletion</value>
+  </data>
+  <data name="DlgDeleteImageWarning" xml:space="preserve">
+    <value>Are you sure you want to delete the image?</value>
+  </data>
+  <data name="DlgDeleteTemplateCaption" xml:space="preserve">
+    <value>Confirm deleting template</value>
+  </data>
+  <data name="DlgDeleteTemplateNoEntries" xml:space="preserve">
+    <value>You are about to delete this template. Are you sure?</value>
+  </data>
+  <data name="DlgDeleteTemplateWarningA" xml:space="preserve">
+    <value>This template is used by </value>
+  </data>
+  <data name="DlgDeleteTemplateWarningB" xml:space="preserve">
+    <value> collection(s). Deleting it will delete all associated collections. Are you sure?</value>
+  </data>
+  <data name="DlgMediaNotLoadedWarning" xml:space="preserve">
+    <value>The file couldn't be loaded or played correctly.</value>
+  </data>
+  <data name="DlgNeedTemplateCaption" xml:space="preserve">
+    <value>Create template?</value>
+  </data>
+  <data name="DlgNeedTemplateWarning" xml:space="preserve">
+    <value>A template must exist before you can create a collection. Would you like to create a template?</value>
+  </data>
+  <data name="DlgNewDatabaseCaption" xml:space="preserve">
+    <value>New database</value>
+  </data>
+  <data name="DlgNewDatabaseWarning" xml:space="preserve">
+    <value>Create a new database, discarding any unsaved changes?</value>
+  </data>
+  <data name="DlgProjectNoLoadA" xml:space="preserve">
+    <value>The project at </value>
+  </data>
+  <data name="DlgProjectNoLoadB" xml:space="preserve">
+    <value> could not be loaded.</value>
+  </data>
+  <data name="DlgProjectNotFoundA" xml:space="preserve">
+    <value>The project at </value>
+  </data>
+  <data name="DlgProjectNotFoundB" xml:space="preserve">
+    <value> could not be found.</value>
+  </data>
+  <data name="DlgTextboxSubmit" xml:space="preserve">
+    <value>Submit</value>
+  </data>
+  <data name="FieldEditorDataType" xml:space="preserve">
+    <value>Data type:</value>
+  </data>
+  <data name="FieldEditorFieldInvisible" xml:space="preserve">
+    <value>Show this field with entries</value>
+  </data>
+  <data name="FieldEditorFieldNameInline" xml:space="preserve">
+    <value>Show field name left of field</value>
+  </data>
+  <data name="FieldEditorFieldNameInvisible" xml:space="preserve">
+    <value>Show the field name</value>
+  </data>
+  <data name="FilterImages" xml:space="preserve">
+    <value>images|*.bmp;*.jpg;*.jpeg;*.gif;*.tif;*.tiff;*.png</value>
+  </data>
+  <data name="FilterImagesOrMovie" xml:space="preserve">
+    <value>images or movie|*.bmp;*.jpg;*.jpeg;*.gif;*.tif;*.tiff;*.png;*.wmv;*.mp4</value>
+  </data>
+  <data name="FilterOpenSaveDatabase" xml:space="preserve">
+    <value>databases|*.mdat|all files|*.*</value>
+  </data>
+  <data name="FilterPictures" xml:space="preserve">
+    <value>pictures|*.bmp;*.exif;*.gif;*.jpg;*.jpeg;*.png;*.ico;*.icon</value>
+  </data>
+  <data name="GroupingEditByLetterA" xml:space="preserve">
+    <value>Add entries that with any of the letters from </value>
+  </data>
+  <data name="GroupingEditByLetterB" xml:space="preserve">
+    <value> to </value>
+  </data>
+  <data name="GroupingEditCondEval" xml:space="preserve">
+    <value>Evaluate conditions</value>
+  </data>
+  <data name="GroupingEditConditions" xml:space="preserve">
+    <value>Conditions to automatically add entries</value>
+  </data>
+  <data name="GroupingEditCondNew" xml:space="preserve">
+    <value>New condition</value>
+  </data>
+  <data name="GroupingEditInGroup" xml:space="preserve">
+    <value>In group</value>
+  </data>
+  <data name="GroupingEditNotInGroup" xml:space="preserve">
+    <value>Not in group</value>
+  </data>
+  <data name="HintCollectionDescription" xml:space="preserve">
+    <value>Collection description</value>
+  </data>
+  <data name="HintFilterSearch" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="HintGroupingNoEdit" xml:space="preserve">
+    <value>This group is auto-generated and can't be edited.</value>
+  </data>
+  <data name="HintNewCollection" xml:space="preserve">
+    <value>Name a collection and press enter...</value>
+  </data>
+  <data name="HintNewEntry" xml:space="preserve">
+    <value>Name an entry and press enter...</value>
+  </data>
+  <data name="HintNewField" xml:space="preserve">
+    <value>Type the name of a new field...</value>
+  </data>
+  <data name="HintNewGrouping" xml:space="preserve">
+    <value>Name a grouping and press enter...</value>
+  </data>
+  <data name="HintNoCollections" xml:space="preserve">
+    <value>No collections have been created yet</value>
+  </data>
+  <data name="HintNoContent" xml:space="preserve">
+    <value>No content to display</value>
+  </data>
+  <data name="HintNoEntries" xml:space="preserve">
+    <value>No entries have been added to this group</value>
+  </data>
+  <data name="HintProjectDescription" xml:space="preserve">
+    <value>Project description</value>
+  </data>
+  <data name="HintTextbox" xml:space="preserve">
+    <value>Type here</value>
+  </data>
+  <data name="MainDisplayFile" xml:space="preserve">
+    <value>_File</value>
+  </data>
+  <data name="MainDisplayFileNew" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="MainDisplayFileOpen" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="MainDisplayFileRecent" xml:space="preserve">
+    <value>Recent</value>
+  </data>
+  <data name="MainDisplayFileSave" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="MainDisplayFileSaveAs" xml:space="preserve">
+    <value>Save As</value>
+  </data>
+  <data name="MainDisplayFilterBy" xml:space="preserve">
+    <value>Filter by:</value>
+  </data>
+  <data name="MainDisplayHelp" xml:space="preserve">
+    <value>_Help</value>
+  </data>
+  <data name="MainDisplayHelpAbout" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="MainDisplayHelpHelp" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="MainDisplayTemplates" xml:space="preserve">
+    <value>_Templates</value>
+  </data>
+  <data name="MainDisplayTemplatesNew" xml:space="preserve">
+    <value>New...</value>
+  </data>
+  <data name="NameUntitled" xml:space="preserve">
+    <value>Untitled</value>
+  </data>
+  <data name="NewCollectionCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="NewCollectionCaption" xml:space="preserve">
+    <value>New Collection</value>
+  </data>
+  <data name="NewCollectionDone" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="NewCollectionTemplate" xml:space="preserve">
+    <value>Template</value>
+  </data>
+  <data name="NewProjectNew" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="NewProjectOpen" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="NewProjectRecent" xml:space="preserve">
+    <value>Recent Files</value>
+  </data>
+  <data name="RichtextFontPoint" xml:space="preserve">
+    <value>Pt</value>
+  </data>
+  <data name="TemplateEditorCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="TemplateEditorCenterImages" xml:space="preserve">
+    <value>Center images at the top of each entry</value>
+  </data>
+  <data name="TemplateEditorContentFontColor" xml:space="preserve">
+    <value>Content font color</value>
+  </data>
+  <data name="TemplateEditorDeleteTemplate" xml:space="preserve">
+    <value>Delete template</value>
+  </data>
+  <data name="TemplateEditorExtraImagesA" xml:space="preserve">
+    <value>Display up to</value>
+  </data>
+  <data name="TemplateEditorExtraImagesB" xml:space="preserve">
+    <value>extra images per entry</value>
+  </data>
+  <data name="TemplateEditorExtraImagesBShort" xml:space="preserve">
+    <value>extra images</value>
+  </data>
+  <data name="TemplateEditorFieldsTab" xml:space="preserve">
+    <value>Fields</value>
+  </data>
+  <data name="TemplateEditorFont" xml:space="preserve">
+    <value>Font:</value>
+  </data>
+  <data name="TemplateEditorFontSection" xml:space="preserve">
+    <value>Font</value>
+  </data>
+  <data name="TemplateEditorImageAnchorA" xml:space="preserve">
+    <value>Extra images</value>
+  </data>
+  <data name="TemplateEditorImageAnchorB" xml:space="preserve">
+    <value>the main image</value>
+  </data>
+  <data name="TemplateEditorImageAnchorBShort" xml:space="preserve">
+    <value>main image</value>
+  </data>
+  <data name="TemplateEditorImagesSection" xml:space="preserve">
+    <value>Images</value>
+  </data>
+  <data name="TemplateEditorOneColumn" xml:space="preserve">
+    <value>Entries use one column</value>
+  </data>
+  <data name="TemplateEditorOrganizationSection" xml:space="preserve">
+    <value>Organization</value>
+  </data>
+  <data name="TemplateEditorSaveChanges" xml:space="preserve">
+    <value>Save Changes</value>
+  </data>
+  <data name="TemplateEditorSettingsTab" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="TemplateEditorTitleFontColor" xml:space="preserve">
+    <value>Title font color</value>
+  </data>
+  <data name="TemplateEditorTwoColumns" xml:space="preserve">
+    <value>Entries use two columns</value>
+  </data>
+  <data name="TipAboutCopyright" xml:space="preserve">
+    <value>Copyright © Joshua Lamusga, 2016</value>
+  </data>
+  <data name="TipAboutDescription" xml:space="preserve">
+    <value>Crystal Keeper was developed as a free program for mineral collectors and hobbyists to store their mineral information in a convenient database with a neat and modern display.</value>
+  </data>
+  <data name="TipAboutVersion" xml:space="preserve">
+    <value>--- Version 1.0 ---</value>
+  </data>
+  <data name="TipBrokenImage" xml:space="preserve">
+    <value>Image link wasn't found -- click to locate or reset image.</value>
+  </data>
+  <data name="TipCollectionEditDescription" xml:space="preserve">
+    <value>A short description about the collection.</value>
+  </data>
+  <data name="TipFieldEditorDataType" xml:space="preserve">
+    <value>Change the type of data of the selected field.</value>
+  </data>
+  <data name="TipFieldEditorMoveDown" xml:space="preserve">
+    <value>Moves the selected field down so it displays closer to the bottom.</value>
+  </data>
+  <data name="TipFieldEditorMoveLeft" xml:space="preserve">
+    <value>Moves the selected field to the first column for display.</value>
+  </data>
+  <data name="TipFieldEditorMoveRight" xml:space="preserve">
+    <value>Moves the selected field to the first column for display.</value>
+  </data>
+  <data name="TipFieldEditorMoveUp" xml:space="preserve">
+    <value>Moves the selected field up so it displays closer to the top.</value>
+  </data>
+  <data name="TipFieldEditorNewDataType" xml:space="preserve">
+    <value>Select the type of data to store in the new field.</value>
+  </data>
+  <data name="TipMainDisplayFilter" xml:space="preserve">
+    <value>For fast navigation, only show some entries by filtering out others.</value>
+  </data>
+  <data name="TipMainDisplayNewCollection" xml:space="preserve">
+    <value>Type a name and press enter to make a collection.</value>
+  </data>
+  <data name="TipMainDisplayNewEntry" xml:space="preserve">
+    <value>Type a name and press enter to make an entry.</value>
+  </data>
+  <data name="TipMainDisplayNewGroup" xml:space="preserve">
+    <value>Type a name and press enter to make a grouping.</value>
+  </data>
+  <data name="TipMainDisplayPrint" xml:space="preserve">
+    <value>Click to print the page.</value>
+  </data>
+  <data name="TipMainDisplayToggleEdit" xml:space="preserve">
+    <value>Click to switch between edit and display mode.</value>
+  </data>
+  <data name="TipNewCollectionTemplate" xml:space="preserve">
+    <value>Templates define how entries are displayed and what they store.</value>
+  </data>
+  <data name="TipRichtextBold" xml:space="preserve">
+    <value>Toggle bold effect.</value>
+  </data>
+  <data name="TipRichtextFontColor" xml:space="preserve">
+    <value>Click to set the text color.</value>
+  </data>
+  <data name="TipRichtextFontFamily" xml:space="preserve">
+    <value>Click to set the font family.</value>
+  </data>
+  <data name="TipRichtextFontSize" xml:space="preserve">
+    <value>Click to set the text size.</value>
+  </data>
+  <data name="TipRichtextItalic" xml:space="preserve">
+    <value>Toggle italic effect.</value>
+  </data>
+  <data name="TipRichtextStrikethrough" xml:space="preserve">
+    <value>Toggle strikethrough.</value>
+  </data>
+  <data name="TipRichtextUnderline" xml:space="preserve">
+    <value>Toggle underlining.</value>
+  </data>
+  <data name="TipBttnDelete" xml:space="preserve">
+    <value>Click to delete all images.</value>
+  </data>
+  <data name="TipBttnUpload" xml:space="preserve">
+    <value>Click to upload or change images.</value>
+  </data>
+  <data name="TipBttnUploadMovie" xml:space="preserve">
+    <value>Click to upload a movie or frames for an animation.</value>
+  </data>
+</root>

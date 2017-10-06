@@ -110,7 +110,7 @@ namespace CrystalKeeper.Gui
             //Sets the collection name.
             if (string.IsNullOrWhiteSpace((string)collection.GetData("name")))
             {
-                gui.TxtblkCollectionName.Text = "Untitled";
+                gui.TxtblkCollectionName.Text = GlobalStrings.NameUntitled;
             }
             else
             {
@@ -133,12 +133,12 @@ namespace CrystalKeeper.Gui
             #endregion
 
             #region Template name
-            gui.TxtblkTemplateName.Text = "Template: ";
+            gui.TxtblkTemplateName.Text = GlobalStrings.CollectionEditTemplate;
             //Sets the template name.
             if (string.IsNullOrWhiteSpace((string)project
                 .GetCollectionTemplate(collection).GetData("name")))
             {
-                gui.TxtblkTemplateName.Text += "Untitled";
+                gui.TxtblkTemplateName.Text += GlobalStrings.NameUntitled;
             }
             else
             {

@@ -1,7 +1,9 @@
 ﻿<Window x:Class="CrystalKeeper.Gui.DlgNewProjectGui" Name="GuiWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="New Project" Height="300" Width="300"
+        xmlns:local="clr-namespace:CrystalKeeper.Core"
+        Title="{x:Static local:GlobalStrings.CaptionNewProject}"
+        Height="300" Width="300"
         WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
@@ -25,14 +27,14 @@
             Grid.Row="2"
             HorizontalAlignment="Center"
             Width="100px"
-            Content="New"
+            Content="{x:Static local:GlobalStrings.NewProjectNew}"
             Padding="4px"/>
         <Button Name="GuiOpen"
             Grid.Row="3"
             HorizontalAlignment="Center"
             Width="100px"
             Margin="0,10,0,10"
-            Content="Open"
+            Content="{x:Static local:GlobalStrings.NewProjectOpen}"
             Padding="4px"/>
     </Grid>
 </Window>

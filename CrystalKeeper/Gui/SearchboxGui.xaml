@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <StackPanel>
-        <TextBox Name="textbox"></TextBox>
-        <ListBox Name="suggestions" Visibility="Collapsed"></ListBox>
+        <TextBox Name="textbox"/>
+        <ListBox Name="suggestions" Visibility="Collapsed"/>
     </StackPanel>
 </UserControl>

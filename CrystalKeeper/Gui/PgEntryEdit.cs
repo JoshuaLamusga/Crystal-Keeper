@@ -151,7 +151,7 @@ namespace CrystalKeeper.Gui
             //Sets the entry name.
             if (string.IsNullOrWhiteSpace((string)entry.GetData("name")))
             {
-                gui.TxtbxEntryName.Text = "Untitled";
+                gui.TxtbxEntryName.Text = GlobalStrings.NameUntitled;
             }
             else
             {
@@ -562,8 +562,7 @@ namespace CrystalKeeper.Gui
                                     bttnBrokenImage.Source = newImg;
                                     bttnBrokenImage.MaxWidth = newImg.Width;
                                     bttnBrokenImage.MaxHeight = newImg.Height;
-                                    bttnBrokenImage.ToolTip = "Image link is broken " +
-                                        "-- click to locate or reset image.";
+                                    bttnBrokenImage.ToolTip = GlobalStrings.TipBrokenImage;
 
                                     //Allows user to select a new image url.
                                     bttnBrokenImage.MouseDown += (c, d) =>
@@ -580,9 +579,9 @@ namespace CrystalKeeper.Gui
                                         dlg.FileName = Path.GetFileName(thumbnail.ImgUrl);
 
                                         dlg.CheckPathExists = true;
-                                        dlg.Filter = "images|*.bmp;*.jpg;*.jpeg;*.gif;*.tif;*.tiff;*.png";
+                                        dlg.Filter = GlobalStrings.FilterImages;
                                         dlg.FilterIndex = 0;
-                                        dlg.Title = "Load image";
+                                        dlg.Title = GlobalStrings.CaptionLoadImage;
 
                                         if (dlg.ShowDialog() == true)
                                         {
@@ -629,8 +628,7 @@ namespace CrystalKeeper.Gui
                             }
                             catch (Exception)
                             {
-                                MessageBox.Show("The file couldn't be loaded" +
-                                    "or played correctly.");
+                                MessageBox.Show(GlobalStrings.DlgMediaNotLoadedWarning);
 
                                 loadedUrls.RemoveAt(0);
 
@@ -705,21 +703,19 @@ namespace CrystalKeeper.Gui
             var bttnUpload = new Image();
             BitmapImage newImg = new BitmapImage(new Uri(Assets.BttnAddStill));
             bttnUpload.Source = newImg;
-            bttnUpload.ToolTip =
-                Properties.Resources.TipBttnUpload;
+            bttnUpload.ToolTip = GlobalStrings.TipBttnUpload;
 
             //Sets up an upload movie button.
             var bttnUploadMovie = new Image();
             newImg = new BitmapImage(new Uri(Assets.BttnAddMovie));
             bttnUploadMovie.Source = newImg;
-            bttnUploadMovie.ToolTip =
-                Properties.Resources.TipBttnUploadMovie;
+            bttnUploadMovie.ToolTip = GlobalStrings.TipBttnUploadMovie;
 
             //Sets up a delete image button.
             var bttnDelete = new Image();
             newImg = new BitmapImage(new Uri(Assets.BttnDelete));
             bttnDelete.Source = newImg;
-            bttnDelete.ToolTip = Properties.Resources.TipBttnDelete;
+            bttnDelete.ToolTip = GlobalStrings.TipBttnDelete;
 
             //Disables the delete button if there's nothing to delete.
             if (!File.Exists(urls[urlIndex]))
@@ -761,9 +757,9 @@ namespace CrystalKeeper.Gui
 
                 dlg.Multiselect = true;
                 dlg.CheckPathExists = true;
-                dlg.Filter = "images|*.bmp;*.jpg;*.jpeg;*.gif;*.tif;*.tiff;*.png";
+                dlg.Filter = GlobalStrings.FilterImages;
                 dlg.FilterIndex = 0;
-                dlg.Title = "Load image";
+                dlg.Title = GlobalStrings.CaptionLoadImage;
 
                 if (dlg.ShowDialog() == true)
                 {
@@ -828,10 +824,9 @@ namespace CrystalKeeper.Gui
 
                 dlg.Multiselect = true;
                 dlg.CheckPathExists = true;
-                dlg.Filter = "images or movie|*.bmp;*.jpg;" +
-                    "*.jpeg;*.gif;*.tif;*.tiff;*.png;*.wmv;*.mp4";
+                dlg.Filter = GlobalStrings.FilterImagesOrMovie;
                 dlg.FilterIndex = 0;
-                dlg.Title = "Load images or movie";
+                dlg.Title = GlobalStrings.CaptionLoadImagesOrMovie;
 
                 if (dlg.ShowDialog() == true)
                 {
@@ -867,8 +862,9 @@ namespace CrystalKeeper.Gui
             //Prompts to delete the existing image.
             bttnDelete.MouseDown += (a, b) =>
             {
-                var mssgResult = MessageBox.Show("Are you sure you want to delete the image?",
-                    "Confirm deletion",
+                var mssgResult = MessageBox.Show(
+                    GlobalStrings.DlgDeleteImageWarning,
+                    GlobalStrings.DlgDeleteImageCaption,
                     MessageBoxButton.YesNo);
 
                 if (mssgResult == MessageBoxResult.Yes)

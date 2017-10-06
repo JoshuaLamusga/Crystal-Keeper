@@ -197,60 +197,89 @@ namespace CrystalKeeper.Gui
         private void InitializeDefaultProject()
         {
             //Sets up a layout for minerals.
-            ulong mineralGuid = project.AddTemplate("Minerals", true, true,
-                3, TemplateImagePos.Under, String.Empty, 0, 0, 0, 0, 0, 0);
+            ulong mineralGuid = project.AddTemplate(
+                GlobalStrings.DefaultTemplateMineralsTitle,
+                true, true, 3, TemplateImagePos.Under, String.Empty,
+                0, 0, 0, 0, 0, 0);
             ulong col1Guid = project.AddTemplateColumnData(true, mineralGuid);
             ulong col2Guid = project.AddTemplateColumnData(false, mineralGuid);
-            project.AddTemplateField("Images", col1Guid,
+            project.AddTemplateField(GlobalStrings.DefaultTemplateMineralsImages, col1Guid,
                 TemplateFieldType.EntryImages, true, false, false, 0);
-            project.AddTemplateField("Extra Images", col1Guid,
-                TemplateFieldType.Images, true, false, false, 1);
-            project.AddTemplateField("Primary Mineral Species", col1Guid,
-                TemplateFieldType.Min_Name, true, true, false, 2);
-            project.AddTemplateField("Secondary Mineral Species", col1Guid,
-                TemplateFieldType.Min_Name, true, true, false, 3);
-            project.AddTemplateField("Primary Chemical Formula", col2Guid,
-                TemplateFieldType.Min_Formula, true, true, false, 0);
-            project.AddTemplateField("Species Group", col2Guid,
-                TemplateFieldType.Min_Group, true, true, false, 1);
-            project.AddTemplateField("Origin / Location", col2Guid,
-                TemplateFieldType.Text, true, true, false, 2);
-            project.AddTemplateField("GPS Location", col2Guid,
-                TemplateFieldType.Hyperlink, true, true, false, 3);
-            project.AddTemplateField("Market Value", col2Guid,
-                TemplateFieldType.MoneyUSD, true, true, false, 4);
-            project.AddTemplateField("Notes", col2Guid,
-                TemplateFieldType.Text, true, true, false, 5);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateMineralsExtraImages,
+                col1Guid, TemplateFieldType.Images, true, false, false, 1);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateMineralsPrimaryMineralSpecies,
+                col1Guid, TemplateFieldType.Min_Name, true, true, false, 2);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateMineralsSecondaryMineralSpecies,
+                col1Guid, TemplateFieldType.Min_Name, true, true, false, 3);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateMineralsPrimaryChemicalFormula,
+                col2Guid, TemplateFieldType.Min_Formula, true, true, false, 0);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateMineralsSpeciesGroup,
+                col2Guid, TemplateFieldType.Min_Group, true, true, false, 1);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateMineralsOriginLocation,
+                col2Guid, TemplateFieldType.Text, true, true, false, 2);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateMineralsGpsLocation,
+                col2Guid, TemplateFieldType.Hyperlink, true, true, false, 3);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateMineralsMarketValue,
+                col2Guid, TemplateFieldType.MoneyUSD, true, true, false, 4);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateMineralsNotes,
+                col2Guid, TemplateFieldType.Text, true, true, false, 5);
 
             //Sets up a layout for locality notes.
-            ulong localitiesGuid = project.AddTemplate("Localities", false, false,
-                3, TemplateImagePos.Under, String.Empty, 0, 0, 0, 0, 0, 0);
+            ulong localitiesGuid = project.AddTemplate(
+                GlobalStrings.DefaultTemplateLocalitiesTitle,
+                false, false, 3, TemplateImagePos.Under, String.Empty,
+                0, 0, 0, 0, 0, 0);
             col1Guid = project.AddTemplateColumnData(true, localitiesGuid);
-            project.AddTemplateField("Images", col1Guid,
-                TemplateFieldType.EntryImages, true, false, false, 0);
-            project.AddTemplateField("Locality Name", col1Guid,
-                TemplateFieldType.Text, true, true, false, 1);
-            project.AddTemplateField("GPS Location", col1Guid,
-                TemplateFieldType.Hyperlink, true, true, false, 2);
-            project.AddTemplateField("Notes", col1Guid,
-                TemplateFieldType.Text, true, true, false, 3);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateLocalitiesImages,
+                col1Guid, TemplateFieldType.EntryImages, true, false, false, 0);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateLocalitiesLocalityName,
+                col1Guid, TemplateFieldType.Text, true, true, false, 1);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateLocalitiesGpsLocation,
+                col1Guid, TemplateFieldType.Hyperlink, true, true, false, 2);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateLocalitiesNotes,
+                col1Guid, TemplateFieldType.Text, true, true, false, 3);
 
             //Sets up a layout for other notes.
-            ulong notesGuid = project.AddTemplate("Notes", false, false,
-                3, TemplateImagePos.Under, String.Empty, 0, 0, 0, 0, 0, 0);
+            ulong notesGuid = project.AddTemplate(
+                GlobalStrings.DefaultTemplateNotesTitle,
+                false, false, 3, TemplateImagePos.Under, String.Empty,
+                0, 0, 0, 0, 0, 0);
             col1Guid = project.AddTemplateColumnData(true, notesGuid);
-            project.AddTemplateField("Images", col1Guid,
-                TemplateFieldType.EntryImages, true, false, false, 0);
-            project.AddTemplateField("Notes", col1Guid,
-                TemplateFieldType.Text, true, true, false, 0);
+            project.AddTemplateField(GlobalStrings.DefaultTemplateNotesImages,
+                col1Guid, TemplateFieldType.EntryImages, true, false, false, 0);
+            project.AddTemplateField(GlobalStrings.DefaultTemplateNotesNotes,
+                col1Guid, TemplateFieldType.Text, true, true, false, 0);
 
             //Sets up default collections with each template.
-            ulong mnrlCol = project.AddCollection("Minerals", "My mineral collection.", mineralGuid);
-            ulong lctnCol = project.AddCollection("Localities", "A collection of localities.", localitiesGuid);
-            ulong noteCol = project.AddCollection("Notes", "Some miscellaneous notes.", notesGuid);
-            project.AddGrouping("all", mnrlCol);
-            project.AddGrouping("all", lctnCol);
-            project.AddGrouping("all", noteCol);
+            ulong mnrlCol = project.AddCollection(
+                GlobalStrings.DefaultTemplateCollectionMinerals,
+                GlobalStrings.DefaultTemplateCollectionMineralsDescription,
+                mineralGuid);
+            ulong lctnCol = project.AddCollection(
+                GlobalStrings.DefaultTemplateCollectionLocalities,
+                GlobalStrings.DefaultTemplateCollectionLocalitiesDescription,
+                localitiesGuid);
+            ulong noteCol = project.AddCollection(
+                GlobalStrings.DefaultTemplateCollectionNotes,
+                GlobalStrings.DefaultTemplateCollectionNotesDescription,
+                notesGuid);
+
+            project.AddGrouping(GlobalStrings.AutoAllGroup, mnrlCol);
+            project.AddGrouping(GlobalStrings.AutoAllGroup, lctnCol);
+            project.AddGrouping(GlobalStrings.AutoAllGroup, noteCol);
 
             ConstructVisuals();
         }
@@ -290,8 +319,8 @@ namespace CrystalKeeper.Gui
                 projectCopy.AddTemplateColumnData(false, template.guid);
 
                 //Creates the required entry name and images fields.
-                projectCopy.AddTemplateField("images", col1,
-                    TemplateFieldType.EntryImages, true, true, true, 0);
+                projectCopy.AddTemplateField(GlobalStrings.AutoImagesField,
+                    col1, TemplateFieldType.EntryImages, true, true, true, 0);
 
                 //Adds the template to the list of templates.
                 newMenuItem = new MenuDataItem(template);
@@ -501,7 +530,8 @@ namespace CrystalKeeper.Gui
                     {
                         for (int i = 0; i < grps.Count; i++)
                         {
-                            if ((string)grps[i].GetData("name") == "all")
+                            if ((string)grps[i].GetData("name") ==
+                                GlobalStrings.AutoAllGroup)
                             {
                                 if (grps[i].guid < allGrp)
                                 {
@@ -612,9 +642,9 @@ namespace CrystalKeeper.Gui
                 //If there are no templates, a collection cannot be made.
                 if (project.GetItemsByType(DataItemTypes.Template).Count == 0)
                 {
-                    if (MessageBox.Show("A template must exist before you " +
-                        "can create a collection. Would you like to create " +
-                        "a template?", "Create template?",
+                    if (MessageBox.Show(
+                        GlobalStrings.DlgNeedTemplateWarning,
+                        GlobalStrings.DlgNeedTemplateCaption,
                         MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                     {
                         GuiTemplateNew_Click(this, null);
@@ -634,7 +664,7 @@ namespace CrystalKeeper.Gui
                             string.Empty,
                             project.GetItemsByType(DataItemTypes.Template)[0].guid);
 
-                        project.AddGrouping("all", col);
+                        project.AddGrouping(GlobalStrings.AutoAllGroup, col);
                     }
 
                     gui.GuiNewCollection.Text = String.Empty;
@@ -714,8 +744,8 @@ namespace CrystalKeeper.Gui
         {
             //Prompts to close.
             MessageBoxResult result = MessageBox.Show(
-                "Close and discard any unsaved changes?",
-                "Confirm closing the program",
+                GlobalStrings.DlgConfirmCloseWarning,
+                GlobalStrings.DlgConfirmCloseCaption,
                 MessageBoxButton.YesNo);
 
             //Cancels closing if "no" is chosen.
@@ -734,8 +764,8 @@ namespace CrystalKeeper.Gui
             SaveFileDialog dlg = new SaveFileDialog();
             dlg.CheckPathExists = true;
             dlg.DefaultExt = ".mdat";
-            dlg.Filter = "databases|*.mdat|all files|*.*";
-            dlg.Title = "Save database";
+            dlg.Filter = GlobalStrings.FilterOpenSaveDatabase;
+            dlg.Title = GlobalStrings.CaptionSaveDatabase;
 
             //Uses the old save directory if one exists.
             if (File.Exists(saveUrl))
@@ -765,8 +795,8 @@ namespace CrystalKeeper.Gui
                 SaveFileDialog dlg = new SaveFileDialog();
                 dlg.CheckPathExists = true;
                 dlg.DefaultExt = ".mdat";
-                dlg.Filter = "databases|*.mdat|all files|*.*";
-                dlg.Title = "Save database";
+                dlg.Filter = GlobalStrings.FilterOpenSaveDatabase;
+                dlg.Title = GlobalStrings.CaptionSaveDatabase;
 
                 if (dlg.ShowDialog() == true)
                 {
@@ -783,8 +813,8 @@ namespace CrystalKeeper.Gui
         {
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.CheckPathExists = true;
-            dlg.Filter = "databases|*.mdat|all files|*.*";
-            dlg.Title = "Load database";
+            dlg.Filter = GlobalStrings.FilterOpenSaveDatabase;
+            dlg.Title = GlobalStrings.CaptionLoadDatabase;
 
             if (dlg.ShowDialog() == true)
             {
@@ -809,8 +839,8 @@ namespace CrystalKeeper.Gui
         private void GuiFileNew_Click(object sender, RoutedEventArgs e)
         {
             MessageBoxResult result = MessageBox.Show(
-                    "Create a new database, discarding any unsaved changes?",
-                    "New database",
+                    GlobalStrings.DlgNewDatabaseWarning,
+                    GlobalStrings.DlgNewDatabaseCaption,
                     MessageBoxButton.YesNo);
 
             if (result == MessageBoxResult.Yes)
@@ -848,7 +878,8 @@ namespace CrystalKeeper.Gui
 
                 //The all group cannot be deleted.
                 else if (selItem.GetItem().type == DataItemTypes.Grouping &&
-                    (string)selItem.GetItem().GetData("name") == "all" &&
+                    (string)selItem.GetItem().GetData("name") ==
+                    GlobalStrings.AutoAllGroup &&
                     GetAutoAddedGroup(selItem) == selItem.GetItem().guid)
                 {
                     return;
@@ -856,11 +887,13 @@ namespace CrystalKeeper.Gui
 
                 //Deleting an item in the auto-added "all" group deletes it everywhere.
                 else if (selItem.GetItem().type == DataItemTypes.GroupingEntryRef &&
-                    (string)selItem.GetParent().GetItem().GetData("name") == "all" &&
+                    (string)selItem.GetParent().GetItem().GetData("name") ==
+                    GlobalStrings.AutoAllGroup &&
                     GetAutoAddedGroup(selItem) == selItem.GetParent().GetItem().guid)
                 {
-                    var result = MessageBox.Show("Deleting this entry will " +
-                        "delete it everywhere. Continue?", "Confirm deletion",
+                    var result = MessageBox.Show(
+                        GlobalStrings.DlgDeleteEntryWarning,
+                        GlobalStrings.DlgDeleteEntryCaption,
                         MessageBoxButton.YesNo);
 
                     if (result == MessageBoxResult.Yes)
@@ -1035,7 +1068,7 @@ namespace CrystalKeeper.Gui
 
                 //Adds an item to search by name.
                 CmbxDataItem defaultItem = new CmbxDataItem(null);
-                defaultItem.Content = "Name";
+                defaultItem.Content = GlobalStrings.AutoFilterField;
                 defaultItem.MouseDown += (c, d) =>
                 {
                     treeviewFilterField = null;
@@ -1249,7 +1282,8 @@ namespace CrystalKeeper.Gui
                 {
                     for (int i = 0; i < grps.Count; i++)
                     {
-                        if ((string)grps[i].GetData("name") == "all")
+                        if ((string)grps[i].GetData("name") ==
+                            GlobalStrings.AutoAllGroup)
                         {
                             if (grps[i].guid < allGrpId)
                             {
@@ -1570,7 +1604,8 @@ namespace CrystalKeeper.Gui
             {
                 for (int i = 0; i < grps.Count; i++)
                 {
-                    if ((string)grps[i].GetData("name") == "all")
+                    if ((string)grps[i].GetData("name") ==
+                        GlobalStrings.AutoAllGroup)
                     {
                         if (grps[i].guid < allGrp)
                         {
@@ -1828,8 +1863,7 @@ namespace CrystalKeeper.Gui
                 {
                     //Creates a message explaining the group can't be edited.
                     TextBlock emptyMessage = new TextBlock();
-                    emptyMessage.Text = "This group is auto-generated " +
-                        "and can't be edited.";
+                    emptyMessage.Text = GlobalStrings.HintGroupingNoEdit;
                     emptyMessage.HorizontalAlignment = HorizontalAlignment.Center;
                     emptyMessage.VerticalAlignment = VerticalAlignment.Center;
                     emptyMessage.Foreground = Brushes.LightGray;
@@ -2012,8 +2046,8 @@ namespace CrystalKeeper.Gui
                         else
                         {
                             //Removes the file if it can't be found.
-                            MessageBox.Show("The project at " + url +
-                                " could not be loaded.");
+                            MessageBox.Show(GlobalStrings.DlgProjectNoLoadA
+                                + url + GlobalStrings.DlgProjectNoLoadB);
 
                             Utils.RegRemoveRecentlyOpen(url);
                             gui.GuiFileRecent.Items.Remove(item);
@@ -2022,8 +2056,8 @@ namespace CrystalKeeper.Gui
                     else
                     {
                         //Removes the file if it can't be found.
-                        MessageBox.Show("The project at " + url +
-                            " could not be found.");
+                        MessageBox.Show(GlobalStrings.DlgProjectNotFoundA
+                            + url + GlobalStrings.DlgProjectNotFoundB);
 
                         Utils.RegRemoveRecentlyOpen(url);
                         gui.GuiFileRecent.Items.Remove(item);

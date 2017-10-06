@@ -133,7 +133,7 @@ namespace CrystalKeeper.Gui
             //Sets the entry name.
             if (string.IsNullOrWhiteSpace((string)Entry.GetData("name")))
             {
-                gui.TxtblkEntryName.Text = "Untitled";
+                gui.TxtblkEntryName.Text = GlobalStrings.NameUntitled;
             }
             else
             {
@@ -703,7 +703,7 @@ namespace CrystalKeeper.Gui
             {
                 //Creates the message as a textblock.
                 TextBlock emptyMessage = new TextBlock();
-                emptyMessage.Text = "No content to display";
+                emptyMessage.Text = GlobalStrings.HintNoContent;
                 emptyMessage.HorizontalAlignment = HorizontalAlignment.Center;
                 emptyMessage.VerticalAlignment = VerticalAlignment.Center;
                 emptyMessage.Foreground = Brushes.LightGray;

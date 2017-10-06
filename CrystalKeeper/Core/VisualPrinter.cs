@@ -179,7 +179,7 @@ namespace CrystalKeeper.Core
                     Mouse.OverrideCursor = null;
                 }
 
-                dlg.PrintDocument(document.DocumentPaginator, "Crystal Keeper");
+                dlg.PrintDocument(document.DocumentPaginator, GlobalStrings.ApplicationName);
                 return true;
             }
 

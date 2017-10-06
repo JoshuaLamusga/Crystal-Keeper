@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:CrystalKeeper.Core"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
     <!--Lists all items vertically.-->
@@ -33,7 +34,7 @@
                 Grid.Row="1"
                 Grid.Column="0">
                 <TextBlock
-                    Text="In group"
+                    Text="{x:Static local:GlobalStrings.GroupingEditInGroup}"
                     HorizontalAlignment="Center"
                     Margin="4px"/>
                 <ListBox Name="LstbxInGroup"
@@ -60,7 +61,7 @@
                 Grid.Row="1"
                 Grid.Column="3">
                 <TextBlock
-                    Text="Not in group"
+                    Text="{x:Static local:GlobalStrings.GroupingEditNotInGroup}"
                     HorizontalAlignment="Center"
                     Margin="4px"/>
                 <ListBox Name="LstbxOutGroup"
@@ -69,8 +70,8 @@
             </StackPanel>
         </Grid>
         <Separator/>
-        <TextBlock Margin="4">
-            Conditions to automatically add entries
+        <TextBlock Margin="4"
+            Text="{x:Static local:GlobalStrings.GroupingEditConditions}">
         </TextBlock>
         <StackPanel Name="GroupConditions">
             <!--Conditions are programmatically generated.-->
@@ -78,14 +79,12 @@
         <WrapPanel>
             <Button Name="BttnCondAdd"
                 Padding="4"
-                Margin="4">
-                New condition
-            </Button>
+                Margin="4"
+                Content="{x:Static local:GlobalStrings.GroupingEditCondNew}"/>
             <Button Name="BttnCondApply"
                 Padding="4"
-                Margin="4">
-                Evaluate conditions
-            </Button>
+                Margin="4"
+                Content="{x:Static local:GlobalStrings.GroupingEditCondEval}"/>
         </WrapPanel>
     </StackPanel>
 </UserControl>

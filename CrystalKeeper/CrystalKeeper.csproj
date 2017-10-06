@@ -68,6 +68,11 @@
     <Compile Include="Core\Assets.cs" />
     <Compile Include="Core\DataItem.cs" />
     <Compile Include="Core\DataItemTypes.cs" />
+    <Compile Include="Core\GlobalStrings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>GlobalStrings.resx</DependentUpon>
+    </Compile>
     <Compile Include="Core\GroupingCondType.cs" />
     <Compile Include="Core\VisualPrinter.cs" />
     <Compile Include="Core\Project.cs" />
@@ -243,6 +248,10 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <EmbeddedResource Include="Core\GlobalStrings.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>GlobalStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

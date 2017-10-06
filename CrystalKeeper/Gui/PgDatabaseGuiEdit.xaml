@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:CrystalKeeper.Core"
              mc:Ignorable="d">
     
     <!--Lists all items vertically.-->
@@ -35,50 +36,21 @@
                 Padding="4px"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Text="Open in"/>
+                Text="{x:Static local:GlobalStrings.DatabaseEditOpenModeA}"/>
             <ComboBox Name="CmbxDefaultEditMode"
                 Padding="4px"
                 MinWidth="75px"
                 SelectedValuePath="Content">
-                <ComboBoxItem>View</ComboBoxItem>
-                <ComboBoxItem>Edit</ComboBoxItem>
+                <ComboBoxItem Content="{x:Static local:GlobalStrings.DatabaseEditDefEditModeView}"/>
+                <ComboBoxItem Content="{x:Static local:GlobalStrings.DatabaseEditDefEditModeEdit}"/>
             </ComboBox>
             <TextBlock 
                 Padding="4px"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Text="mode by default."/>
+                Text="{x:Static local:GlobalStrings.DatabaseEditOpenModeB}"/>
         </WrapPanel>
         
-        <!-- Default treeview display mechanism. -->
-        <WrapPanel
-            Grid.Row="2"
-            Margin="0,10px,0,0">
-            <TextBlock 
-                Padding="4px"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Text="Search by"/>
-            <ComboBox Name="CmbxDefaultSearchMode"
-                Padding="4px"
-                MinWidth="75px"
-                SelectedValuePath="Content">
-                <ComboBoxItem>Name</ComboBoxItem>
-                <ComboBoxItem>Image</ComboBoxItem>
-            </ComboBox>
-            <TextBlock 
-                Padding="4px"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Text="by default."/>
-        </WrapPanel>
-        
-        <!-- Whether to cache embedded pages or not. -->
-        <CheckBox Name="ChkbxCacheData"
-            Grid.Row="3"
-            Margin="4px,10px,0,0"
-            Content="Store internet data for offline access?"/>
-
         <!-- The project description. -->
         <TextBox Name="TxtbxDescription"
             Grid.Row="4"
@@ -91,7 +63,8 @@
                     <Style.Resources>
                         <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Top" Stretch="None">
                             <VisualBrush.Visual>
-                                <Label Content="Project description" Foreground="LightGray" />
+                                <Label Content="{x:Static local:GlobalStrings.HintProjectDescription}"
+                                    Foreground="LightGray" />
                             </VisualBrush.Visual>
                         </VisualBrush>
                     </Style.Resources>
@@ -116,7 +89,7 @@
             Margin="0,10px,0,0">
             <Button Name="BttnBrowseBgImage"
                 Margin="4px"
-                Content="Background image"
+                Content="{x:Static local:GlobalStrings.DatabaseEditBackgroundImage}"
                 Width="128px"
                 Height="32px"
                 HorizontalAlignment="Left"/>

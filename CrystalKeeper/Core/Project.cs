@@ -55,10 +55,8 @@ namespace CrystalKeeper.Core
 
             //Automatically adds the database item.
             DataItem item = new DataItem(NewGuid(), DataItemTypes.Database);
-            item.SetData("name", "Untitled");
+            item.SetData("name", GlobalStrings.NameUntitled);
             item.SetData("defUseEditMode", false);
-            item.SetData("defSearchByText", true);
-            item.SetData("defCacheData", true);
             item.SetData("description", String.Empty);
             item.SetData("imageBackgroundEnabled", false);
             item.SetData("imageUrl", String.Empty);
@@ -146,9 +144,8 @@ namespace CrystalKeeper.Core
             {
                 Utils.Log("Could not open " + url + " for read access.");
 
-                //Tell the user the file did not load and cancel it.
-                MessageBox.Show("The file was not loaded because it was " +
-                    "prevented from being loaded in that location.");
+                //Tells the user the file did not load and cancel it.
+                MessageBox.Show(GlobalStrings.DlgCannotOpenForRead);
 
                 return null;
             }
@@ -156,9 +153,8 @@ namespace CrystalKeeper.Core
             {
                 Utils.Log("Could not open " + url + " because it's too long.");
 
-                //Tell the user the file did not load and cancel it.
-                MessageBox.Show("The file was not loaded because the " +
-                    "filename is too long to process.");
+                //Tells the user the file did not load and cancel it.
+                MessageBox.Show(GlobalStrings.DlgCannotOpenTooLong);
 
                 return null;
             }
@@ -166,9 +162,8 @@ namespace CrystalKeeper.Core
             {
                 Utils.Log("Could not open " + url + " because the directory wasn't found.");
 
-                //Tell the user the file did not load and cancel it.
-                MessageBox.Show("The file was not loaded because the " +
-                    "location to load it in was changed while trying to load.");
+                //Tells the user the file did not load and cancel it.
+                MessageBox.Show(GlobalStrings.DlgCannotOpenNotFound);
 
                 return null;
             }
@@ -177,9 +172,8 @@ namespace CrystalKeeper.Core
                 Utils.Log("Could not open " + url + ". Exception: " +
                     e.GetBaseException().StackTrace);
 
-                //Tell the user the file did not load and cancel it.
-                MessageBox.Show("The file could not be loaded for an " +
-                    "unknown reason.");
+                //Tells the user the file did not load and cancel it.
+                MessageBox.Show(GlobalStrings.DlgCannotOpenUnknown);
 
                 return null;
             }
@@ -207,8 +201,6 @@ namespace CrystalKeeper.Core
                         case DataItemTypes.Database:
                             item.SetData("name", reader.ReadString());
                             item.SetData("defUseEditMode", reader.ReadBoolean());
-                            item.SetData("defSearchByText", reader.ReadBoolean());
-                            item.SetData("defCacheData", reader.ReadBoolean());
                             item.SetData("description", reader.ReadString());
                             item.SetData("imageBackgroundEnabled", reader.ReadBoolean());
                             item.SetData("imageUrl", reader.ReadString());
@@ -295,9 +287,8 @@ namespace CrystalKeeper.Core
                         {
                             Utils.Log("Cannot serialize " + url + " to load.");
 
-                            //Tell the user the file did not load and cancel it.
-                            MessageBox.Show("The file could not be loaded because " +
-                                "it is unrecognizable or not a Crystal Keeper file.");
+                            //Tells the user the file did not load and cancel it.
+                            MessageBox.Show(GlobalStrings.DlgCannotOpenUnrecognized);
 
                             return null;
                         }
@@ -311,9 +302,8 @@ namespace CrystalKeeper.Core
             {
                 Utils.Log("Unexpected end-of-stream in " + url + ".");
 
-                //Tell the user the file did not load and cancel it.
-                MessageBox.Show("The file could not be loaded because " +
-                    "it is corrupted.");
+                //Tells the user the file did not load and cancel it.
+                MessageBox.Show(GlobalStrings.DlgCannotOpenCorrupt);
 
                 return null;
             }
@@ -356,9 +346,8 @@ namespace CrystalKeeper.Core
             {
                 Utils.Log("Could not open " + url + " for write access.");
 
-                //Tell the user the file did not save and cancel it.
-                MessageBox.Show("The file was not saved because it was " +
-                    "prevented from being saved in that location.");
+                //Tells the user the file did not save and cancel it.
+                MessageBox.Show(GlobalStrings.DlgCannotOpenForRead);
 
                 return;
             }
@@ -366,9 +355,8 @@ namespace CrystalKeeper.Core
             {
                 Utils.Log("Could not open " + url + " because it's too long.");
 
-                //Tell the user the file did not save and cancel it.
-                MessageBox.Show("The file was not saved because the " +
-                    "filename is too long. Please use a shorter name.");
+                //Tells the user the file did not save and cancel it.
+                MessageBox.Show(GlobalStrings.DlgCannotOpenTooLong);
 
                 return;
             }
@@ -376,9 +364,8 @@ namespace CrystalKeeper.Core
             {
                 Utils.Log("Could not open " + url + " because the directory wasn't found.");
 
-                //Tell the user the file did not save and cancel it.
-                MessageBox.Show("The file was not saved because the " +
-                    "location to save it in was changed while trying to save.");
+                //Tells the user the file did not save and cancel it.
+                MessageBox.Show(GlobalStrings.DlgCannotOpenNotFound);
 
                 return;
             }
@@ -386,9 +373,8 @@ namespace CrystalKeeper.Core
             {
                 Utils.Log("Could not open " + url + ". Exception: " + e.GetBaseException().Message);
 
-                //Tell the user the file did not save and cancel it.
-                MessageBox.Show("The file could not be saved. Try " +
-                    "specifying a different location or filename.");
+                //Tells the user the file did not save and cancel it.
+                MessageBox.Show(GlobalStrings.DlgCannotOpenUnknown);
 
                 return;
             }
@@ -466,8 +452,6 @@ namespace CrystalKeeper.Core
                         case DataItemTypes.Database:
                             writer.Write((string)item.GetData("name"));
                             writer.Write((bool)item.GetData("defUseEditMode"));
-                            writer.Write((bool)item.GetData("defSearchByText"));
-                            writer.Write((bool)item.GetData("defCacheData"));
                             writer.Write((string)item.GetData("description"));
                             writer.Write((bool)item.GetData("imageBackgroundEnabled"));
                             writer.Write((string)item.GetData("imageUrl"));
@@ -538,7 +522,7 @@ namespace CrystalKeeper.Core
                     Utils.Log("Invalid cast exception: " + e.GetBaseException().Message);
 
                     //Tell the user the file did not save and cancel it.
-                    MessageBox.Show("The file is corrupt and cannot be saved.");
+                    MessageBox.Show(GlobalStrings.DlgCannotSaveCorrupt);
                 }
             }
 
@@ -1429,8 +1413,6 @@ namespace CrystalKeeper.Core
             DataItem item = new DataItem(NewGuid(), DataItemTypes.Database);
             item.SetData("name", "Untitled");
             item.SetData("defUseEditMode", false);
-            item.SetData("defSearchByText", true);
-            item.SetData("defCacheData", true);
             item.SetData("description", String.Empty);
             item.SetData("imageBackgroundEnabled", false);
             item.SetData("imageUrl", String.Empty);

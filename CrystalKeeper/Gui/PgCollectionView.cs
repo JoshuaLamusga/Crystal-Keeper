@@ -140,7 +140,7 @@ namespace CrystalKeeper.Gui
             //Sets the collection name.
             if (string.IsNullOrWhiteSpace((string)collection.GetData("name")))
             {
-                gui.TxtblkCollectionName.Text = "Untitled";
+                gui.TxtblkCollectionName.Text = GlobalStrings.NameUntitled;
             }
             else
             {

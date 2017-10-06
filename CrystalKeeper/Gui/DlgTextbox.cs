@@ -35,7 +35,9 @@ namespace CrystalKeeper.Gui
         /// <summary>
         /// Creates a new textboz popup with a settable caption.
         /// </summary>
-        /// <param name="windowTitle">The window caption.</param>
+        /// <param name="windowTitle">
+        /// The window caption.
+        /// </param>
         public DlgTextbox(string windowTitle)
         {
             gui = new DlgTextboxGui();
