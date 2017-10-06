@@ -80,5 +80,32 @@ namespace CrystalKeeper.Properties {
                 return ResourceManager.GetString("Minerals", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Click to delete all images..
+        /// </summary>
+        internal static string TipBttnDelete {
+            get {
+                return ResourceManager.GetString("TipBttnDelete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Click to upload or change images..
+        /// </summary>
+        internal static string TipBttnUpload {
+            get {
+                return ResourceManager.GetString("TipBttnUpload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Click to upload a movie or frames for an animation..
+        /// </summary>
+        internal static string TipBttnUploadMovie {
+            get {
+                return ResourceManager.GetString("TipBttnUploadMovie", resourceCulture);
+            }
+        }
     }
 }

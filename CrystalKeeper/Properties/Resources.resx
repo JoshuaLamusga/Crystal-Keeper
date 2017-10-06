@@ -121,4 +121,13 @@
   <data name="Minerals" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Minerals.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
+  <data name="TipBttnDelete" xml:space="preserve">
+    <value>Click to delete all images.</value>
+  </data>
+  <data name="TipBttnUpload" xml:space="preserve">
+    <value>Click to upload or change images.</value>
+  </data>
+  <data name="TipBttnUploadMovie" xml:space="preserve">
+    <value>Click to upload a movie or frames for an animation.</value>
+  </data>
 </root>

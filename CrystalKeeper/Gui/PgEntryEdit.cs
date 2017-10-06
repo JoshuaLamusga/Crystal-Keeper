@@ -47,7 +47,7 @@ namespace CrystalKeeper.Gui
         public event EventHandler DataNameChanged;
 
         /// <summary>
-        /// TODO: Find a better way to get an image to refresh dynamically...
+        /// Fires to reconstruct the view from the parent control.
         /// </summary>
         public event EventHandler InvalidatePage;
         #endregion
@@ -468,25 +468,6 @@ namespace CrystalKeeper.Gui
                         elementsContainer.Orientation = Orientation.Horizontal;
                     }
 
-                    //Sets up the context menu for the image options.
-                    ContextMenu menu = new ContextMenu();
-                    MenuItem animatable = new MenuItem();
-                    animatable.Header = "Rotate through images?";
-                    animatable.IsCheckable = true;
-                    animatable.IsChecked = isAnimated;
-                    menu.Items.Add(animatable);
-                    elementsContainer.ContextMenu = menu;
-
-                    //Clicking the animated option toggles it and refreshes.
-                    animatable.Click += (a, b) =>
-                    {
-                        string options = (!isAnimated) ? "True" : "False";
-                        string newData = options + "|" + string.Join("|", loadedUrls);
-                        field.SetData("data", newData);
-
-                        InvalidatePage?.Invoke(this, null);
-                    };
-
                     if (!isAnimated)
                     {
                         StackPanel imagesContainer = new StackPanel();
@@ -511,126 +492,6 @@ namespace CrystalKeeper.Gui
 
                             int index = j; //For lambda capture.
 
-                            //Sets up an upload image button.
-                            var bttnUpload = new Image();
-                            BitmapImage newImg = new BitmapImage(new Uri("pack://application:,,,/Assets/BttnAdd.png"));
-                            bttnUpload.Source = newImg;
-                            bttnUpload.ToolTip = "Click to select images.";
-
-                            //Sets up a delete image button.
-                            var bttnDelete = new Image();
-                            newImg = new BitmapImage(new Uri("pack://application:,,,/Assets/BttnDelete.png"));
-                            bttnDelete.Source = newImg;
-                            bttnDelete.ToolTip = "Click to delete all images.";
-
-                            //Disables the delete button if there's nothing to delete.
-                            if (!File.Exists(loadedUrls[j]))
-                            {
-                                bttnDelete.IsEnabled = false;
-                                bttnDelete.Opacity = 0.5;
-                            }
-
-                            //Highlights the upload button when the mouse enters image bounds.
-                            bttnUpload.MouseEnter += (a, b) =>
-                            {
-                                newImg = new BitmapImage();
-                                newImg.BeginInit();
-                                newImg.UriSource = new Uri("pack://application:,,,/Assets/BttnAddHover.png");
-                                newImg.EndInit();
-                                bttnUpload.Source = newImg;
-                            };
-
-                            //Un-highlights the upload button when the mouse leaves image bounds.
-                            bttnUpload.MouseLeave += (a, b) =>
-                            {
-                                newImg = new BitmapImage();
-                                newImg.BeginInit();
-                                newImg.UriSource = new Uri("pack://application:,,,/Assets/BttnAdd.png");
-                                newImg.EndInit();
-                                bttnUpload.Source = newImg;
-                            };
-
-                            //Handles uploading images.
-                            bttnUpload.MouseDown += (a, b) =>
-                            {
-                                OpenFileDialog dlg = new OpenFileDialog();
-
-                                //Opens the directory of the first url.
-                                if (File.Exists(loadedUrls.First()))
-                                {
-                                    dlg.InitialDirectory = loadedUrls.First();
-                                }
-
-                                dlg.Multiselect = true;
-                                dlg.CheckPathExists = true;
-                                dlg.Filter = "images|*.bmp;*.jpg;*.jpeg;*.gif;*.tif;*.tiff;*.png";
-                                dlg.FilterIndex = 0;
-                                dlg.Title = "Load image";
-
-                                if (dlg.ShowDialog() == true)
-                                {
-                                    for (int k = 0; k < dlg.FileNames.Length; k++)
-                                    {
-                                        if (k == 0)
-                                        {
-                                            loadedUrls[index] = dlg.FileNames[k];
-                                        }
-                                        else
-                                        {
-                                            loadedUrls.Add(dlg.FileNames[k]);
-                                        }
-                                        string options = (isAnimated) ? "True" : "False";
-                                        string newData = string.Join("|", loadedUrls);
-                                        newData = options + "|" + newData;
-                                        field.SetData("data", newData);
-                                    }
-
-                                    //TODO: Invalidates the page to update.
-                                    InvalidatePage?.Invoke(this, null);
-                                }
-                            };
-
-                            //Highlights the delete button when the mouse enters image bounds.
-                            bttnDelete.MouseEnter += (a, b) =>
-                            {
-                                newImg = new BitmapImage();
-                                newImg.BeginInit();
-                                newImg.UriSource = new Uri("pack://application:,,,/Assets/BttnDeleteHover.png");
-                                newImg.EndInit();
-                                bttnDelete.Source = newImg;
-                            };
-
-                            //Un-highlights the delete button when the mouse leaves image bounds.
-                            bttnDelete.MouseLeave += (a, b) =>
-                            {
-                                newImg = new BitmapImage();
-                                newImg.BeginInit();
-                                newImg.UriSource = new Uri("pack://application:,,,/Assets/BttnDelete.png");
-                                newImg.EndInit();
-                                bttnDelete.Source = newImg;
-                            };
-
-                            //Prompts to delete the existing image.
-                            bttnDelete.MouseDown += (a, b) =>
-                            {
-                                var mssgResult = MessageBox.Show("Are you sure you want to delete the image?",
-                                    "Confirm deletion",
-                                    MessageBoxButton.YesNo);
-
-                                if (mssgResult == MessageBoxResult.Yes)
-                                {
-                                    loadedUrls.RemoveAt(index);
-
-                                    string options = (isAnimated) ? "True" : "False";
-                                    string newData = string.Join("|", loadedUrls);
-                                    newData = options + "|" + newData;
-                                    field.SetData("data", newData);
-
-                                    //TODO: Invalidates the page to update.
-                                    InvalidatePage?.Invoke(this, null);
-                                }
-                            };
-
                             //Resizes the image.
                             thumbnail.Loaded += (a, b) =>
                             {
@@ -646,10 +507,8 @@ namespace CrystalKeeper.Gui
                                 }
                             };
 
-                            StackPanel contentControls = new StackPanel();
-                            contentControls.Orientation = Orientation.Horizontal;
-                            contentControls.Children.Add(bttnDelete);
-                            contentControls.Children.Add(bttnUpload);
+                            StackPanel contentControls = CreateImageControls(
+                                field, loadedUrls, index, isAnimated);
 
                             //Centers the content controls to match centered image fields.
                             if (templateType == TemplateFieldType.EntryImages && tCenterImages)
@@ -699,7 +558,7 @@ namespace CrystalKeeper.Gui
                                 {
                                     //Sets up a broken image button.
                                     var bttnBrokenImage = new Image();
-                                    newImg = new BitmapImage(new Uri("pack://application:,,,/Assets/BrokenImage.png"));
+                                    var newImg = new BitmapImage(new Uri(Assets.BrokenImage));
                                     bttnBrokenImage.Source = newImg;
                                     bttnBrokenImage.MaxWidth = newImg.Width;
                                     bttnBrokenImage.MaxHeight = newImg.Height;
@@ -791,115 +650,8 @@ namespace CrystalKeeper.Gui
                             thumbnail.MaxHeight = thumbnail.GetSourceHeight();
                         }
 
-                        //Sets up an upload image button.
-                        var bttnUpload = new Image();
-                        BitmapImage newImg = new BitmapImage(new Uri("pack://application:,,,/Assets/BttnAdd.png"));
-                        bttnUpload.Source = newImg;
-                        bttnUpload.ToolTip = "Click to select images or a movie.";
-
-                        //Sets up a delete image button.
-                        var bttnDelete = new Image();
-                        newImg = new BitmapImage(new Uri("pack://application:,,,/Assets/BttnDelete.png"));
-                        bttnDelete.Source = newImg;
-                        bttnDelete.ToolTip = "Click to delete all images.";
-
-                        //Disables the delete button if there's nothing to delete.
-                        if (!File.Exists(loadedUrls.FirstOrDefault()))
-                        {
-                            bttnDelete.IsEnabled = false;
-                            bttnDelete.Opacity = 0.5;
-                        }
-
-                        //Highlights the upload button when the mouse enters image bounds.
-                        bttnUpload.MouseEnter += (a, b) =>
-                        {
-                            newImg = new BitmapImage();
-                            newImg.BeginInit();
-                            newImg.UriSource = new Uri("pack://application:,,,/Assets/BttnAddHover.png");
-                            newImg.EndInit();
-                            bttnUpload.Source = newImg;
-                        };
-
-                        //Un-highlights the upload button when the mouse leaves image bounds.
-                        bttnUpload.MouseLeave += (a, b) =>
-                        {
-                            newImg = new BitmapImage();
-                            newImg.BeginInit();
-                            newImg.UriSource = new Uri("pack://application:,,,/Assets/BttnAdd.png");
-                            newImg.EndInit();
-                            bttnUpload.Source = newImg;
-                        };
-
-                        //Handles uploading an image to change it.
-                        bttnUpload.MouseDown += (a, b) =>
-                        {
-                            OpenFileDialog dlg = new OpenFileDialog();
-
-                            //Opens the directory of the first url.
-                            if (File.Exists(loadedUrls.First()))
-                            {
-                                dlg.InitialDirectory = loadedUrls.First();
-                            }
-
-                            dlg.CheckPathExists = true;
-                            dlg.Filter = "images and movies|*.bmp;*.jpg;*.jpeg;*.gif;*.tif;*.tiff;*.png;*.wmv;*.mp4";
-                            dlg.FilterIndex = 0;
-                            dlg.Multiselect = true;
-                            dlg.Title = "Load image";
-
-                            if (dlg.ShowDialog() == true)
-                            {
-                                string options = (isAnimated) ? "True" : "False";
-                                string newData = string.Join("|", dlg.FileNames);
-                                newData = options + "|" + newData;
-                                field.SetData("data", newData);
-
-                                //TODO: Invalidates the page to update.
-                                InvalidatePage?.Invoke(this, null);
-                            }
-                        };
-
-                        //Highlights the delete button when the mouse enters image bounds.
-                        bttnDelete.MouseEnter += (a, b) =>
-                        {
-                            newImg = new BitmapImage();
-                            newImg.BeginInit();
-                            newImg.UriSource = new Uri("pack://application:,,,/Assets/BttnDeleteHover.png");
-                            newImg.EndInit();
-                            bttnDelete.Source = newImg;
-                        };
-
-                        //Un-highlights the delete button when the mouse leaves image bounds.
-                        bttnDelete.MouseLeave += (a, b) =>
-                        {
-                            newImg = new BitmapImage();
-                            newImg.BeginInit();
-                            newImg.UriSource = new Uri("pack://application:,,,/Assets/BttnDelete.png");
-                            newImg.EndInit();
-                            bttnDelete.Source = newImg;
-                        };
-
-                        //Prompts to delete the existing image.
-                        bttnDelete.MouseDown += (a, b) =>
-                        {
-                            var mssgResult = MessageBox.Show("Are you sure you want to delete the image?",
-                                "Confirm deletion",
-                                MessageBoxButton.YesNo);
-
-                            if (mssgResult == MessageBoxResult.Yes)
-                            {
-                                string options = (isAnimated) ? "True|" : "False|";
-                                field.SetData("data", options);
-
-                                //TODO: Invalidates the page to update.
-                                InvalidatePage?.Invoke(this, null);
-                            }
-                        };
-
-                        StackPanel contentControls = new StackPanel();
-                        contentControls.Orientation = Orientation.Horizontal;
-                        contentControls.Children.Add(bttnDelete);
-                        contentControls.Children.Add(bttnUpload);
+                        StackPanel contentControls = CreateImageControls(
+                            field, loadedUrls, 0, isAnimated);
 
                         //Centers the content controls to match centered image fields.
                         if (templateType == TemplateFieldType.EntryImages && tCenterImages)
@@ -923,7 +675,6 @@ namespace CrystalKeeper.Gui
                 }
 
                 //Sets the width and columns of the element container.
-                AdjustWidths(elementsContainer, tTwoColumns);
                 if ((templateType == TemplateFieldType.EntryImages) &&
                     tCenterImages)
                 {
@@ -942,41 +693,213 @@ namespace CrystalKeeper.Gui
         }
 
         /// <summary>
-        /// Sets the width of the given element to adjust automatically with
-        /// respect to the template layout.
+        /// Creates and returns an image controls bar for an image.
         /// </summary>
-        /// <param name="element">
-        /// An element to bind the width of.
-        /// </param>
-        /// <param name="useTwoColumns">
-        /// Whether a two-column layout is used or not.
-        /// </param>
-        private void AdjustWidths(FrameworkElement element, bool useTwoColumns)
+        private StackPanel CreateImageControls(
+            DataItem field,
+            List<string> urls,
+            int urlIndex,
+            bool isAnimatedMedia)
         {
-            //TODO: elements don't recess after expanding.
+            //Sets up an upload image button.
+            var bttnUpload = new Image();
+            BitmapImage newImg = new BitmapImage(new Uri(Assets.BttnAddStill));
+            bttnUpload.Source = newImg;
+            bttnUpload.ToolTip =
+                Properties.Resources.TipBttnUpload;
 
-            //Evaluates the max width when the layout updates.
-            gui.TxtbxEntryName.LayoutUpdated += (a, b) =>
+            //Sets up an upload movie button.
+            var bttnUploadMovie = new Image();
+            newImg = new BitmapImage(new Uri(Assets.BttnAddMovie));
+            bttnUploadMovie.Source = newImg;
+            bttnUploadMovie.ToolTip =
+                Properties.Resources.TipBttnUploadMovie;
+
+            //Sets up a delete image button.
+            var bttnDelete = new Image();
+            newImg = new BitmapImage(new Uri(Assets.BttnDelete));
+            bttnDelete.Source = newImg;
+            bttnDelete.ToolTip = Properties.Resources.TipBttnDelete;
+
+            //Disables the delete button if there's nothing to delete.
+            if (!File.Exists(urls[urlIndex]))
             {
-                if (useTwoColumns)
+                bttnDelete.IsEnabled = false;
+                bttnDelete.Opacity = 0.5;
+            }
+
+            //Highlights the upload button when the mouse enters image bounds.
+            bttnUpload.MouseEnter += (a, b) =>
+            {
+                newImg = new BitmapImage();
+                newImg.BeginInit();
+                newImg.UriSource = new Uri(Assets.BttnAddHover);
+                newImg.EndInit();
+                bttnUpload.Source = newImg;
+            };
+
+            //Un-highlights the upload button when the mouse leaves image bounds.
+            bttnUpload.MouseLeave += (a, b) =>
+            {
+                newImg = new BitmapImage();
+                newImg.BeginInit();
+                newImg.UriSource = new Uri(Assets.BttnAddStill);
+                newImg.EndInit();
+                bttnUpload.Source = newImg;
+            };
+
+            //Handles uploading images.
+            bttnUpload.MouseDown += (a, b) =>
+            {
+                OpenFileDialog dlg = new OpenFileDialog();
+
+                //Opens the directory of the first url.
+                if (File.Exists(urls.First()))
                 {
-                    element.MaxWidth = gui.TxtbxEntryName.ActualWidth / 2;
+                    dlg.InitialDirectory = urls.First();
                 }
-                else
+
+                dlg.Multiselect = true;
+                dlg.CheckPathExists = true;
+                dlg.Filter = "images|*.bmp;*.jpg;*.jpeg;*.gif;*.tif;*.tiff;*.png";
+                dlg.FilterIndex = 0;
+                dlg.Title = "Load image";
+
+                if (dlg.ShowDialog() == true)
                 {
-                    element.MaxWidth = gui.TxtbxEntryName.ActualWidth;
+                    //Replaces all images for multi-image uploads.
+                    if (dlg.FileNames.Length > 1)
+                    {
+                        urls.Clear();
+                    }
+
+                    //Sets or adds images to the list.
+                    for (int k = 0; k < dlg.FileNames.Length; k++)
+                    {
+                        if (k == 0 && dlg.FileNames.Length == 1)
+                        {
+                            urls[urlIndex] = dlg.FileNames[k];
+                        }
+                        else
+                        {
+                            urls.Add(dlg.FileNames[k]);
+                        }
+                    }
+
+                    string newData = string.Join("|", urls);
+                    newData = "False|" + newData;
+                    field.SetData("data", newData);
+
+                    //Redraws the page.
+                    InvalidatePage?.Invoke(this, null);
                 }
             };
 
-            //Updates the layout immediately.
-            if (useTwoColumns)
+            //Highlights the upload movie button when the mouse enters image bounds.
+            bttnUploadMovie.MouseEnter += (a, b) =>
             {
-                element.MaxWidth = gui.TxtbxEntryName.ActualWidth / 2;
-            }
-            else
+                newImg = new BitmapImage();
+                newImg.BeginInit();
+                newImg.UriSource = new Uri(Assets.BttnAddMovieHover);
+                newImg.EndInit();
+                bttnUploadMovie.Source = newImg;
+            };
+
+            //Un-highlights the upload button when the mouse leaves image bounds.
+            bttnUploadMovie.MouseLeave += (a, b) =>
             {
-                element.MaxWidth = gui.TxtbxEntryName.ActualWidth;
-            }
+                newImg = new BitmapImage();
+                newImg.BeginInit();
+                newImg.UriSource = new Uri(Assets.BttnAddMovie);
+                newImg.EndInit();
+                bttnUploadMovie.Source = newImg;
+            };
+
+            //Handles uploading movies and multiple images.
+            bttnUploadMovie.MouseDown += (a, b) =>
+            {
+                OpenFileDialog dlg = new OpenFileDialog();
+
+                //Opens the directory of the first url.
+                if (File.Exists(urls.First()))
+                {
+                    dlg.InitialDirectory = urls.First();
+                }
+
+                dlg.Multiselect = true;
+                dlg.CheckPathExists = true;
+                dlg.Filter = "images or movie|*.bmp;*.jpg;" +
+                    "*.jpeg;*.gif;*.tif;*.tiff;*.png;*.wmv;*.mp4";
+                dlg.FilterIndex = 0;
+                dlg.Title = "Load images or movie";
+
+                if (dlg.ShowDialog() == true)
+                {
+                    string newData = string.Join("|", dlg.FileNames);
+                    newData = "True|" + newData;
+                    field.SetData("data", newData);
+
+                    //Redraws the page.
+                    InvalidatePage?.Invoke(this, null);
+                }
+            };
+
+            //Highlights the delete button when the mouse enters image bounds.
+            bttnDelete.MouseEnter += (a, b) =>
+            {
+                newImg = new BitmapImage();
+                newImg.BeginInit();
+                newImg.UriSource = new Uri(Assets.BttnDeleteHover);
+                newImg.EndInit();
+                bttnDelete.Source = newImg;
+            };
+
+            //Un-highlights the delete button when the mouse leaves image bounds.
+            bttnDelete.MouseLeave += (a, b) =>
+            {
+                newImg = new BitmapImage();
+                newImg.BeginInit();
+                newImg.UriSource = new Uri(Assets.BttnDelete);
+                newImg.EndInit();
+                bttnDelete.Source = newImg;
+            };
+
+            //Prompts to delete the existing image.
+            bttnDelete.MouseDown += (a, b) =>
+            {
+                var mssgResult = MessageBox.Show("Are you sure you want to delete the image?",
+                    "Confirm deletion",
+                    MessageBoxButton.YesNo);
+
+                if (mssgResult == MessageBoxResult.Yes)
+                {
+                    //Clears the url(s) of an animation or movie.
+                    if (isAnimatedMedia)
+                    {
+                        urls.Clear();
+                    }
+
+                    //Removes a url for an image.
+                    else
+                    {
+                        urls.RemoveAt(urlIndex);
+                    }
+
+                    string newData = string.Join("|", urls);
+                    newData = "False|" + newData;
+                    field.SetData("data", newData);
+
+                    //Redraws the page.
+                    InvalidatePage?.Invoke(this, null);
+                }
+            };
+
+            StackPanel contentControls = new StackPanel();
+            contentControls.Orientation = Orientation.Horizontal;
+            contentControls.Children.Add(bttnDelete);
+            contentControls.Children.Add(bttnUpload);
+            contentControls.Children.Add(bttnUploadMovie);
+            return contentControls;
         }
         #endregion
     }
