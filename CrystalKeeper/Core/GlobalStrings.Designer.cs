@@ -322,6 +322,24 @@ namespace CrystalKeeper.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Delete.
+        /// </summary>
+        public static string ContextMenuDelete {
+            get {
+                return ResourceManager.GetString("ContextMenuDelete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rename.
+        /// </summary>
+        public static string ContextMenuRename {
+            get {
+                return ResourceManager.GetString("ContextMenuRename", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Background image.
         /// </summary>
         public static string DatabaseEditBackgroundImage {

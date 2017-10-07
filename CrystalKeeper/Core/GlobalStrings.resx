@@ -683,4 +683,10 @@ The collections using this template are: </value>
   <data name="TipBttnUploadMovie" xml:space="preserve">
     <value>Click to upload a movie or frames for an animation.</value>
   </data>
+  <data name="ContextMenuDelete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="ContextMenuRename" xml:space="preserve">
+    <value>Rename</value>
+  </data>
 </root>
