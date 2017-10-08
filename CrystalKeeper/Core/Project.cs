@@ -276,7 +276,52 @@ namespace CrystalKeeper.Core
                     var tField = newItems.FirstOrDefault(
                         o => o.guid == (ulong)fields[i].GetData("templateFieldGuid"));
 
-                    if ((TemplateFieldType)tField?.GetData("dataType") != TemplateFieldType.Text)
+                    var ttype = (TemplateFieldType)tField?.GetData("dataType");
+
+                    //Parses large binary-based data.
+                    if (ttype == TemplateFieldType.EntryImages ||
+                        ttype == TemplateFieldType.Images)
+                    {
+                        var binData = (byte[])fields[i].GetData("data");
+
+                        //Reads data to files.
+                        using (MemoryStream ms = new MemoryStream(binData))
+                        {
+                            using (BinaryReader br = new BinaryReader(ms))
+                            {
+                                //Gets the metadata and iterates through urls.
+                                var metadata = br.ReadString();
+                                var metaUrls = metadata.Split('|');
+
+                                for (int j = 1; j < metaUrls.Length; j++)
+                                {
+                                    int numBytes = br.ReadInt32();
+                                    byte[] fileData = br.ReadBytes(numBytes);
+                                    string newUrl = Utils.GetAppdataFolder(metaUrls[j]);
+                                    metaUrls[j] = newUrl;
+
+                                    //Writes data to the absolute url filepath.
+                                    using (FileStream fs = new FileStream(
+                                        newUrl, FileMode.Create))
+                                    {
+                                        using (BinaryWriter writer = new BinaryWriter(fs))
+                                        {
+                                            writer.Write(fileData);
+                                        }
+                                    }
+                                }
+
+                                //Replaces loaded binary data with metadata.
+                                fields[i].SetData("data", String.Join("|", metaUrls));
+                            }
+                        }
+                    }
+
+                    //Preserves all binary-based data.
+                    else if (ttype == TemplateFieldType.Text) { }
+
+                    //Parses all object-based data.
+                    else
                     {
                         try
                         {
@@ -391,45 +436,6 @@ namespace CrystalKeeper.Core
                 GetDatabase().SetData("imageUrl", newPath);
             }
 
-            //Ensures all image paths are relative.
-            List<DataItem> entries = GetItemsByType(DataItemTypes.Entry);
-            for (int i = 0; i < entries.Count; i++)
-            {
-                List<DataItem> fields = GetEntryFields(entries[i]);
-                for (int j = 0; j < fields.Count; j++)
-                {
-                    DataItem templateField = GetItemByGuid((ulong)fields[j].GetData("templateFieldGuid"));
-                    var fieldType = (TemplateFieldType)(int)templateField.GetData("dataType");
-
-                    //Reads the image-formatted fields.
-                    if (fieldType == TemplateFieldType.Images ||
-                        fieldType == TemplateFieldType.EntryImages)
-                    {
-                        var data = ((string)fields[j].GetData("data")).Split('|');
-                        string newData = data.FirstOrDefault();
-                        if (newData.Trim() != String.Empty)
-                        {
-                            newData += "|";
-                        }
-
-                        //Reads all urls and makes them relative if not so.
-                        for (int k = 1; k < data.Length; k++)
-                        {
-                            string newUrl = Utils.MakeRelativeUrl(url, data[k]);
-                            if (newUrl != String.Empty)
-                            {
-                                newData += newUrl;
-                            }
-                            if (k != data.Length - 1)
-                            {
-                                newData += "|";
-                            }
-                        }
-                        fields[j].SetData("data", newData);
-                    }
-                }
-            }
-
             //Writes all data items in arbitrary order.
             for (int i = 0; i < _items.Count; i++)
             {
@@ -464,10 +470,61 @@ namespace CrystalKeeper.Core
                             writer.Write((ulong)item.GetData("refGuid"));
                             writer.Write((ulong)item.GetData("templateFieldGuid"));
 
-                            //Writes the size of the data chunk, then saves it.
-                            var rawData = Utils.ObjectToByteArray(item.GetData("data"));
-                            writer.Write(rawData.Length);
-                            writer.Write(rawData);
+                            DataItem templateField = GetItemByGuid((ulong)item.GetData("templateFieldGuid"));
+                            var fieldType = (TemplateFieldType)(int)templateField.GetData("dataType");
+
+                            //Parses large binary-based data.
+                            if (fieldType == TemplateFieldType.Images ||
+                                fieldType == TemplateFieldType.EntryImages)
+                            {
+                                //Gets the metadata and reads file data of each url.                        
+                                var metadata = ((string)item.GetData("data"));
+                                var metaUrls = metadata.Split('|');
+
+                                using (MemoryStream ms = new MemoryStream())
+                                {
+                                    using (BinaryWriter br = new BinaryWriter(ms))
+                                    {
+                                        br.Write(metadata);
+
+                                        //Appends bytes and size of each url to data.
+                                        for (int k = 1; k < metaUrls.Length; k++)
+                                        {
+                                            if (File.Exists(metaUrls[k]))
+                                            {
+                                                var fileData = File.ReadAllBytes(metaUrls[k]);
+
+                                                br.Write(fileData.Length);
+                                                br.Write(fileData);
+                                            }
+                                        }
+
+                                        metadata = String.Join("|", metaUrls);
+                                    }
+
+                                    if (metaUrls.Length > 0)
+                                    {
+                                        //Writes the size of the data chunk, then saves it.
+                                        var rawData = ms.ToArray();
+                                        writer.Write(rawData.Length);
+                                        writer.Write(rawData);
+                                    }
+                                    else
+                                    {
+                                        //Writes the size of the data chunk, then saves it.
+                                        var rawData = Utils.ObjectToByteArray(item.GetData("data"));
+                                        writer.Write(rawData.Length);
+                                        writer.Write(rawData);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                //Writes the size of the data chunk, then saves it.
+                                var rawData = Utils.ObjectToByteArray(item.GetData("data"));
+                                writer.Write(rawData.Length);
+                                writer.Write(rawData);
+                            }
                             break;
                         case DataItemTypes.Grouping:
                             writer.Write((string)item.GetData("name"));

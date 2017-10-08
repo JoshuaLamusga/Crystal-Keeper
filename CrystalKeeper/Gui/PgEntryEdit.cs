@@ -763,6 +763,19 @@ namespace CrystalKeeper.Gui
 
                 if (dlg.ShowDialog() == true)
                 {
+                    //Ensures no file is larger than 2GB.
+                    for (int k = 0; k < dlg.FileNames.Length; k++)
+                    {
+                        if (new FileInfo(dlg.FileNames[k]).Length >= 2147000000)
+                        {
+                            MessageBox.Show(
+                                GlobalStrings.DlgImageTooBigWarning,
+                                GlobalStrings.DlgImageTooBigCaption);
+
+                            return;
+                        }
+                    }
+
                     //Replaces all images for multi-image uploads.
                     if (dlg.FileNames.Length > 1)
                     {
@@ -830,6 +843,19 @@ namespace CrystalKeeper.Gui
 
                 if (dlg.ShowDialog() == true)
                 {
+                    //Ensures no file is larger than 2GB.
+                    for (int k = 0; k < dlg.FileNames.Length; k++)
+                    {
+                        if (new FileInfo(dlg.FileNames[k]).Length >= 2147000000)
+                        {
+                            MessageBox.Show(
+                                GlobalStrings.DlgImageTooBigWarning,
+                                GlobalStrings.DlgImageTooBigCaption);
+
+                            return;
+                        }
+                    }
+
                     string newData = string.Join("|", dlg.FileNames);
                     newData = "True|" + newData;
                     field.SetData("data", newData);

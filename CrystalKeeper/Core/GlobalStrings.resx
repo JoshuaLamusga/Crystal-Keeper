@@ -689,4 +689,10 @@ The collections using this template are: </value>
   <data name="ContextMenuRename" xml:space="preserve">
     <value>Rename</value>
   </data>
+  <data name="DlgImageTooBigCaption" xml:space="preserve">
+    <value>Image too large</value>
+  </data>
+  <data name="DlgImageTooBigWarning" xml:space="preserve">
+    <value>One or more files was larger than 2GB and couldn't be uploaded.</value>
+  </data>
 </root>

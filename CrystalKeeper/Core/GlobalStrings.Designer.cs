@@ -819,6 +819,24 @@ namespace CrystalKeeper.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Image too large.
+        /// </summary>
+        public static string DlgImageTooBigCaption {
+            get {
+                return ResourceManager.GetString("DlgImageTooBigCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to One or more files was larger than 2GB and couldn&apos;t be uploaded..
+        /// </summary>
+        public static string DlgImageTooBigWarning {
+            get {
+                return ResourceManager.GetString("DlgImageTooBigWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The file couldn&apos;t be loaded or played correctly..
         /// </summary>
         public static string DlgMediaNotLoadedWarning {
