@@ -215,7 +215,6 @@ namespace CrystalKeeper.Gui
             var template = project.GetCollectionTemplate(project.GetEntryCollection(entry));
             var tCenterImages = (bool)template.GetData("centerImages");
             var tTwoColumns = (bool)template.GetData("twoColumns");
-            var tExtraImagePos = (TemplateImagePos)(int)template.GetData("extraImagePos");
 
             //Adjusts the column widths if two columns are used.
             if (!tTwoColumns)
@@ -426,6 +425,7 @@ namespace CrystalKeeper.Gui
                     List<string> loadedUrls = new List<string>();
                     bool isAnimated = false;
                     bool isMuted = false;
+                    var extraImagePos = (TemplateImagePos)(int)currTemplateField.GetData("extraImagePos");
 
                     //Loads the data if it exists, or sets it if empty.
                     if (((string)fieldData) == String.Empty)
@@ -460,8 +460,8 @@ namespace CrystalKeeper.Gui
                     elementsContainer.Children.Add(fieldNameGui);
 
                     //Sets the orientation to be horizontal if chosen.
-                    if (tExtraImagePos == TemplateImagePos.Left ||
-                        tExtraImagePos == TemplateImagePos.Right)
+                    if (extraImagePos == TemplateImagePos.Left ||
+                        extraImagePos == TemplateImagePos.Right)
                     {
                         elementsContainer.Orientation = Orientation.Horizontal;
                     }
@@ -477,9 +477,8 @@ namespace CrystalKeeper.Gui
                             bool isUrlValid = true;
 
                             //Sets margins based on orientation.
-                            if (templateType == TemplateFieldType.EntryImages &&
-                                (tExtraImagePos == TemplateImagePos.Left ||
-                                tExtraImagePos == TemplateImagePos.Right))
+                            if (extraImagePos == TemplateImagePos.Left ||
+                                extraImagePos == TemplateImagePos.Right)
                             {
                                 thumbnail.Margin = new Thickness(4, 2, 12, 2);
                             }
@@ -514,31 +513,28 @@ namespace CrystalKeeper.Gui
                                 contentControls.HorizontalAlignment = HorizontalAlignment.Center;
                             }
 
-                            if (templateType == TemplateFieldType.EntryImages)
+                            //Reverses element order.
+                            if (extraImagePos == TemplateImagePos.Above ||
+                                extraImagePos == TemplateImagePos.Left)
                             {
-                                //Reverses element order.
-                                if (tExtraImagePos == TemplateImagePos.Above ||
-                                    tExtraImagePos == TemplateImagePos.Left)
+                                List<UIElement> elements = new List<UIElement>();
+                                for (int k = 0; k < imagesContainer.Children.Count; k++)
                                 {
-                                    List<UIElement> elements = new List<UIElement>();
-                                    for (int k = 0; k < imagesContainer.Children.Count; k++)
-                                    {
-                                        elements.Add(imagesContainer.Children[k]);
-                                    }
-                                    elements.Reverse();
-                                    imagesContainer.Children.Clear();
-                                    for (int k = 0; k < elements.Count; k++)
-                                    {
-                                        imagesContainer.Children.Add(elements[k]);
-                                    }
+                                    elements.Add(imagesContainer.Children[k]);
                                 }
+                                elements.Reverse();
+                                imagesContainer.Children.Clear();
+                                for (int k = 0; k < elements.Count; k++)
+                                {
+                                    imagesContainer.Children.Add(elements[k]);
+                                }
+                            }
 
-                                //Changes orientation.
-                                if (tExtraImagePos == TemplateImagePos.Left ||
-                                    tExtraImagePos == TemplateImagePos.Right)
-                                {
-                                    imagesContainer.Orientation = Orientation.Horizontal;
-                                }
+                            //Changes orientation.
+                            if (extraImagePos == TemplateImagePos.Left ||
+                                extraImagePos == TemplateImagePos.Right)
+                            {
+                                imagesContainer.Orientation = Orientation.Horizontal;
                             }
 
                             StackPanel imageControls = new StackPanel();

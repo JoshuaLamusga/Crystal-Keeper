@@ -32,36 +32,6 @@
                             <CheckBox Name="ChkbxCenterMainImages"
                                 Margin="5px"
                                 Content="{x:Static local:GlobalStrings.TemplateEditorCenterImages}"/>
-                            <WrapPanel
-                                Margin="0,0,0,5px">
-                                <TextBlock
-                                    Text="{x:Static local:GlobalStrings.TemplateEditorExtraImagesA}"
-                                    Padding="4px"
-                                    VerticalAlignment="Center"/>
-                                <TextBox Name="TxtbxNumImages"
-                                    Padding="4px"
-                                    MinWidth="25px"/>
-                                <TextBlock
-                                    Text="{x:Static local:GlobalStrings.TemplateEditorExtraImagesB}"
-                                    Padding="4px"
-                                    MinWidth="75px"/>
-                            </WrapPanel>
-                            <WrapPanel>
-                                <TextBlock
-                                    Text="{x:Static local:GlobalStrings.TemplateEditorImageAnchorA}"
-                                    Padding="4px"
-                                    MinWidth="75px"/>
-                                <!--Combobox items constructed dynamically-->
-                                <ComboBox Name="CmbxImageAnchor"
-                                    Padding="4px"
-                                    MinWidth="60px"
-                                    SelectedValuePath="Content">
-                                </ComboBox>
-                                <TextBlock
-                                    Text="{x:Static local:GlobalStrings.TemplateEditorImageAnchorB}"
-                                    Padding="4px"
-                                    MinWidth="75px"/>
-                            </WrapPanel>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox

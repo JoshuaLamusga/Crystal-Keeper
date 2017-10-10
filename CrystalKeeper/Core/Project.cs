@@ -239,8 +239,6 @@ namespace CrystalKeeper.Core
                             item.SetData("name", reader.ReadString());
                             item.SetData("centerImages", reader.ReadBoolean());
                             item.SetData("twoColumns", reader.ReadBoolean());
-                            item.SetData("numExtraImages", reader.ReadByte());
-                            item.SetData("extraImagePos", reader.ReadInt32());
                             item.SetData("fontFamilies", reader.ReadString());
                             item.SetData("headerColorR", reader.ReadByte());
                             item.SetData("headerColorG", reader.ReadByte());
@@ -552,8 +550,6 @@ namespace CrystalKeeper.Core
                             writer.Write((string)item.GetData("name"));
                             writer.Write((bool)item.GetData("centerImages"));
                             writer.Write((bool)item.GetData("twoColumns"));
-                            writer.Write((byte)item.GetData("numExtraImages"));
-                            writer.Write((int)item.GetData("extraImagePos"));
                             writer.Write((string)item.GetData("fontFamilies"));
                             writer.Write((byte)item.GetData("headerColorR"));
                             writer.Write((byte)item.GetData("headerColorG"));
@@ -654,8 +650,6 @@ namespace CrystalKeeper.Core
             item.SetData("name", name);
             item.SetData("centerImages", centerImages);
             item.SetData("twoColumns", twoColumns);
-            item.SetData("numExtraImages", numExtraImages);
-            item.SetData("extraImagePos", (int)extraImagePos);
             item.SetData("fontFamilies", fontFamilies);
             item.SetData("headerColorR", headerColorR);
             item.SetData("headerColorG", headerColorG);

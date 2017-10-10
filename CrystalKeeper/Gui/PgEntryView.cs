@@ -144,9 +144,7 @@ namespace CrystalKeeper.Gui
             //Gets template details.
             var template = project.GetCollectionTemplate(project.GetEntryCollection(entry));
             bool tCenterImages = (bool)template.GetData("centerImages");
-            byte tNumExtraImages = (byte)template.GetData("numExtraImages");
             var tTwoColumns = (bool)template.GetData("twoColumns");
-            var tExtraImagePos = (TemplateImagePos)(int)template.GetData("extraImagePos");
             string tFontFamilies = (string)template.GetData("fontFamilies");
 
             gui.TxtblkEntryName.FontFamily = new FontFamily(tFontFamilies);
@@ -182,6 +180,9 @@ namespace CrystalKeeper.Gui
                 //Gets the field and its data.
                 var field = entryFields[i];
                 object fieldData = field.GetData("data");
+                var templateField = project.GetFieldTemplateField(entryFields[i]);
+                byte tNumExtraImages = (byte)templateField.GetData("numExtraImages");
+                var tExtraImagePos = (TemplateImagePos)(int)templateField.GetData("extraImagePos");
 
                 //Gets various data regarding the field.
                 var currField = entryFields[i];
@@ -530,9 +531,8 @@ namespace CrystalKeeper.Gui
                             ImgThumbnail thumbnail = new ImgThumbnail(loadedUrls[j]);
 
                             //Sets margins based on orientation.
-                            if (templateType == TemplateFieldType.EntryImages &&
-                                (tExtraImagePos == TemplateImagePos.Left ||
-                                tExtraImagePos == TemplateImagePos.Right))
+                            if (tExtraImagePos == TemplateImagePos.Left ||
+                                tExtraImagePos == TemplateImagePos.Right)
                             {
                                 thumbnail.Margin = new Thickness(4, 2, 12, 2);
                             }
@@ -558,39 +558,34 @@ namespace CrystalKeeper.Gui
                             imagesContainer.Children.Add(thumbnail);
 
                             //Exits when 1 + number of extra images are displayed.
-                            if (templateType == TemplateFieldType.EntryImages &&
-                                j == tNumExtraImages &&
-                                tNumExtraImages > 0)
+                            if (j == tNumExtraImages && tNumExtraImages > 0)
                             {
                                 break;
                             }
                         }
 
-                        if (templateType == TemplateFieldType.EntryImages)
+                        //Reverses element order.
+                        if (tExtraImagePos == TemplateImagePos.Above ||
+                            tExtraImagePos == TemplateImagePos.Left)
                         {
-                            //Reverses element order.
-                            if (tExtraImagePos == TemplateImagePos.Above ||
-                                tExtraImagePos == TemplateImagePos.Left)
+                            List<UIElement> elements = new List<UIElement>();
+                            for (int j = 0; j < imagesContainer.Children.Count; j++)
                             {
-                                List<UIElement> elements = new List<UIElement>();
-                                for (int j = 0; j < imagesContainer.Children.Count; j++)
-                                {
-                                    elements.Add(imagesContainer.Children[j]);
-                                }
-                                elements.Reverse();
-                                imagesContainer.Children.Clear();
-                                for (int j = 0; j < elements.Count; j++)
-                                {
-                                    imagesContainer.Children.Add(elements[j]);
-                                }
+                                elements.Add(imagesContainer.Children[j]);
                             }
+                            elements.Reverse();
+                            imagesContainer.Children.Clear();
+                            for (int j = 0; j < elements.Count; j++)
+                            {
+                                imagesContainer.Children.Add(elements[j]);
+                            }
+                        }
 
-                            //Changes orientation.
-                            if (tExtraImagePos == TemplateImagePos.Left ||
-                                tExtraImagePos == TemplateImagePos.Right)
-                            {
-                                imagesContainer.Orientation = Orientation.Horizontal;
-                            }
+                        //Changes orientation.
+                        if (tExtraImagePos == TemplateImagePos.Left ||
+                            tExtraImagePos == TemplateImagePos.Right)
+                        {
+                            imagesContainer.Orientation = Orientation.Horizontal;
                         }
 
                         elementsContainer.Children.Add(imagesContainer);

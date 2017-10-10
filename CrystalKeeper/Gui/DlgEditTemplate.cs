@@ -146,7 +146,8 @@ namespace CrystalKeeper.Gui
                 (bool)activeField.GetItem().GetData("isTitleVisible");
 
             //Sets visibility of image-specific field options.
-            if (dataType == TemplateFieldType.Images)
+            if (dataType == TemplateFieldType.EntryImages ||
+                dataType == TemplateFieldType.Images)
             {
                 gui.FieldImageOptions.Visibility = Visibility.Visible;
                 gui.FieldImageOptions.IsEnabled = true;
@@ -175,10 +176,6 @@ namespace CrystalKeeper.Gui
                         gui.CmbxItemUnder.IsSelected = true;
                         break;
                 }
-
-                //Sets the default number of extra images.
-                gui.TxtbxNumImages.Text =
-                    ((byte)activeField.GetItem().GetData("numExtraImages")).ToString();
             }
 
             //Shows or hides the unchangeable entry images field.
@@ -317,71 +314,6 @@ namespace CrystalKeeper.Gui
 
             //Handles changes.
             gui.ChkbxCenterMainImages.Click += ChkbxCenterMainImages_Click;
-            #endregion
-
-            #region Number of extra images
-            //Sets the default number of extra images.
-            gui.TxtbxNumImages.Text =
-                ((byte)template.GetData("numExtraImages")).ToString();
-
-            gui.TxtbxNumImages.TextChanged += TxtbxNumImages_TextChanged;
-            #endregion
-
-            #region Extra image anchor position
-            //Constructs the relevant ComboBoxItems.
-            ComboBoxItem itemAbove = new ComboBoxItem();
-            itemAbove.Content = GlobalStrings.CmbxImageAnchorAbove;
-            ComboBoxItem itemLeft = new ComboBoxItem();
-            itemLeft.Content = GlobalStrings.CmbxImageAnchorLeft;
-            ComboBoxItem itemRight = new ComboBoxItem();
-            itemRight.Content = GlobalStrings.CmbxImageAnchorRight;
-            ComboBoxItem itemUnder = new ComboBoxItem();
-
-            itemUnder.Content = GlobalStrings.CmbxImageAnchorUnder;
-            itemUnder.IsSelected = true;
-
-            gui.CmbxImageAnchor.Items.Add(itemAbove);
-            gui.CmbxImageAnchor.Items.Add(itemUnder);
-            gui.CmbxImageAnchor.Items.Add(itemLeft);
-            gui.CmbxImageAnchor.Items.Add(itemRight);
-
-            //Sets the default image anchor position.
-            switch ((TemplateImagePos)(int)template.GetData("extraImagePos"))
-            {
-                case TemplateImagePos.Above:
-                    itemAbove.IsSelected = true;
-                    break;
-                case TemplateImagePos.Left:
-                    itemLeft.IsSelected = true;
-                    break;
-                case TemplateImagePos.Right:
-                    itemRight.IsSelected = true;
-                    break;
-                case TemplateImagePos.Under:
-                    itemUnder.IsSelected = true;
-                    break;
-            }
-
-            //Changes the image anchor position on the page.
-            gui.CmbxImageAnchor.SelectionChanged += new SelectionChangedEventHandler((a, b) =>
-            {
-                if (itemAbove.IsSelected)
-                {
-                    template.SetData("extraImagePos", (int)TemplateImagePos.Above);
-                }
-                else if (itemLeft.IsSelected)
-                {
-                    template.SetData("extraImagePos", (int)TemplateImagePos.Left);
-                }
-                else if (itemRight.IsSelected)
-                {
-                    template.SetData("extraImagePos", (int)TemplateImagePos.Right);
-                }
-                else if (itemUnder.IsSelected)
-                {
-                    template.SetData("extraImagePos", (int)TemplateImagePos.Under);
-                }
-            });
             #endregion
 
             #region Use one column, Use two columns
@@ -770,7 +702,6 @@ namespace CrystalKeeper.Gui
             gui.ChkbxFieldInvisible.Click += ChkbxFieldInvisible_Click;
             gui.ChkbxFieldNameInvisible.Click += ChkbxFieldNameInvisible_Click;
             gui.CmbxFieldImageAnchor.SelectionChanged += CmbxFieldImageAnchor_SelectionChanged;
-            gui.TxtbxFieldNumImages.TextChanged += TxtbxFieldNumImages_TextChanged;
             gui.BttnSaveChanges.Click += BttnSaveChanges_Click;
         }
 
@@ -994,62 +925,6 @@ namespace CrystalKeeper.Gui
         }
 
         /// <summary>
-        /// Stores the number of images for the associated image field.
-        /// </summary>
-        private void TxtbxFieldNumImages_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (activeField == null)
-            {
-                return;
-            }
-
-            //Filters non-numeric input.
-            string data = String.Empty;
-            for (int i = 0; i < gui.TxtbxNumImages.Text.Length; i++)
-            {
-                switch (gui.TxtbxNumImages.Text[i])
-                {
-                    case '0':
-                    case '1':
-                    case '2':
-                    case '3':
-                    case '4':
-                    case '5':
-                    case '6':
-                    case '7':
-                    case '8':
-                    case '9':
-                        data += gui.TxtbxNumImages.Text[i];
-                        break;
-                    default:
-                        break;
-                }
-            }
-            gui.TxtbxNumImages.Text = data;
-
-            //Handles empty text.
-            if (String.IsNullOrWhiteSpace(gui.TxtbxNumImages.Text))
-            {
-                gui.TxtbxNumImages.Text = "0";
-            }
-
-            //Handles copy/pasted giant numbers.
-            byte testByte;
-            if (!Byte.TryParse(gui.TxtbxNumImages.Text, out testByte))
-            {
-                gui.TxtbxNumImages.Text = "100";
-            }
-            //Handles numbers in the byte range above 100.
-            else if (Byte.Parse(gui.TxtbxNumImages.Text) > 100)
-            {
-                gui.TxtbxNumImages.Text = "100";
-            }
-
-            //Sets the underlying data.
-            activeField.GetItem().SetData("numExtraImages", Byte.Parse(gui.TxtbxNumImages.Text));
-        }
-
-        /// <summary>
         /// Stores the anchor position for the associated image field.
         /// </summary>
         private void CmbxFieldImageAnchor_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1176,7 +1051,8 @@ namespace CrystalKeeper.Gui
                 (bool)activeField.GetItem().GetData("isTitleVisible");
 
             //Sets visibility of image-specific field options.
-            if (gui.ItemTypeImages.IsSelected)
+            if (gui.ItemTypeEntryImages.IsSelected ||
+                gui.ItemTypeImages.IsSelected)
             {
                 gui.FieldImageOptions.Visibility = Visibility.Visible;
                 gui.FieldImageOptions.IsEnabled = true;
@@ -1205,10 +1081,6 @@ namespace CrystalKeeper.Gui
                         gui.CmbxItemUnder.IsSelected = true;
                         break;
                 }
-
-                //Sets the default number of extra images.
-                gui.TxtbxNumImages.Text =
-                    ((byte)activeField.GetItem().GetData("numExtraImages")).ToString();
             }
         }
 
@@ -1317,57 +1189,6 @@ namespace CrystalKeeper.Gui
             gui.LstbxCol2.IsEnabled = false;
             gui.BttnMoveLeft.IsEnabled = false;
             gui.BttnMoveRight.IsEnabled = false;
-        }
-
-        /// <summary>
-        /// Handles changes to the number of images.
-        /// </summary>
-        private void TxtbxNumImages_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            //Filters non-numeric input.
-            string data = String.Empty;
-            for (int i = 0; i < gui.TxtbxNumImages.Text.Length; i++)
-            {
-                switch (gui.TxtbxNumImages.Text[i])
-                {
-                    case '0':
-                    case '1':
-                    case '2':
-                    case '3':
-                    case '4':
-                    case '5':
-                    case '6':
-                    case '7':
-                    case '8':
-                    case '9':
-                        data += gui.TxtbxNumImages.Text[i];
-                        break;
-                    default:
-                        break;
-                }
-            }
-            gui.TxtbxNumImages.Text = data;
-
-            //Handles empty text.
-            if (String.IsNullOrWhiteSpace(gui.TxtbxNumImages.Text))
-            {
-                gui.TxtbxNumImages.Text = "0";
-            }
-
-            //Handles copy/pasted giant numbers.
-            byte testByte;
-            if (!Byte.TryParse(gui.TxtbxNumImages.Text, out testByte))
-            {
-                gui.TxtbxNumImages.Text = "100";
-            }
-            //Handles numbers in the byte range above 100.
-            else if (Byte.Parse(gui.TxtbxNumImages.Text) > 100)
-            {
-                gui.TxtbxNumImages.Text = "100";
-            }
-
-            //Sets the underlying data.
-            template.SetData("numExtraImages", Byte.Parse(gui.TxtbxNumImages.Text));
         }
 
         /// <summary>
