@@ -145,10 +145,6 @@ namespace CrystalKeeper.Gui
             gui.ChkbxFieldNameInvisible.IsChecked =
                 (bool)activeField.GetItem().GetData("isTitleVisible");
 
-            //If checked, the field name is left of (not above) the field.
-            gui.ChkbxFieldNameInline.IsChecked =
-                (bool)activeField.GetItem().GetData("isTitleInline");
-
             //Sets visibility of image-specific field options.
             if (dataType == TemplateFieldType.Images)
             {
@@ -562,7 +558,7 @@ namespace CrystalKeeper.Gui
                                     gui.TxtbxNewField.Text,
                                     cols[i].guid,
                                     newType,
-                                    true, true, true,
+                                    true, true,
                                     project.GetTemplateColumnFields(cols[i]).Count);
 
                                 //Updates the GUI to match.
@@ -773,7 +769,6 @@ namespace CrystalKeeper.Gui
             gui.CmbxDataType.SelectionChanged += CmbxDataType_SelectionChanged;
             gui.ChkbxFieldInvisible.Click += ChkbxFieldInvisible_Click;
             gui.ChkbxFieldNameInvisible.Click += ChkbxFieldNameInvisible_Click;
-            gui.ChkbxFieldNameInline.Click += ChkbxFieldNameInline_Click;
             gui.CmbxFieldImageAnchor.SelectionChanged += CmbxFieldImageAnchor_SelectionChanged;
             gui.TxtbxFieldNumImages.TextChanged += TxtbxFieldNumImages_TextChanged;
             gui.BttnSaveChanges.Click += BttnSaveChanges_Click;
@@ -1083,21 +1078,6 @@ namespace CrystalKeeper.Gui
         }
 
         /// <summary>
-        /// Changes whether the name of the field is displayed above the field
-        /// or to the left of it. If checked, the field is inline to the left.
-        /// </summary>
-        private void ChkbxFieldNameInline_Click(object sender, RoutedEventArgs e)
-        {
-            if (ActiveField == null)
-            {
-                return;
-            }
-
-            activeField.GetItem().SetData("isTitleInline",
-                gui.ChkbxFieldNameInline.IsChecked);
-        }
-
-        /// <summary>
         /// Changes whether the name of the field is displayed or hidden. It
         /// won't be displayed if the field is hidden.
         /// </summary>
@@ -1194,10 +1174,6 @@ namespace CrystalKeeper.Gui
             //Sets the field name's visibility.
             gui.ChkbxFieldNameInvisible.IsChecked =
                 (bool)activeField.GetItem().GetData("isTitleVisible");
-
-            //Sets the field name's location relative to the field.
-            gui.ChkbxFieldNameInline.IsChecked =
-                (bool)activeField.GetItem().GetData("isTitleInline");
 
             //Sets visibility of image-specific field options.
             if (gui.ItemTypeImages.IsSelected)

@@ -954,15 +954,6 @@ namespace CrystalKeeper.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Show field name left of field.
-        /// </summary>
-        public static string FieldEditorFieldNameInline {
-            get {
-                return ResourceManager.GetString("FieldEditorFieldNameInline", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Show the field name.
         /// </summary>
         public static string FieldEditorFieldNameInvisible {

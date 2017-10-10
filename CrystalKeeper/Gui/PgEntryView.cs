@@ -190,7 +190,6 @@ namespace CrystalKeeper.Gui
                 var fieldName = (string)currTemplateField.GetData("name");
                 var tfIsVisible = (bool)currTemplateField.GetData("isVisible");
                 var tfTitleIsVisible = (bool)currTemplateField.GetData("isTitleVisible");
-                var tfTitleIsInline = (bool)currTemplateField.GetData("isTitleInline");
 
                 //Gets the type of data and associated grid position.
                 var isFirstColumn = (bool)project.GetItemByGuid(
@@ -268,19 +267,8 @@ namespace CrystalKeeper.Gui
                     //Gets whether the title is visible or not.
                     if (tfTitleIsVisible)
                     {
-                        //Gets whether the title is inline with the field or not.
-                        if (tfTitleIsInline)
-                        {
-                            WrapPanel inlineTitlePanel = new WrapPanel();
-                            inlineTitlePanel.Children.Add(fieldNameGui);
-                            inlineTitlePanel.Children.Add(fieldDataGui);
-                            elementsContainer.Children.Add(inlineTitlePanel);
-                        }
-                        else
-                        {
-                            elementsContainer.Children.Add(fieldNameGui);
-                            elementsContainer.Children.Add(fieldDataGui);
-                        }
+                        elementsContainer.Children.Add(fieldNameGui);
+                        elementsContainer.Children.Add(fieldDataGui);                        
                     }
 
                     //Adds the field.
@@ -366,26 +354,9 @@ namespace CrystalKeeper.Gui
                     //Gets whether the title is visible or not.
                     if (tfTitleIsVisible)
                     {
-                        //Gets whether the title is inline with the field or not.
-                        if (tfTitleIsInline)
-                        {
-                            WrapPanel inlineTitlePanel = new WrapPanel();
-                            inlineTitlePanel.Children.Add(fieldNameGui);
-                            inlineTitlePanel.Children.Add(fieldDataGui);
-                            elementsContainer.Children.Add(inlineTitlePanel);
-                        }
-                        else
-                        {
-                            elementsContainer.Children.Add(fieldNameGui);
-                            elementsContainer.Children.Add(fieldDataGui);
-                        }
+                        elementsContainer.Children.Add(fieldNameGui);
                     }
-
-                    //Adds the field.
-                    else
-                    {
-                        elementsContainer.Children.Add(fieldDataGui);
-                    }
+                    elementsContainer.Children.Add(fieldDataGui);
                 }
 
                 //Displays webpages.

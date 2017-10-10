@@ -259,7 +259,6 @@ namespace CrystalKeeper.Core
                             item.SetData("dataType", reader.ReadInt32());
                             item.SetData("isVisible", reader.ReadBoolean());
                             item.SetData("isTitleVisible", reader.ReadBoolean());
-                            item.SetData("isTitleInline", reader.ReadBoolean());
                             item.SetData("columnOrder", reader.ReadInt32());
                             item.SetData("numExtraImages", reader.ReadByte());
                             item.SetData("extraImagePos", reader.ReadInt32());
@@ -573,7 +572,6 @@ namespace CrystalKeeper.Core
                             writer.Write((int)item.GetData("dataType"));
                             writer.Write((bool)item.GetData("isVisible"));
                             writer.Write((bool)item.GetData("isTitleVisible"));
-                            writer.Write((bool)item.GetData("isTitleInline"));
                             writer.Write((int)item.GetData("columnOrder"));
                             writer.Write((byte)item.GetData("numExtraImages"));
                             writer.Write((int)item.GetData("extraImagePos"));
@@ -694,7 +692,6 @@ namespace CrystalKeeper.Core
             TemplateFieldType dataType,
             bool isVisible,
             bool isTitleVisible,
-            bool isTitleInline,
             int columnOrder)
         {
             DataItem item = new DataItem(
@@ -706,7 +703,6 @@ namespace CrystalKeeper.Core
             item.SetData("dataType", (int)dataType);
             item.SetData("isVisible", isVisible);
             item.SetData("isTitleVisible", isTitleVisible);
-            item.SetData("isTitleInline", isTitleInline);
             item.SetData("columnOrder", columnOrder);
             item.SetData("numExtraImages", (byte)3);
             item.SetData("extraImagePos", TemplateImagePos.Under);
@@ -745,7 +741,6 @@ namespace CrystalKeeper.Core
             TemplateFieldType dataType,
             bool isVisible,
             bool isTitleVisible,
-            bool isTitleInline,
             int columnOrder,
             byte numExtraImages,
             TemplateImagePos extraImagePos)
@@ -759,7 +754,6 @@ namespace CrystalKeeper.Core
             item.SetData("dataType", (int)dataType);
             item.SetData("isVisible", isVisible);
             item.SetData("isTitleVisible", isTitleVisible);
-            item.SetData("isTitleInline", isTitleInline);
             item.SetData("columnOrder", columnOrder);
             item.SetData("numExtraImages", numExtraImages);
             item.SetData("extraImagePos", extraImagePos);

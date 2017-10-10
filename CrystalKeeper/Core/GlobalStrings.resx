@@ -401,9 +401,6 @@ The collections using this template are: </value>
   <data name="FieldEditorFieldInvisible" xml:space="preserve">
     <value>Show this field with entries</value>
   </data>
-  <data name="FieldEditorFieldNameInline" xml:space="preserve">
-    <value>Show field name left of field</value>
-  </data>
   <data name="FieldEditorFieldNameInvisible" xml:space="preserve">
     <value>Show the field name</value>
   </data>

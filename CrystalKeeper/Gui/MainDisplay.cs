@@ -223,34 +223,34 @@ namespace CrystalKeeper.Gui
             ulong col1Guid = project.AddTemplateColumnData(true, mineralGuid);
             ulong col2Guid = project.AddTemplateColumnData(false, mineralGuid);
             project.AddTemplateField(GlobalStrings.DefaultTemplateMineralsImages, col1Guid,
-                TemplateFieldType.EntryImages, true, false, false, 0);
+                TemplateFieldType.EntryImages, true, false, 0);
             project.AddTemplateField(
                 GlobalStrings.DefaultTemplateMineralsExtraImages,
-                col1Guid, TemplateFieldType.Images, true, false, false, 1);
+                col1Guid, TemplateFieldType.Images, true, false, 1);
             project.AddTemplateField(
                 GlobalStrings.DefaultTemplateMineralsPrimaryMineralSpecies,
-                col1Guid, TemplateFieldType.Min_Name, true, true, false, 2);
+                col1Guid, TemplateFieldType.Min_Name, true, true, 2);
             project.AddTemplateField(
                 GlobalStrings.DefaultTemplateMineralsSecondaryMineralSpecies,
-                col1Guid, TemplateFieldType.Min_Name, true, true, false, 3);
+                col1Guid, TemplateFieldType.Min_Name, true, true, 3);
             project.AddTemplateField(
                 GlobalStrings.DefaultTemplateMineralsPrimaryChemicalFormula,
-                col2Guid, TemplateFieldType.Min_Formula, true, true, false, 0);
+                col2Guid, TemplateFieldType.Min_Formula, true, true, 0);
             project.AddTemplateField(
                 GlobalStrings.DefaultTemplateMineralsSpeciesGroup,
-                col2Guid, TemplateFieldType.Min_Group, true, true, false, 1);
+                col2Guid, TemplateFieldType.Min_Group, true, true, 1);
             project.AddTemplateField(
                 GlobalStrings.DefaultTemplateMineralsOriginLocation,
-                col2Guid, TemplateFieldType.Text, true, true, false, 2);
+                col2Guid, TemplateFieldType.Text, true, true, 2);
             project.AddTemplateField(
                 GlobalStrings.DefaultTemplateMineralsGpsLocation,
-                col2Guid, TemplateFieldType.Hyperlink, true, true, false, 3);
+                col2Guid, TemplateFieldType.Hyperlink, true, true, 3);
             project.AddTemplateField(
                 GlobalStrings.DefaultTemplateMineralsMarketValue,
-                col2Guid, TemplateFieldType.MoneyUSD, true, true, false, 4);
+                col2Guid, TemplateFieldType.MoneyUSD, true, true, 4);
             project.AddTemplateField(
                 GlobalStrings.DefaultTemplateMineralsNotes,
-                col2Guid, TemplateFieldType.Text, true, true, false, 5);
+                col2Guid, TemplateFieldType.Text, true, true, 5);
 
             //Sets up a layout for locality notes.
             ulong localitiesGuid = project.AddTemplate(
@@ -260,16 +260,16 @@ namespace CrystalKeeper.Gui
             col1Guid = project.AddTemplateColumnData(true, localitiesGuid);
             project.AddTemplateField(
                 GlobalStrings.DefaultTemplateLocalitiesImages,
-                col1Guid, TemplateFieldType.EntryImages, true, false, false, 0);
+                col1Guid, TemplateFieldType.EntryImages, true, false, 0);
             project.AddTemplateField(
                 GlobalStrings.DefaultTemplateLocalitiesLocalityName,
-                col1Guid, TemplateFieldType.Text, true, true, false, 1);
+                col1Guid, TemplateFieldType.Text, true, true, 1);
             project.AddTemplateField(
                 GlobalStrings.DefaultTemplateLocalitiesGpsLocation,
-                col1Guid, TemplateFieldType.Hyperlink, true, true, false, 2);
+                col1Guid, TemplateFieldType.Hyperlink, true, true, 2);
             project.AddTemplateField(
                 GlobalStrings.DefaultTemplateLocalitiesNotes,
-                col1Guid, TemplateFieldType.Text, true, true, false, 3);
+                col1Guid, TemplateFieldType.Text, true, true, 3);
 
             //Sets up a layout for other notes.
             ulong notesGuid = project.AddTemplate(
@@ -278,9 +278,9 @@ namespace CrystalKeeper.Gui
                 0, 0, 0, 0, 0, 0);
             col1Guid = project.AddTemplateColumnData(true, notesGuid);
             project.AddTemplateField(GlobalStrings.DefaultTemplateNotesImages,
-                col1Guid, TemplateFieldType.EntryImages, true, false, false, 0);
+                col1Guid, TemplateFieldType.EntryImages, true, false, 0);
             project.AddTemplateField(GlobalStrings.DefaultTemplateNotesNotes,
-                col1Guid, TemplateFieldType.Text, true, true, false, 0);
+                col1Guid, TemplateFieldType.Text, true, true, 0);
 
             //Sets up default collections with each template.
             ulong mnrlCol = project.AddCollection(
@@ -1611,7 +1611,7 @@ namespace CrystalKeeper.Gui
 
                 //Creates the required entry name and images fields.
                 projectCopy.AddTemplateField(GlobalStrings.AutoImagesField,
-                    col1, TemplateFieldType.EntryImages, true, true, true, 0);
+                    col1, TemplateFieldType.EntryImages, true, true, 0);
 
                 //Adds the template to the list of templates.
                 itemToEdit = new MenuDataItem(template);
