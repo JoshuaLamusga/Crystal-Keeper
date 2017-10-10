@@ -504,22 +504,24 @@ namespace CrystalKeeper.Gui
                     List<string> allData = new List<string>();
                     List<string> loadedUrls = new List<string>();
                     bool isAnimated = false;
+                    bool isMuted = false;
 
                     //Loads the data if it exists, or sets it if empty.
                     if (((string)fieldData) == String.Empty)
                     {
-                        allData = new List<string>() { "False", String.Empty };
+                        allData = new List<string>() { "False", "False", String.Empty };
                     }
                     else
                     {
                         allData = ((string)fieldData).Split('|').ToList();
                     }
 
-                    //Gets whether the image is animated or not.
+                    //Gets non-url data.
                     isAnimated = (allData[0] == "True");
+                    isMuted = (allData[1] == "True");
 
                     //Gets url data.
-                    loadedUrls = allData.GetRange(1, allData.Count - 1);
+                    loadedUrls = allData.GetRange(2, allData.Count - 2);
 
                     //Turns each relative url into an absolute one.
                     for (int j = 0; j < loadedUrls.Count; j++)
@@ -630,11 +632,12 @@ namespace CrystalKeeper.Gui
                         ImgAnimated thumbnail = null;
 
                         //Loads movies.
-                        if (loadedUrls.Count == 1 &&
+                        if (loadedUrls.Count >= 1 &&
                             (loadedUrls[0].ToLower().EndsWith(".wmv") ||
                             loadedUrls[0].ToLower().EndsWith(".mp4")))
                         {
                             media = new MediaElement();
+                            media.IsMuted = isMuted;
                             media.Margin = new Thickness(2, 4, 2, 12);
 
                             try
@@ -663,6 +666,7 @@ namespace CrystalKeeper.Gui
                         else
                         {
                             thumbnail = new ImgAnimated(loadedUrls, true);
+                            thumbnail.SetPlaybackDelay(1000);
                             thumbnail.Margin = new Thickness(2, 4, 2, 12);
                             thumbnail.MaxWidth = thumbnail.GetSourceWidth();
                             thumbnail.MaxHeight = thumbnail.GetSourceHeight();

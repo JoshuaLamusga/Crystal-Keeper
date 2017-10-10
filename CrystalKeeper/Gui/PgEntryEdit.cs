@@ -425,6 +425,7 @@ namespace CrystalKeeper.Gui
                     List<string> allData = new List<string>();
                     List<string> loadedUrls = new List<string>();
                     bool isAnimated = false;
+                    bool isMuted = false;
 
                     //Loads the data if it exists, or sets it if empty.
                     if (((string)fieldData) == String.Empty)
@@ -436,15 +437,12 @@ namespace CrystalKeeper.Gui
                         allData = ((string)fieldData).Split('|').ToList();
                     }
 
-                    //Gets whether the image is animated or not.
-                    string isAnimatedStr = allData[0];
-                    if (isAnimatedStr == "True")
-                    {
-                        isAnimated = true;
-                    }
+                    //Gets non-url data.
+                    isAnimated = (allData[0] == "True");
+                    isMuted = (allData[1] == "True");
 
                     //Gets url data.
-                    loadedUrls = allData.GetRange(1, allData.Count - 1);
+                    loadedUrls = allData.GetRange(2, allData.Count - 2);
 
                     //Turns each relative url into an absolute one.
                     for (int j = 0; j < loadedUrls.Count; j++)
@@ -508,7 +506,7 @@ namespace CrystalKeeper.Gui
                             };
 
                             StackPanel contentControls = CreateImageControls(
-                                field, loadedUrls, index, isAnimated);
+                                field, loadedUrls, index, isAnimated, isMuted);
 
                             //Centers the content controls to match centered image fields.
                             if (templateType == TemplateFieldType.EntryImages && tCenterImages)
@@ -587,6 +585,7 @@ namespace CrystalKeeper.Gui
                                         {
                                             loadedUrls[index] = dlg.FileName;
                                             string options = (isAnimated) ? "True" : "False";
+                                            options += "|" + ((isMuted) ? "True" : "False");
                                             string newData = string.Join("|", loadedUrls);
                                             newData = options + "|" + newData;
                                             field.SetData("data", newData);
@@ -607,11 +606,12 @@ namespace CrystalKeeper.Gui
                         MediaElement media = null;
                         ImgAnimated thumbnail = null;
 
-                        if (loadedUrls.Count == 2 &&
+                        if (loadedUrls.Count >= 1 &&
                             (loadedUrls[0].ToLower().EndsWith(".wmv") ||
                             loadedUrls[0].ToLower().EndsWith(".mp4")))
                         {
                             media = new MediaElement();
+                            media.IsMuted = isMuted;
 
                             try
                             {
@@ -633,6 +633,7 @@ namespace CrystalKeeper.Gui
                                 loadedUrls.RemoveAt(0);
 
                                 string options = (isAnimated) ? "True" : "False";
+                                options += "|" + ((isMuted) ? "True" : "False");
                                 string newData = string.Join("|", loadedUrls);
                                 newData = options + "|" + newData;
                                 field.SetData("data", newData);
@@ -644,12 +645,13 @@ namespace CrystalKeeper.Gui
                         else
                         {
                             thumbnail = new ImgAnimated(loadedUrls, true);
+                            thumbnail.SetPlaybackDelay(1000);
                             thumbnail.MaxWidth = thumbnail.GetSourceWidth();
                             thumbnail.MaxHeight = thumbnail.GetSourceHeight();
                         }
 
                         StackPanel contentControls = CreateImageControls(
-                            field, loadedUrls, 0, isAnimated);
+                            field, loadedUrls, 0, isAnimated, isMuted);
 
                         //Centers the content controls to match centered image fields.
                         if (templateType == TemplateFieldType.EntryImages && tCenterImages)
@@ -697,7 +699,8 @@ namespace CrystalKeeper.Gui
             DataItem field,
             List<string> urls,
             int urlIndex,
-            bool isAnimatedMedia)
+            bool isAnimatedMedia,
+            bool isMuted)
         {
             //Sets up an upload image button.
             var bttnUpload = new Image();
@@ -717,6 +720,14 @@ namespace CrystalKeeper.Gui
             bttnDelete.Source = newImg;
             bttnDelete.ToolTip = GlobalStrings.TipBttnDelete;
 
+            //Sets up a mute button.
+            var bttnVolume = new Image();
+            newImg = (isMuted) ?
+                new BitmapImage(new Uri(Assets.BttnVolumeOff)) :
+                new BitmapImage(new Uri(Assets.BttnVolumeOn));
+            bttnVolume.Source = newImg;
+            bttnVolume.ToolTip = GlobalStrings.TipBttnMute;
+            
             //Disables the delete button if there's nothing to delete.
             if (!File.Exists(urls[urlIndex]))
             {
@@ -796,7 +807,7 @@ namespace CrystalKeeper.Gui
                     }
 
                     string newData = string.Join("|", urls);
-                    newData = "False|" + newData;
+                    newData = "False|False|" + newData;
                     field.SetData("data", newData);
 
                     //Redraws the page.
@@ -857,7 +868,7 @@ namespace CrystalKeeper.Gui
                     }
 
                     string newData = string.Join("|", dlg.FileNames);
-                    newData = "True|" + newData;
+                    newData = "True|False|" + newData;
                     field.SetData("data", newData);
 
                     //Redraws the page.
@@ -908,7 +919,7 @@ namespace CrystalKeeper.Gui
                     }
 
                     string newData = string.Join("|", urls);
-                    newData = "False|" + newData;
+                    newData = "False|False|" + newData;
                     field.SetData("data", newData);
 
                     //Redraws the page.
@@ -916,11 +927,50 @@ namespace CrystalKeeper.Gui
                 }
             };
 
+            //Highlights the delete button when the mouse enters image bounds.
+            bttnVolume.MouseEnter += (a, b) =>
+            {
+                newImg = new BitmapImage();
+                newImg.BeginInit();
+                newImg.UriSource = (isMuted) ?
+                    new Uri(Assets.BttnVolumeOffHover) :
+                    new Uri(Assets.BttnVolumeOnHover);
+                newImg.EndInit();
+                bttnVolume.Source = newImg;
+            };
+
+            //Un-highlights the delete button when the mouse leaves image bounds.
+            bttnVolume.MouseLeave += (a, b) =>
+            {
+                newImg = new BitmapImage();
+                newImg.BeginInit();
+                newImg.UriSource = (isMuted) ?
+                    new Uri(Assets.BttnVolumeOff) :
+                    new Uri(Assets.BttnVolumeOn);
+                newImg.EndInit();
+                bttnVolume.Source = newImg;
+            };
+
+            //Prompts to delete the existing image.
+            bttnVolume.MouseDown += (a, b) =>
+            {
+                string newData = string.Join("|", urls);
+                newData = isAnimatedMedia + "|" + !isMuted + "|" + newData;
+                field.SetData("data", newData);
+
+                //Redraws the page.
+                InvalidatePage?.Invoke(this, null);
+            };
+
             StackPanel contentControls = new StackPanel();
             contentControls.Orientation = Orientation.Horizontal;
             contentControls.Children.Add(bttnDelete);
             contentControls.Children.Add(bttnUpload);
             contentControls.Children.Add(bttnUploadMovie);
+            if (isAnimatedMedia)
+            {
+                contentControls.Children.Add(bttnVolume);
+            }
             return contentControls;
         }
         #endregion

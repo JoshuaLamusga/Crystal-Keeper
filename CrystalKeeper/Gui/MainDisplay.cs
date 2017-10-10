@@ -187,6 +187,24 @@ namespace CrystalKeeper.Gui
             gui.GuiPrint.MouseDown += GuiPrint_MouseDown;
             gui.GuiTemplateNew.Click += GuiTemplateNew_Click;
 
+            //Creates the treeview context menu.
+            ContextMenu menu = new ContextMenu();
+
+            //Handles deleting the current item.
+            MenuItem itemDelete = new MenuItem();
+            itemDelete.Header = GlobalStrings.ContextMenuDelete;
+            itemDelete.Click += (a, b) => { DeleteTreeViewItem(); };
+            menu.Items.Add(itemDelete);
+
+            //Handles renaming the current item.
+            MenuItem itemRename = new MenuItem();
+            itemRename.Header = GlobalStrings.ContextMenuRename;
+            itemRename.Click += (a, b) => { RenameTreeViewItem(); };
+            menu.Items.Add(itemRename);
+
+            //Attaches the menu for display.
+            gui.GuiTreeView.ContextMenu = menu;
+
             UpdateRecentFiles();
             ConstructVisuals();
         }
@@ -289,77 +307,12 @@ namespace CrystalKeeper.Gui
         /// </summary>
         private void GuiTemplateNew_Click(object sender, RoutedEventArgs e)
         {
-            //True if opening an existing template, else false.
-            bool isEditing = false;
-
-            //Copies the entire project so changes can be saved or discarded.
-            Project projectCopy = new Project(project);
-
-            MenuDataItem newMenuItem = null;
-            DataItem template = null;
-
-            //Opens an associated template for the menu if it exists.
-            if (sender is MenuDataItem &&
-                ((MenuDataItem)sender).GetItem().type == DataItemTypes.Template)
+            if (sender != null)
             {
-                newMenuItem = (MenuDataItem)sender;
-                template = newMenuItem.GetItem();
-                isEditing = true;
+                PromptEditTemplates(sender);
             }
 
-            //If there is no associated template, a new one is created.
-            else
-            {
-                template = projectCopy.GetItemByGuid(projectCopy.AddTemplate(
-                String.Empty, true, true, 3, TemplateImagePos.Under,
-                "Arial", 0, 0, 0, 0, 0, 0));
-
-                //Creates two template columns.
-                ulong col1 = projectCopy.AddTemplateColumnData(true, template.guid);
-                projectCopy.AddTemplateColumnData(false, template.guid);
-
-                //Creates the required entry name and images fields.
-                projectCopy.AddTemplateField(GlobalStrings.AutoImagesField,
-                    col1, TemplateFieldType.EntryImages, true, true, true, 0);
-
-                //Adds the template to the list of templates.
-                newMenuItem = new MenuDataItem(template);
-                newMenuItem.Click += GuiTemplateNew_Click;
-            }
-
-            //Opens the dialog to set the template data.
-            var dlg = new DlgEditTemplate(projectCopy, template);
-            if (dlg.ShowDialog() == true)
-            {
-                //Copies the project and resets event handlers.
-                project = projectCopy;
-
-                //Updates the name of the item.
-                newMenuItem.Header = (string)project
-                    .GetItemByGuid(template.guid).GetData("name");
-
-                //Rebinds project event hooks lost during copy.
-                project.Items.CollectionChanged += ChangeTreeview;
-
-                //Adds the new menu item if one was created.
-                if (!isEditing)
-                {
-                    gui.GuiMenuTemplates.Items.Add(newMenuItem);
-                }
-
-                if (dlg.ReferencesInvalidated)
-                {
-                    ConstructVisuals();
-                    SetPage();
-                };
-            }
-
-            //Handles template deletion.
-            else if (!projectCopy.Items.Contains(template))
-            {
-                project.Items.Remove(template);
-                gui.GuiMenuTemplates.Items.Remove(newMenuItem);
-            }
+            e.Handled = true;
         }
 
         /// <summary>
@@ -507,11 +460,15 @@ namespace CrystalKeeper.Gui
                                 dataType == TemplateFieldType.Min_Name ||
                                 dataType == TemplateFieldType.Min_Group ||
                                 dataType == TemplateFieldType.Min_Locality ||
-                                dataType == TemplateFieldType.Hyperlink ||
+                                dataType == TemplateFieldType.Hyperlink)
+                            {
+                                project.AddField(entryGuid, templateColFields[j].guid, String.Empty);
+                            }
+                            else if (
                                 dataType == TemplateFieldType.EntryImages ||
                                 dataType == TemplateFieldType.Images)
                             {
-                                project.AddField(entryGuid, templateColFields[j].guid, String.Empty);
+                                project.AddField(entryGuid, templateColFields[j].guid, "False|False|");
                             }
                             else if (dataType == TemplateFieldType.MoneyUSD)
                             {
@@ -862,116 +819,164 @@ namespace CrystalKeeper.Gui
             if (gui.GuiTreeView.SelectedItem != null &&
                 e.Key == Key.Delete && e.IsDown)
             {
-                var selItem = (TreeViewDataItem)gui.GuiTreeView.SelectedItem;
+                DeleteTreeViewItem();
+            }
+        }
 
-                //If the selection is null, it cannot be deleted.
-                if (selItem == null || selItem.GetItem() == null)
+        /// <summary>
+        /// Deletes the active item in the treeview and its data, if possible.
+        /// </summary>
+        private void DeleteTreeViewItem()
+        {
+            var selItem = (TreeViewDataItem)gui.GuiTreeView.SelectedItem;
+
+            //If the selection is null, it cannot be deleted.
+            if (selItem == null || selItem.GetItem() == null)
+            {
+                return;
+            }
+
+            //The database cannot be deleted.
+            else if (selItem.GetItem().type == DataItemTypes.Database)
+            {
+                return;
+            }
+
+            //The all group cannot be deleted.
+            else if (selItem.GetItem().type == DataItemTypes.Grouping &&
+                (string)selItem.GetItem().GetData("name") ==
+                GlobalStrings.AutoAllGroup &&
+                GetAutoAddedGroup(selItem) == selItem.GetItem().guid)
+            {
+                return;
+            }
+
+            //Deleting an item in the auto-added "all" group deletes it everywhere.
+            else if (selItem.GetItem().type == DataItemTypes.GroupingEntryRef &&
+                (string)selItem.GetParent().GetItem().GetData("name") ==
+                GlobalStrings.AutoAllGroup &&
+                GetAutoAddedGroup(selItem) == selItem.GetParent().GetItem().guid)
+            {
+                var result = MessageBox.Show(
+                    GlobalStrings.DlgDeleteEntryWarning,
+                    GlobalStrings.DlgDeleteEntryCaption,
+                    MessageBoxButton.YesNo);
+
+                if (result == MessageBoxResult.Yes)
                 {
-                    return;
-                }
+                    //Gets the entry and all its entry references.
+                    var delEntry = project.GetEntryRefEntry(selItem.GetItem());
+                    var delEntryRefs = project.GetEntryEntryRefs(delEntry);
 
-                //The database cannot be deleted.
-                else if (selItem.GetItem().type == DataItemTypes.Database)
-                {
-                    return;
-                }
+                    //Deletes the entry.
+                    project.DeleteItem(delEntry);
 
-                //The all group cannot be deleted.
-                else if (selItem.GetItem().type == DataItemTypes.Grouping &&
-                    (string)selItem.GetItem().GetData("name") ==
-                    GlobalStrings.AutoAllGroup &&
-                    GetAutoAddedGroup(selItem) == selItem.GetItem().guid)
-                {
-                    return;
-                }
-
-                //Deleting an item in the auto-added "all" group deletes it everywhere.
-                else if (selItem.GetItem().type == DataItemTypes.GroupingEntryRef &&
-                    (string)selItem.GetParent().GetItem().GetData("name") ==
-                    GlobalStrings.AutoAllGroup &&
-                    GetAutoAddedGroup(selItem) == selItem.GetParent().GetItem().guid)
-                {
-                    var result = MessageBox.Show(
-                        GlobalStrings.DlgDeleteEntryWarning,
-                        GlobalStrings.DlgDeleteEntryCaption,
-                        MessageBoxButton.YesNo);
-
-                    if (result == MessageBoxResult.Yes)
+                    //Deletes all entry references.
+                    for (int i = 0; i < delEntryRefs.Count; i++)
                     {
-                        //Gets the entry and all its entry references.
-                        var delEntry = project.GetEntryRefEntry(selItem.GetItem());
-                        var delEntryRefs = project.GetEntryEntryRefs(delEntry);
+                        project.DeleteItem(delEntryRefs[i]);
+                    }
+                }
+            }
 
-                        //Deletes the entry.
-                        project.DeleteItem(delEntry);
-
-                        //Deletes all entry references.
-                        for (int i = 0; i < delEntryRefs.Count; i++)
+            //Deletes other treeview item types.
+            else
+            {
+                if (selItem.GetItem().type == DataItemTypes.Collection)
+                {
+                    //Deletes all groups and their entry references.
+                    var childGrps = project.GetCollectionGroupings(selItem.GetItem());
+                    for (int i = 0; i < childGrps.Count; i++)
+                    {
+                        //Deletes all entry references per group.
+                        var grpEntryRefs = project.GetGroupingEntryRefs(childGrps[i]);
+                        for (int j = 0; j < grpEntryRefs.Count; j++)
                         {
-                            project.DeleteItem(delEntryRefs[i]);
+                            project.DeleteItem(grpEntryRefs[i]);
+                        }
+
+                        project.DeleteItem(childGrps[i]);
+                    }
+
+                    //Deletes all entries.
+                    var childEnts = project.GetCollectionEntries(selItem.GetItem());
+                    for (int i = 0; i < childEnts.Count; i++)
+                    {
+                        //Deletes all entry fields per entry.
+                        var entryFields = project.GetEntryFields(childEnts[i]);
+                        for (int j = 0; j < entryFields.Count; j++)
+                        {
+                            project.DeleteItem(entryFields[i]);
+                        }
+
+                        project.DeleteItem(childEnts[i]);
+                    }
+                }
+                else if (selItem.GetItem().type == DataItemTypes.Grouping)
+                {
+                    //Gets the grouping entry references and entry references
+                    //of the entries, which might be more encompassing.
+                    var entries = project.GetGroupingEntries(selItem.GetItem());
+
+                    //Iterates through each entry to get its references.
+                    for (int i = 0; i < entries.Count; i++)
+                    {
+                        //Delete entries with fields whose only ref is in this group.
+                        if (project.GetEntryEntryRefs(entries[i]).Count == 1)
+                        {
+                            var fields = project.GetEntryFields(entries[i]);
+
+                            for (int j = 0; j < fields.Count; j++)
+                            {
+                                project.DeleteItem(fields[j]);
+                            }
+
+                            project.DeleteItem(entries[i]);
                         }
                     }
                 }
 
-                //Deletes other treeview item types.
+                project.DeleteItem(selItem.GetItem());
+            }
+        }
+
+        /// <summary>
+        /// Renames the active item in the treeview if possible.
+        /// </summary>
+        private void RenameTreeViewItem()
+        {
+            var selItem = (TreeViewDataItem)gui.GuiTreeView.SelectedItem;
+
+            //If the selection is null, it cannot be renamed.
+            if (selItem == null || selItem.GetItem() == null)
+            {
+                return;
+            }
+
+            //The all group cannot be renamed.
+            else if (selItem.GetItem().type == DataItemTypes.Grouping &&
+                (string)selItem.GetItem().GetData("name") ==
+                GlobalStrings.AutoAllGroup &&
+                GetAutoAddedGroup(selItem) == selItem.GetItem().guid)
+            {
+                return;
+            }
+
+            //Provides a textbox to rename the item.
+            DlgTextbox txtbx = new DlgTextbox();
+            if (txtbx.ShowDialog() == true && txtbx.GetText().Length > 0)
+            {
+                if (selItem.GetItem().type == DataItemTypes.GroupingEntryRef)
+                {
+                    project.GetEntryRefEntry(selItem.GetItem())
+                        .SetData("name", txtbx.GetText());
+                }
                 else
                 {
-                    if (selItem.GetItem().type == DataItemTypes.Collection)
-                    {
-                        //Deletes all groups and their entry references.
-                        var childGrps = project.GetCollectionGroupings(selItem.GetItem());
-                        for (int i = 0; i < childGrps.Count; i++)
-                        {
-                            //Deletes all entry references per group.
-                            var grpEntryRefs = project.GetGroupingEntryRefs(childGrps[i]);
-                            for (int j = 0; j < grpEntryRefs.Count; j++)
-                            {
-                                project.DeleteItem(grpEntryRefs[i]);
-                            }
-
-                            project.DeleteItem(childGrps[i]);
-                        }
-
-                        //Deletes all entries.
-                        var childEnts = project.GetCollectionEntries(selItem.GetItem());
-                        for (int i = 0; i < childEnts.Count; i++)
-                        {
-                            //Deletes all entry fields per entry.
-                            var entryFields = project.GetEntryFields(childEnts[i]);
-                            for (int j = 0; j < entryFields.Count; j++)
-                            {
-                                project.DeleteItem(entryFields[i]);
-                            }
-
-                            project.DeleteItem(childEnts[i]);
-                        }
-                    }
-                    else if (selItem.GetItem().type == DataItemTypes.Grouping)
-                    {
-                        //Gets the grouping entry references and entry references
-                        //of the entries, which might be more encompassing.
-                        var entries = project.GetGroupingEntries(selItem.GetItem());
-
-                        //Iterates through each entry to get its references.
-                        for (int i = 0; i < entries.Count; i++)
-                        {
-                            //Delete entries with fields whose only ref is in this group.
-                            if (project.GetEntryEntryRefs(entries[i]).Count == 1)
-                            {
-                                var fields = project.GetEntryFields(entries[i]);
-
-                                for (int j = 0; j < fields.Count; j++)
-                                {
-                                    project.DeleteItem(fields[j]);
-                                }
-
-                                project.DeleteItem(entries[i]);
-                            }
-                        }
-                    }
-
-                    project.DeleteItem(selItem.GetItem());
+                    selItem.GetItem().SetData("name", txtbx.GetText());
                 }
+
+                RefreshTreeview();
             }
         }
 
@@ -1540,30 +1545,7 @@ namespace CrystalKeeper.Gui
                     gui.GuiMenuTemplates.Items.Add(item);
                     item.Click += new RoutedEventHandler((a, b) =>
                     {
-                        //Opens the edit template dialog for it.
-                        var dlg = new DlgEditTemplate(project, itemTemplate);
-
-                        //Updates the template name to match.
-                        dlg.DataNameChanged += new EventHandler((c, d) =>
-                        {
-                            item.Refresh();
-                        });
-
-                        //Updates the template list for a deleted template.
-                        if (dlg.ShowDialog() == false &&
-                            !project.Items.Contains(itemTemplate))
-                        {
-                            gui.GuiMenuTemplates.Items.Remove(item);
-                        }
-
-                        item.Refresh();
-
-                        //Updates the gui if non-template data changes.
-                        if (dlg.ReferencesInvalidated)
-                        {
-                            ConstructVisuals();
-                            SetPage();
-                        }
+                        PromptEditTemplates(item);
                     });
                 }
             }
@@ -1571,6 +1553,92 @@ namespace CrystalKeeper.Gui
 
             //Expands the full tree.
             dat?.ExpandSubtree();
+        }
+
+        /// <summary>
+        /// Edits an existing template if one exists, or creates a new one.
+        /// </summary>
+        /// <param name="item">
+        /// The menu item with the template data to be edited.
+        /// </param>
+        private void PromptEditTemplates(object item)
+        {
+            //True if opening an existing template, else false.
+            bool isEditing = false;
+
+            //Copies the entire project so changes can be saved or discarded.
+            Project projectCopy = new Project(project);
+
+            MenuDataItem itemToEdit = null;
+            DataItem template = null;
+
+            //Opens an associated template for the menu if it exists.
+            if (item is MenuDataItem &&
+                ((MenuDataItem)item).GetItem().type == DataItemTypes.Template)
+            {
+                itemToEdit = item as MenuDataItem;
+                template = itemToEdit.GetItem();
+                isEditing = true;
+            }
+
+            //If there is no associated template, a new one is created.
+            else
+            {
+                template = projectCopy.GetItemByGuid(projectCopy.AddTemplate(
+                String.Empty, true, true, 3, TemplateImagePos.Under,
+                "Arial", 0, 0, 0, 0, 0, 0));
+
+                //Creates two template columns.
+                ulong col1 = projectCopy.AddTemplateColumnData(true, template.guid);
+                projectCopy.AddTemplateColumnData(false, template.guid);
+
+                //Creates the required entry name and images fields.
+                projectCopy.AddTemplateField(GlobalStrings.AutoImagesField,
+                    col1, TemplateFieldType.EntryImages, true, true, true, 0);
+
+                //Adds the template to the list of templates.
+                itemToEdit = new MenuDataItem(template);
+                itemToEdit.Click += GuiTemplateNew_Click;
+            }
+
+            //Opens the dialog to set the template data.
+            var dlg = new DlgEditTemplate(projectCopy, template);
+
+            bool? dlgValue = dlg.ShowDialog();
+
+            //Updates the template list for a deleted template.
+            if (dlgValue == false &&
+                !projectCopy.Items.Any(a => a.guid == template.guid))
+            {
+                project.Items.Remove(template);
+                gui.GuiMenuTemplates.Items.Remove(itemToEdit);
+            }
+
+            //Saves changes to the template.
+            if (dlgValue == true)
+            {
+                //Copies the project and resets event handlers.
+                project = projectCopy;
+
+                //Updates the name of the item.
+                itemToEdit.Header = (string)project
+                    .GetItemByGuid(template.guid).GetData("name");
+
+                //Rebinds project event hooks lost during copy.
+                project.Items.CollectionChanged += ChangeTreeview;
+
+                //Adds the new menu item if one was created.
+                if (!isEditing)
+                {
+                    gui.GuiMenuTemplates.Items.Add(itemToEdit);
+                }
+
+                if (dlg.ReferencesInvalidated)
+                {
+                    ConstructVisuals();
+                    SetPage();
+                };
+            }
         }
 
         /// <summary>

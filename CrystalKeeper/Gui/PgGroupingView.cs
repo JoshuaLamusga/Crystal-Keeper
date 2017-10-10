@@ -201,13 +201,15 @@ namespace CrystalKeeper.Gui
                     List<string> loadedData = new List<string>();
                     List<string> urls = new List<string>();
                     bool isAnimated = false;
+                    bool isMuted = false;
 
                     //Loads existing data.
                     if (imgUrl != String.Empty)
                     {
                         loadedData = imgUrl.Split('|').ToList();
                         isAnimated = (loadedData[0] == "True");
-                        urls = loadedData.GetRange(1, loadedData.Count - 1);
+                        isMuted = (loadedData[1] == "True");
+                        urls = loadedData.GetRange(2, loadedData.Count - 2);
 
                         //Gets absolute urls of each url and keeps valid urls.
                         for (int j = 0; j < urls.Count; j++)
@@ -264,6 +266,7 @@ namespace CrystalKeeper.Gui
                                 urls[0].ToLower().EndsWith(".mp4"))
                             {
                                 media = new MediaElement();
+                                media.IsMuted = isMuted;
                                 media.Margin = new Thickness(4);
                                 media.HorizontalAlignment = HorizontalAlignment.Center;
 
@@ -313,6 +316,7 @@ namespace CrystalKeeper.Gui
                             else
                             {
                                 img = new ImgAnimated(urls, false);
+                                img.SetPlaybackDelay(1000);
                                 img.Margin = new Thickness(4);
                                 img.HorizontalAlignment = HorizontalAlignment.Center;
 

@@ -331,6 +331,15 @@ namespace CrystalKeeper.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Switch column.
+        /// </summary>
+        public static string ContextMenuMoveColumn {
+            get {
+                return ResourceManager.GetString("ContextMenuMoveColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Rename.
         /// </summary>
         public static string ContextMenuRename {
@@ -1580,6 +1589,15 @@ namespace CrystalKeeper.Core {
         public static string TipBttnDelete {
             get {
                 return ResourceManager.GetString("TipBttnDelete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Click to toggle volume muting for movies..
+        /// </summary>
+        public static string TipBttnMute {
+            get {
+                return ResourceManager.GetString("TipBttnMute", resourceCulture);
             }
         }
         

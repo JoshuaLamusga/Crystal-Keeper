@@ -77,6 +77,18 @@
         public const string BttnUnderline =
             "pack://application:,,,/Assets/BttnUnderline.png";
 
+        public const string BttnVolumeOff =
+            "pack://application:,,,/Assets/BttnVolumeOff.png";
+
+        public const string BttnVolumeOffHover =
+            "pack://application:,,,/Assets/BttnVolumeOffHover.png";
+
+        public const string BttnVolumeOn =
+            "pack://application:,,,/Assets/BttnVolumeOn.png";
+
+        public const string BttnVolumeOnHover =
+            "pack://application:,,,/Assets/BttnVolumeOnHover.png";
+
         public const string CrystalKeeperIco =
             "pack://application:,,,/Assets/CrystalKeeperIco.png";
 

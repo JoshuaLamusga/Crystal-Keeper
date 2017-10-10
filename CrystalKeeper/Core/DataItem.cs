@@ -101,6 +101,17 @@ namespace CrystalKeeper.Core
         }
 
         /// <summary>
+        /// Copies the data from the given dictionary.
+        /// </summary>
+        /// <param name="dict">
+        /// The dictionary to be copied.
+        /// </param>
+        public void SetData(Dictionary<string, object> dict)
+        {
+            _properties = new Dictionary<string, object>(dict);
+        }
+
+        /// <summary>
         /// Adds a value to the data, overwriting it if the key exists.
         /// </summary>
         /// <param name="key">

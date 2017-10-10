@@ -695,4 +695,10 @@ The collections using this template are: </value>
   <data name="DlgImageTooBigWarning" xml:space="preserve">
     <value>One or more files was larger than 2GB and couldn't be uploaded.</value>
   </data>
+  <data name="ContextMenuMoveColumn" xml:space="preserve">
+    <value>Switch column</value>
+  </data>
+  <data name="TipBttnMute" xml:space="preserve">
+    <value>Click to toggle volume muting for movies.</value>
+  </data>
 </root>

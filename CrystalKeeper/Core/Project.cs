@@ -293,8 +293,14 @@ namespace CrystalKeeper.Core
                                 var metadata = br.ReadString();
                                 var metaUrls = metadata.Split('|');
 
-                                for (int j = 1; j < metaUrls.Length; j++)
+                                for (int j = 2; j < metaUrls.Length; j++)
                                 {
+                                    //Skips empty urls of default image fields.
+                                    if (metaUrls[j] == String.Empty)
+                                    {
+                                        continue;
+                                    }
+
                                     int numBytes = br.ReadInt32();
                                     byte[] fileData = br.ReadBytes(numBytes);
                                     string newUrl = Utils.GetAppdataFolder(metaUrls[j]);
@@ -488,7 +494,7 @@ namespace CrystalKeeper.Core
                                         br.Write(metadata);
 
                                         //Appends bytes and size of each url to data.
-                                        for (int k = 1; k < metaUrls.Length; k++)
+                                        for (int k = 2; k < metaUrls.Length; k++)
                                         {
                                             if (File.Exists(metaUrls[k]))
                                             {
