@@ -30,7 +30,6 @@
         <!-- Creates a grid to contain all dynamic data. -->
         <Grid Name="ColumnGrid"
               Grid.Row="2"
-              HorizontalAlignment="Stretch"
               MaxWidth="600">
             <!-- Defines each column. -->
             <Grid.ColumnDefinitions>

@@ -54,7 +54,7 @@
                                 <!--Combobox items constructed dynamically-->
                                 <ComboBox Name="CmbxImageAnchor"
                                     Padding="4px"
-                                    MinWidth="75px"
+                                    MinWidth="60px"
                                     SelectedValuePath="Content">
                                 </ComboBox>
                                 <TextBlock
@@ -285,7 +285,7 @@
                                 Content="{x:Static local:GlobalStrings.FieldEditorFieldNameInline}"
                                 VerticalAlignment="Center"
                                 VerticalContentAlignment="Center"/>
-                            <GroupBox Name="FieldImageOptions"
+                            <Border Name="FieldImageOptions"
                                 IsEnabled="False"
                                 Margin="0,10px,0,0"
                                 Padding="0,10px,0,0"
@@ -313,7 +313,7 @@
                                         <!--Combobox items constructed dynamically-->
                                         <ComboBox Name="CmbxFieldImageAnchor"
                                             Padding="4px"
-                                            MinWidth="75px"
+                                            MinWidth="60px"
                                             SelectedValuePath="Content">
                                             <ComboBoxItem Name="CmbxItemAbove"
                                                 Content="{x:Static local:GlobalStrings.CmbxImageAnchorAbove}"/>
@@ -331,7 +331,7 @@
                                             MinWidth="75px"/>
                                     </WrapPanel>
                                 </StackPanel>
-                            </GroupBox>
+                            </Border>
                         </StackPanel>
                     </StackPanel>
                 </Grid>

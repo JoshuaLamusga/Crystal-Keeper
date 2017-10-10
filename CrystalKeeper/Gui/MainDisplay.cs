@@ -176,6 +176,7 @@ namespace CrystalKeeper.Gui
             gui.GuiFileSaveAs.Click += GuiFileSaveAs_Click;
             gui.KeyDown += _gui_KeyDown;
             gui.GuiHelpAbout.Click += GuiHelpAbout_Click;
+            gui.GuiHelpHelp.Click += GuiHelpHelp_Click;
             gui.GuiNewCollection.KeyDown += GuiNewCollection_KeyDown;
             gui.GuiNewGrouping.KeyDown += GuiNewGrouping_KeyDown;
             gui.GuiNewEntry.KeyDown += GuiNewEntry_KeyDown;
@@ -646,10 +647,26 @@ namespace CrystalKeeper.Gui
         }
 
         /// <summary>
+        /// Opens a url to help.
+        /// </summary>
+        private void GuiHelpHelp_Click(object sender, RoutedEventArgs e)
+        {
+            Uri uriResult = new Uri("https://github.com/JoshuaLamusga/Crystal-Keeper/wiki/User-Documentation");
+            System.Diagnostics.Process.Start(uriResult.ToString());
+        }
+
+        /// <summary>
         /// Sets keyboard shortcuts.
         /// </summary>
         private void _gui_KeyDown(object sender, KeyEventArgs e)
         {
+            //If F1 is pressed, opens help.
+            if (e.KeyboardDevice.IsKeyDown(Key.F1))
+            {
+                GuiHelpHelp_Click(this, null);
+            }
+
+            //If control is held.
             if (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl) ||
                 e.KeyboardDevice.IsKeyDown(Key.RightCtrl))
             {

@@ -206,8 +206,9 @@ namespace CrystalKeeper.Gui
         {
             gui = new DlgEditTemplateGui();
 
-            //Hides the entry images field by default.
+            //Hides the entry images field and image options by default.
             gui.ItemTypeEntryImages.Visibility = Visibility.Collapsed;
+            gui.FieldImageOptions.Visibility = Visibility.Collapsed;
 
             //Composes context menus.
             ContextMenu menu = new ContextMenu();

@@ -730,8 +730,6 @@ namespace CrystalKeeper.Gui
         /// </param>
         private void AdjustWidths(FrameworkElement element, bool useTwoColumns)
         {
-            //TODO: elements don't recess after expanding.
-
             //Evaluates the max width when the layout updates.
             gui.TxtblkEntryName.LayoutUpdated += (a, b) =>
             {

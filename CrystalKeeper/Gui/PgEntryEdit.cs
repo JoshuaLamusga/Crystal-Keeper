@@ -675,6 +675,7 @@ namespace CrystalKeeper.Gui
                 }
 
                 //Sets the width and columns of the element container.
+                AdjustWidths(elementsContainer, tTwoColumns);
                 if ((templateType == TemplateFieldType.EntryImages) &&
                     tCenterImages)
                 {
@@ -972,6 +973,42 @@ namespace CrystalKeeper.Gui
                 contentControls.Children.Add(bttnVolume);
             }
             return contentControls;
+        }
+
+        /// <summary>
+        /// Sets the width of the given element to adjust automatically with
+        /// respect to the template layout.
+        /// </summary>
+        /// <param name="element">
+        /// An element to bind the width of.
+        /// </param>
+        /// <param name="useTwoColumns">
+        /// Whether a two-column layout is used or not.
+        /// </param>
+        private void AdjustWidths(FrameworkElement element, bool useTwoColumns)
+        {
+            //Evaluates the max width when the layout updates.
+            gui.TxtbxEntryName.LayoutUpdated += (a, b) =>
+            {
+                if (useTwoColumns)
+                {
+                    element.MaxWidth = gui.TxtbxEntryName.ActualWidth / 2;
+                }
+                else
+                {
+                    element.MaxWidth = gui.TxtbxEntryName.ActualWidth;
+                }
+            };
+
+            //Updates the layout immediately.
+            if (useTwoColumns)
+            {
+                element.MaxWidth = gui.TxtbxEntryName.ActualWidth / 2;
+            }
+            else
+            {
+                element.MaxWidth = gui.TxtbxEntryName.ActualWidth;
+            }
         }
         #endregion
     }
