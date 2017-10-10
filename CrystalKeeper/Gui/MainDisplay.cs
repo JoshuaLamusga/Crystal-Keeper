@@ -1649,12 +1649,10 @@ namespace CrystalKeeper.Gui
                 {
                     gui.GuiMenuTemplates.Items.Add(itemToEdit);
                 }
-
-                if (dlg.ReferencesInvalidated)
-                {
-                    ConstructVisuals();
-                    SetPage();
-                };
+                
+                //Avoids an error that somehow prevents all project changes.
+                ConstructVisuals();
+                SetPage();
             }
         }
 

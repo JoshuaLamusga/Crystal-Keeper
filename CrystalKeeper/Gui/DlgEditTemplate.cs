@@ -36,11 +36,6 @@ namespace CrystalKeeper.Gui
         /// Stores the currently active field.
         /// </summary>
         private LstbxDataItem activeField;
-
-        /// <summary>
-        /// Indicates whether non-template data is edited.
-        /// </summary>
-        private bool referencesInvalidated;
         #endregion
 
         #region Properties
@@ -59,21 +54,6 @@ namespace CrystalKeeper.Gui
                 return activeField;
             }
         }
-
-        /// <summary>
-        /// Indicates whether non-template data is edited.
-        /// </summary>
-        public bool ReferencesInvalidated
-        {
-            get
-            {
-                return referencesInvalidated;
-            }
-            set
-            {
-                referencesInvalidated = value;
-            }
-        }
         #endregion
 
         #region Constructors
@@ -87,7 +67,6 @@ namespace CrystalKeeper.Gui
         {
             this.project = project;
             this.template = project.GetItemByGuid(template.guid);
-            referencesInvalidated = false;
             activeField = null;
             ConstructPage();
         }
@@ -919,9 +898,6 @@ namespace CrystalKeeper.Gui
 
             //Refreshes the gui.
             RefreshColumnOrder();
-
-            //Indicates the main display needs to be refreshed.
-            referencesInvalidated = true;
         }
 
         /// <summary>
