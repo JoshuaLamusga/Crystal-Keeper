@@ -63,25 +63,38 @@ namespace CrystalKeeper.Core
                 Environment.SpecialFolder.LocalApplicationData)
                 + "\\Crystal Keeper\\";
 
-            //Removes the root and appends it to the appdata folder.
-            string newUrl = relUrl.Substring(Path.GetPathRoot(relUrl).Length);
-            string newUrlExt = Path.GetExtension(newUrl);
-            newUrl = MakeAbsoluteUrl(dir, newUrl);
-            newUrl = newUrl.Substring(0, newUrl.Length - newUrlExt.Length);
-
-            //Creates the directories if they don't exist.
-            Directory.CreateDirectory(Path.GetDirectoryName(newUrl));
-
-            //Ensures a unique filepath is generated.
-            Random rng = new Random();
-            int uniqueNum = rng.Next();            
-
-            while (File.Exists(newUrl + uniqueNum + newUrlExt))
+            if (relUrl == String.Empty)
             {
-                uniqueNum = rng.Next();
+                return dir;
             }
 
-            return newUrl + uniqueNum + newUrlExt;
+            try
+            {
+                //Removes the root and appends it to the appdata folder.
+                string newUrl = relUrl.Substring(Path.GetPathRoot(relUrl).Length);
+                string newUrlExt = Path.GetExtension(newUrl);
+                newUrl = MakeAbsoluteUrl(dir, newUrl);
+                newUrl = newUrl.Substring(0, newUrl.Length - newUrlExt.Length);
+
+                //Creates the directories if they don't exist.
+                Directory.CreateDirectory(Path.GetDirectoryName(newUrl));
+
+                //Ensures a unique filepath is generated.
+                Random rng = new Random();
+                int uniqueNum = rng.Next();
+
+                while (File.Exists(newUrl + uniqueNum + newUrlExt))
+                {
+                    uniqueNum = rng.Next();
+                }
+
+                return newUrl + uniqueNum + newUrlExt;
+            }
+            catch (ArgumentException e)
+            {
+                Log("Bad url with GetAppdataFolder(): " + e.StackTrace);
+                return dir;
+            }
         }
 
         /// <summary>

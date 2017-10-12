@@ -169,12 +169,13 @@ namespace CrystalKeeper.Gui
             this.project.Items.CollectionChanged += ChangeTreeview;
             gui.GuiTreeView.KeyDown += GuiTreeView_KeyDown;
             gui.GuiTreeView.SelectedItemChanged += GuiTreeView_SelectedItemChanged;
-            gui.Closing += _gui_Closing;
+            gui.Closing += Gui_Closing;
+            gui.Closed += Gui_Closed;
             gui.GuiFileNew.Click += GuiFileNew_Click;
             gui.GuiFileOpen.Click += GuiFileOpen_Click;
             gui.GuiFileSave.Click += GuiFileSave_Click;
             gui.GuiFileSaveAs.Click += GuiFileSaveAs_Click;
-            gui.KeyDown += _gui_KeyDown;
+            gui.KeyDown += Gui_KeyDown;
             gui.GuiHelpAbout.Click += GuiHelpAbout_Click;
             gui.GuiHelpHelp.Click += GuiHelpHelp_Click;
             gui.GuiNewCollection.KeyDown += GuiNewCollection_KeyDown;
@@ -208,6 +209,22 @@ namespace CrystalKeeper.Gui
 
             UpdateRecentFiles();
             ConstructVisuals();
+        }
+
+        /// <summary>
+        /// Cleans up files no longer in use.
+        /// </summary>
+        private void Gui_Closed(object sender, EventArgs e)
+        {
+            try
+            {
+                string folder = Utils.GetAppdataFolder(String.Empty);
+                Directory.Delete(folder, true);
+            }
+            catch (IOException ex)
+            {
+                Utils.Log("IO error when deleting data: " + ex.Message);
+            }
         }
 
         /// <summary>
@@ -658,7 +675,7 @@ namespace CrystalKeeper.Gui
         /// <summary>
         /// Sets keyboard shortcuts.
         /// </summary>
-        private void _gui_KeyDown(object sender, KeyEventArgs e)
+        private void Gui_KeyDown(object sender, KeyEventArgs e)
         {
             //If F1 is pressed, opens help.
             if (e.KeyboardDevice.IsKeyDown(Key.F1))
@@ -714,7 +731,7 @@ namespace CrystalKeeper.Gui
         /// <summary>
         /// Prompts the user to save their file before closing the program.
         /// </summary>
-        private void _gui_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void Gui_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             //Prompts to close.
             MessageBoxResult result = MessageBox.Show(
