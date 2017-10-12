@@ -1,7 +1,9 @@
 ﻿<Window x:Class="CrystalKeeper.Gui.MainDisplayGui"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Crystal Keeper" Height="600" Width="800"
+        xmlns:local="clr-namespace:CrystalKeeper.Core"
+        Title="{x:Static local:GlobalStrings.ApplicationName}"
+        Height="600" Width="800"
         WindowStartupLocation="CenterScreen">
     <Grid Name="GuiLayoutGrid">
         <Grid.RowDefinitions>
@@ -15,22 +17,27 @@
               Width="{Binding ElementName=GuiLayoutGrid, Path=ActualWidth}"
               Height="20"
               VerticalAlignment="Top">
-            <MenuItem Name="GuiMenuFile" Header="_File">
+            <MenuItem Name="GuiMenuFile" Header="{x:Static local:GlobalStrings.MainDisplayFile}">
                 <!--A submenu of recent files is auto-populated.-->
-                <MenuItem Name="GuiFileNew" Header="New" InputGestureText="Ctrl+N"/>
-                <MenuItem Name="GuiFileOpen" Header="Open" InputGestureText="Ctrl+O"/>
-                <MenuItem Name="GuiFileRecent" Header="Recent" IsEnabled="False"/>
-                <MenuItem Name="GuiFileSave" Header="Save" InputGestureText="Ctrl+S"/>
-                <MenuItem Name="GuiFileSaveAs" Header="Save As" InputGestureText="Ctrl+Alt+S"/>
+                <MenuItem Name="GuiFileNew" Header="{x:Static local:GlobalStrings.MainDisplayFileNew}"
+                          InputGestureText="Ctrl+N"/>
+                <MenuItem Name="GuiFileOpen" Header="{x:Static local:GlobalStrings.MainDisplayFileOpen}"
+                          InputGestureText="Ctrl+O"/>
+                <MenuItem Name="GuiFileRecent" Header="{x:Static local:GlobalStrings.MainDisplayFileRecent}"
+                          IsEnabled="False"/>
+                <MenuItem Name="GuiFileSave" Header="{x:Static local:GlobalStrings.MainDisplayFileSave}"
+                          InputGestureText="Ctrl+S"/>
+                <MenuItem Name="GuiFileSaveAs" Header="{x:Static local:GlobalStrings.MainDisplayFileSaveAs}"
+                          InputGestureText="Ctrl+Alt+S"/>
             </MenuItem>
-            <MenuItem Name="GuiMenuPrefs" Header="_Preferences"/>
             <!--Existing templates dynamically added.-->
-            <MenuItem Name="GuiMenuTemplates" Header="_Templates">
-                <MenuItem Name="GuiTemplateNew" Header="New..."/>
+            <MenuItem Name="GuiMenuTemplates" Header="{x:Static local:GlobalStrings.MainDisplayTemplates}">
+                <MenuItem Name="GuiTemplateNew" Header="{x:Static local:GlobalStrings.MainDisplayTemplatesNew}"/>
             </MenuItem>
-            <MenuItem Name="GuiMenuHelp" Header="_Help">
-                <MenuItem Name="GuiHelpHelp" Header="Help" InputGestureText="F1"/>
-                <MenuItem Name="GuiHelpAbout" Header="About"/>
+            <MenuItem Name="GuiMenuHelp" Header="{x:Static local:GlobalStrings.MainDisplayHelp}">
+                <MenuItem Name="GuiHelpHelp" Header="{x:Static local:GlobalStrings.MainDisplayHelpHelp}"
+                          InputGestureText="F1"/>
+                <MenuItem Name="GuiHelpAbout" Header="{x:Static local:GlobalStrings.MainDisplayHelpAbout}"/>
             </MenuItem>
         </Menu>
         <!--Central grid contains treeview and content display.-->
@@ -52,18 +59,19 @@
                 </Grid.RowDefinitions>
                 <!--Contains labeled search options.-->
                 <Grid Name="GuiSearchGrid"
-                      Grid.Row="0">
+                      Grid.Row="0"
+                      ToolTip="{x:Static local:GlobalStrings.TipMainDisplayFilter}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <Label
-                        Content="Filter by:"
+                        Content="{x:Static local:GlobalStrings.MainDisplayFilterBy}"
                         Grid.Column="0"
-                        HorizontalAlignment="Center"></Label>
+                        HorizontalAlignment="Center"/>
                     <ComboBox Name="GuiSearchField"
-                          Grid.Column="1"
-                          IsEnabled="False"/>
+                        Grid.Column="1"
+                        IsEnabled="False"/>
                 </Grid>
                 <!--Used to filter results in the treeview.-->
                 <TextBox Name="GuiTreeViewSearch"
@@ -74,7 +82,7 @@
                             <Style.Resources>
                                 <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
                                     <VisualBrush.Visual>
-                                        <Label Content="Search" Foreground="LightGray" />
+                                        <Label Content="{x:Static local:GlobalStrings.HintFilterSearch}" Foreground="LightGray" />
                                     </VisualBrush.Visual>
                                 </VisualBrush>
                             </Style.Resources>
@@ -113,13 +121,15 @@
                     </Grid.RowDefinitions>
                     <!--Click and submit to create a new collection.-->
                     <TextBox Name="GuiNewCollection"
-                             Grid.Row="0">
+                        Grid.Row="0"
+                        ToolTip="{x:Static local:GlobalStrings.TipMainDisplayNewCollection}">
                         <TextBox.Style>
                             <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
                                 <Style.Resources>
                                     <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
                                         <VisualBrush.Visual>
-                                            <Label Content="Name a collection and press enter..." Foreground="LightGray" />
+                                            <Label Content="{x:Static local:GlobalStrings.HintNewCollection}"
+                                                   Foreground="LightGray" />
                                         </VisualBrush.Visual>
                                     </VisualBrush>
                                 </Style.Resources>
@@ -139,15 +149,16 @@
                     </TextBox>
                     <!--Click and submit to create a new grouping.-->
                     <TextBox Name="GuiNewGrouping"
-                             Grid.Row="1"
-                             IsEnabled="False"
-                             Visibility="Collapsed">
+                        Grid.Row="1"
+                        IsEnabled="False"
+                        ToolTip="{x:Static local:GlobalStrings.TipMainDisplayNewGroup}"
+                        Visibility="Collapsed">
                         <TextBox.Style>
                             <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
                                 <Style.Resources>
                                     <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
                                         <VisualBrush.Visual>
-                                            <Label Content="Name a grouping and press enter..." Foreground="LightGray" />
+                                            <Label Content="{x:Static local:GlobalStrings.HintNewGrouping}" Foreground="LightGray" />
                                         </VisualBrush.Visual>
                                     </VisualBrush>
                                 </Style.Resources>
@@ -167,15 +178,16 @@
                     </TextBox>
                     <!--Click and submit to create a new entry.-->
                     <TextBox Name="GuiNewEntry"
-                             Grid.Row="2"
-                             IsEnabled="False"
-                             Visibility="Collapsed">
+                        Grid.Row="2"
+                        IsEnabled="False"
+                        ToolTip="{x:Static local:GlobalStrings.TipMainDisplayNewEntry}"
+                        Visibility="Collapsed">
                         <TextBox.Style>
                             <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
                                 <Style.Resources>
                                     <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
                                         <VisualBrush.Visual>
-                                            <Label Content="Name an entry and press enter..." Foreground="LightGray" />
+                                            <Label Content="{x:Static local:GlobalStrings.HintNewEntry}" Foreground="LightGray" />
                                         </VisualBrush.Visual>
                                     </VisualBrush>
                                 </Style.Resources>
@@ -212,26 +224,21 @@
                     HorizontalAlignment="Right"
                     VerticalAlignment="Top">
                     <Image Name="GuiPrint"
-                   DockPanel.Dock="Left"
-                   Margin="0,4,24,0"
-                   Visibility="Visible"
-                   Source="pack://application:,,,/Assets/BttnPrint.png"
-                   Stretch="None"/>
+                       DockPanel.Dock="Left"
+                       Margin="0,4,24,0"
+                       Visibility="Visible"
+                       Source="pack://application:,,,/Assets/BttnPrint.png"
+                       Stretch="None"
+                       ToolTip="{x:Static local:GlobalStrings.TipMainDisplayPrint}"/>
                 <Image Name="GuiToggleMode"
-                   DockPanel.Dock="Right"
-                   Margin="0,4,24,0"
-                   Visibility="Visible"
-                   Source="pack://application:,,,/Assets/BttnEdit.png"
-                   Stretch="None"/>
+                    DockPanel.Dock="Right"
+                    Margin="0,4,24,0"
+                    Visibility="Visible"
+                    Source="pack://application:,,,/Assets/BttnEdit.png"
+                    Stretch="None"
+                    ToolTip="{x:Static local:GlobalStrings.TipMainDisplayToggleEdit}"/>
                 </StackPanel>
             </Grid>
         </Grid>
-        <!--Tooltip content automatically added.-->
-        <StatusBar Name="GuiTooltip"
-            Grid.Row="2"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Top"
-            Height="20"
-            Width="{Binding ElementName=GuiLayoutGrid, Path=ActualWidth}"/>
     </Grid>
 </Window>

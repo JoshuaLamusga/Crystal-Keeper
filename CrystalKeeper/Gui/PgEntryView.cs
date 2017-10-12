@@ -133,7 +133,7 @@ namespace CrystalKeeper.Gui
             //Sets the entry name.
             if (string.IsNullOrWhiteSpace((string)Entry.GetData("name")))
             {
-                gui.TxtblkEntryName.Text = "Untitled";
+                gui.TxtblkEntryName.Text = GlobalStrings.NameUntitled;
             }
             else
             {
@@ -144,9 +144,7 @@ namespace CrystalKeeper.Gui
             //Gets template details.
             var template = project.GetCollectionTemplate(project.GetEntryCollection(entry));
             bool tCenterImages = (bool)template.GetData("centerImages");
-            byte tNumExtraImages = (byte)template.GetData("numExtraImages");
             var tTwoColumns = (bool)template.GetData("twoColumns");
-            var tExtraImagePos = (TemplateImagePos)(int)template.GetData("extraImagePos");
             string tFontFamilies = (string)template.GetData("fontFamilies");
 
             gui.TxtblkEntryName.FontFamily = new FontFamily(tFontFamilies);
@@ -182,6 +180,9 @@ namespace CrystalKeeper.Gui
                 //Gets the field and its data.
                 var field = entryFields[i];
                 object fieldData = field.GetData("data");
+                var templateField = project.GetFieldTemplateField(entryFields[i]);
+                byte tNumExtraImages = (byte)templateField.GetData("numExtraImages");
+                var tExtraImagePos = (TemplateImagePos)(int)templateField.GetData("extraImagePos");
 
                 //Gets various data regarding the field.
                 var currField = entryFields[i];
@@ -190,7 +191,6 @@ namespace CrystalKeeper.Gui
                 var fieldName = (string)currTemplateField.GetData("name");
                 var tfIsVisible = (bool)currTemplateField.GetData("isVisible");
                 var tfTitleIsVisible = (bool)currTemplateField.GetData("isTitleVisible");
-                var tfTitleIsInline = (bool)currTemplateField.GetData("isTitleInline");
 
                 //Gets the type of data and associated grid position.
                 var isFirstColumn = (bool)project.GetItemByGuid(
@@ -268,19 +268,8 @@ namespace CrystalKeeper.Gui
                     //Gets whether the title is visible or not.
                     if (tfTitleIsVisible)
                     {
-                        //Gets whether the title is inline with the field or not.
-                        if (tfTitleIsInline)
-                        {
-                            WrapPanel inlineTitlePanel = new WrapPanel();
-                            inlineTitlePanel.Children.Add(fieldNameGui);
-                            inlineTitlePanel.Children.Add(fieldDataGui);
-                            elementsContainer.Children.Add(inlineTitlePanel);
-                        }
-                        else
-                        {
-                            elementsContainer.Children.Add(fieldNameGui);
-                            elementsContainer.Children.Add(fieldDataGui);
-                        }
+                        elementsContainer.Children.Add(fieldNameGui);
+                        elementsContainer.Children.Add(fieldDataGui);                        
                     }
 
                     //Adds the field.
@@ -366,26 +355,9 @@ namespace CrystalKeeper.Gui
                     //Gets whether the title is visible or not.
                     if (tfTitleIsVisible)
                     {
-                        //Gets whether the title is inline with the field or not.
-                        if (tfTitleIsInline)
-                        {
-                            WrapPanel inlineTitlePanel = new WrapPanel();
-                            inlineTitlePanel.Children.Add(fieldNameGui);
-                            inlineTitlePanel.Children.Add(fieldDataGui);
-                            elementsContainer.Children.Add(inlineTitlePanel);
-                        }
-                        else
-                        {
-                            elementsContainer.Children.Add(fieldNameGui);
-                            elementsContainer.Children.Add(fieldDataGui);
-                        }
+                        elementsContainer.Children.Add(fieldNameGui);
                     }
-
-                    //Adds the field.
-                    else
-                    {
-                        elementsContainer.Children.Add(fieldDataGui);
-                    }
+                    elementsContainer.Children.Add(fieldDataGui);
                 }
 
                 //Displays webpages.
@@ -504,22 +476,25 @@ namespace CrystalKeeper.Gui
                     List<string> allData = new List<string>();
                     List<string> loadedUrls = new List<string>();
                     bool isAnimated = false;
+                    bool isMuted = false;
+                    var extraImagePos = (TemplateImagePos)(int)currTemplateField.GetData("extraImagePos");
 
                     //Loads the data if it exists, or sets it if empty.
                     if (((string)fieldData) == String.Empty)
                     {
-                        allData = new List<string>() { "False", String.Empty };
+                        allData = new List<string>() { "False", "False", String.Empty };
                     }
                     else
                     {
                         allData = ((string)fieldData).Split('|').ToList();
                     }
 
-                    //Gets whether the image is animated or not.
+                    //Gets non-url data.
                     isAnimated = (allData[0] == "True");
+                    isMuted = (allData[1] == "True");
 
                     //Gets url data.
-                    loadedUrls = allData.GetRange(1, allData.Count - 1);
+                    loadedUrls = allData.GetRange(2, allData.Count - 2);
 
                     //Turns each relative url into an absolute one.
                     for (int j = 0; j < loadedUrls.Count; j++)
@@ -539,17 +514,10 @@ namespace CrystalKeeper.Gui
                         elementsContainer.Children.Add(fieldNameGui);
                     }
 
-                    //Sets the orientation to be horizontal if chosen.
-                    if (tExtraImagePos == TemplateImagePos.Left ||
-                        tExtraImagePos == TemplateImagePos.Right)
-                    {
-                        elementsContainer.Orientation = Orientation.Horizontal;
-                    }
-
                     //Still images that do not rotate and are not movies.
                     if (!isAnimated)
                     {
-                        StackPanel imagesContainer = new StackPanel();
+                        Grid imagesContainer = new Grid();
 
                         //Creates an image for each url.
                         for (int j = 0; j < loadedUrls.Count; j++)
@@ -557,9 +525,8 @@ namespace CrystalKeeper.Gui
                             ImgThumbnail thumbnail = new ImgThumbnail(loadedUrls[j]);
 
                             //Sets margins based on orientation.
-                            if (templateType == TemplateFieldType.EntryImages &&
-                                (tExtraImagePos == TemplateImagePos.Left ||
-                                tExtraImagePos == TemplateImagePos.Right))
+                            if (tExtraImagePos == TemplateImagePos.Left ||
+                                tExtraImagePos == TemplateImagePos.Right)
                             {
                                 thumbnail.Margin = new Thickness(4, 2, 12, 2);
                             }
@@ -575,6 +542,17 @@ namespace CrystalKeeper.Gui
                                 {
                                     thumbnail.MaxWidth = thumbnail.GetSourceWidth();
                                     thumbnail.MaxHeight = thumbnail.GetSourceHeight();
+
+                                    //Limits to 500px. Sets only one dimension
+                                    //so the other can adapt automatically.
+                                    if (thumbnail.MaxHeight > 500)
+                                    {
+                                        thumbnail.MaxHeight = 500;
+                                    }
+                                    else if (thumbnail.MaxWidth > 500)
+                                    {
+                                        thumbnail.MaxWidth = 500;
+                                    }
                                 }
                                 else
                                 {
@@ -585,42 +563,78 @@ namespace CrystalKeeper.Gui
                             imagesContainer.Children.Add(thumbnail);
 
                             //Exits when 1 + number of extra images are displayed.
-                            if (templateType == TemplateFieldType.EntryImages &&
-                                j == tNumExtraImages &&
-                                tNumExtraImages > 0)
+                            if (j == tNumExtraImages && tNumExtraImages > 0)
                             {
                                 break;
                             }
                         }
 
-                        if (templateType == TemplateFieldType.EntryImages)
+                        //Reverses element order.
+                        if (extraImagePos == TemplateImagePos.Above ||
+                            extraImagePos == TemplateImagePos.Left)
                         {
-                            //Reverses element order.
-                            if (tExtraImagePos == TemplateImagePos.Above ||
-                                tExtraImagePos == TemplateImagePos.Left)
+                            List<UIElement> elements = new List<UIElement>();
+                            for (int k = 0; k < imagesContainer.Children.Count; k++)
                             {
-                                List<UIElement> elements = new List<UIElement>();
-                                for (int j = 0; j < imagesContainer.Children.Count; j++)
-                                {
-                                    elements.Add(imagesContainer.Children[j]);
-                                }
-                                elements.Reverse();
-                                imagesContainer.Children.Clear();
-                                for (int j = 0; j < elements.Count; j++)
-                                {
-                                    imagesContainer.Children.Add(elements[j]);
-                                }
+                                elements.Add(imagesContainer.Children[k]);
                             }
-
-                            //Changes orientation.
-                            if (tExtraImagePos == TemplateImagePos.Left ||
-                                tExtraImagePos == TemplateImagePos.Right)
+                            elements.Reverse();
+                            imagesContainer.Children.Clear();
+                            for (int k = 0; k < elements.Count; k++)
                             {
-                                imagesContainer.Orientation = Orientation.Horizontal;
+                                imagesContainer.Children.Add(elements[k]);
                             }
                         }
 
-                        elementsContainer.Children.Add(imagesContainer);
+                        //Sets position of elements.
+                        for (int k = 0; k < imagesContainer.Children.Count; k++)
+                        {
+                            var item = imagesContainer.Children[k];
+
+                            if (extraImagePos == TemplateImagePos.Left ||
+                                extraImagePos == TemplateImagePos.Right)
+                            {
+                                Grid.SetColumn(item, imagesContainer.ColumnDefinitions.Count);
+                                imagesContainer.ColumnDefinitions.Add(new ColumnDefinition());
+                            }
+                            else
+                            {
+                                Grid.SetRow(item, imagesContainer.RowDefinitions.Count);
+                                imagesContainer.RowDefinitions.Add(new RowDefinition());
+                            }
+                        }
+
+                        ScrollViewer horzScroller = new ScrollViewer();
+                        horzScroller.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                        horzScroller.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+                        horzScroller.Content = imagesContainer;
+
+                        //Centers the scrollbar for new items.
+                        horzScroller.Loaded += (a, b) =>
+                        {
+                            horzScroller.ScrollToHorizontalOffset(horzScroller.ScrollableWidth / 2);
+                        };
+
+                        //Sets the width and columns of the images container.
+                        if ((templateType == TemplateFieldType.EntryImages) &&
+                            tCenterImages)
+                        {
+                            AdjustWidths(horzScroller, false);
+                            Grid.SetRow(horzScroller, 1);
+                            gui.GuiItems.Children.Add(horzScroller);
+                        }
+                        else if (isFirstColumn)
+                        {
+                            AdjustWidths(horzScroller, tTwoColumns);
+                            gui.LeftColItems.Children.Add(horzScroller);
+                        }
+                        else
+                        {
+                            AdjustWidths(horzScroller, tTwoColumns);
+                            gui.RightColItems.Children.Add(horzScroller);
+                        }
+
+                        continue;
                     }
 
                     //Images that rotate or are movies.
@@ -630,11 +644,12 @@ namespace CrystalKeeper.Gui
                         ImgAnimated thumbnail = null;
 
                         //Loads movies.
-                        if (loadedUrls.Count == 1 &&
+                        if (loadedUrls.Count >= 1 &&
                             (loadedUrls[0].ToLower().EndsWith(".wmv") ||
                             loadedUrls[0].ToLower().EndsWith(".mp4")))
                         {
                             media = new MediaElement();
+                            media.IsMuted = isMuted;
                             media.Margin = new Thickness(2, 4, 2, 12);
 
                             try
@@ -663,6 +678,7 @@ namespace CrystalKeeper.Gui
                         else
                         {
                             thumbnail = new ImgAnimated(loadedUrls, true);
+                            thumbnail.SetPlaybackDelay(1000);
                             thumbnail.Margin = new Thickness(2, 4, 2, 12);
                             thumbnail.MaxWidth = thumbnail.GetSourceWidth();
                             thumbnail.MaxHeight = thumbnail.GetSourceHeight();
@@ -703,7 +719,7 @@ namespace CrystalKeeper.Gui
             {
                 //Creates the message as a textblock.
                 TextBlock emptyMessage = new TextBlock();
-                emptyMessage.Text = "No content to display";
+                emptyMessage.Text = GlobalStrings.HintNoContent;
                 emptyMessage.HorizontalAlignment = HorizontalAlignment.Center;
                 emptyMessage.VerticalAlignment = VerticalAlignment.Center;
                 emptyMessage.Foreground = Brushes.LightGray;
@@ -726,8 +742,6 @@ namespace CrystalKeeper.Gui
         /// </param>
         private void AdjustWidths(FrameworkElement element, bool useTwoColumns)
         {
-            //TODO: elements don't recess after expanding.
-
             //Evaluates the max width when the layout updates.
             gui.TxtblkEntryName.LayoutUpdated += (a, b) =>
             {

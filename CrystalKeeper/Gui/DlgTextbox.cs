@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace CrystalKeeper.Gui
@@ -28,24 +29,31 @@ namespace CrystalKeeper.Gui
         public DlgTextbox()
         {
             gui = new DlgTextboxGui();
+            textResult = String.Empty;
 
             ConstructPage();
         }
 
         /// <summary>
-        /// Creates a new textboz popup with a settable caption.
+        /// Creates a new textbox popup with a settable caption.
         /// </summary>
-        /// <param name="windowTitle">The window caption.</param>
+        /// <param name="windowTitle">
+        /// The window caption.
+        /// </param>
         public DlgTextbox(string windowTitle)
         {
             gui = new DlgTextboxGui();
             gui.wndMain.Title = windowTitle;
+            textResult = String.Empty;
 
             ConstructPage();
         }
         #endregion
 
         #region Private Methods
+        /// <summary>
+        /// Creates the page.
+        /// </summary>
         private void ConstructPage()
         {
             gui.GuiGrid.KeyDown += GuiGrid_KeyDown;

@@ -47,7 +47,7 @@ namespace CrystalKeeper.Gui
         public event EventHandler DataNameChanged;
 
         /// <summary>
-        /// TODO: Find a better way to get an image to refresh dynamically...
+        /// Fires to reconstruct the view from the parent control.
         /// </summary>
         public event EventHandler InvalidatePage;
         #endregion
@@ -151,7 +151,7 @@ namespace CrystalKeeper.Gui
             //Sets the entry name.
             if (string.IsNullOrWhiteSpace((string)entry.GetData("name")))
             {
-                gui.TxtbxEntryName.Text = "Untitled";
+                gui.TxtbxEntryName.Text = GlobalStrings.NameUntitled;
             }
             else
             {
@@ -215,7 +215,6 @@ namespace CrystalKeeper.Gui
             var template = project.GetCollectionTemplate(project.GetEntryCollection(entry));
             var tCenterImages = (bool)template.GetData("centerImages");
             var tTwoColumns = (bool)template.GetData("twoColumns");
-            var tExtraImagePos = (TemplateImagePos)(int)template.GetData("extraImagePos");
 
             //Adjusts the column widths if two columns are used.
             if (!tTwoColumns)
@@ -425,6 +424,8 @@ namespace CrystalKeeper.Gui
                     List<string> allData = new List<string>();
                     List<string> loadedUrls = new List<string>();
                     bool isAnimated = false;
+                    bool isMuted = false;
+                    var extraImagePos = (TemplateImagePos)(int)currTemplateField.GetData("extraImagePos");
 
                     //Loads the data if it exists, or sets it if empty.
                     if (((string)fieldData) == String.Empty)
@@ -436,15 +437,12 @@ namespace CrystalKeeper.Gui
                         allData = ((string)fieldData).Split('|').ToList();
                     }
 
-                    //Gets whether the image is animated or not.
-                    string isAnimatedStr = allData[0];
-                    if (isAnimatedStr == "True")
-                    {
-                        isAnimated = true;
-                    }
+                    //Gets non-url data.
+                    isAnimated = (allData[0] == "True");
+                    isMuted = (allData[1] == "True");
 
                     //Gets url data.
-                    loadedUrls = allData.GetRange(1, allData.Count - 1);
+                    loadedUrls = allData.GetRange(2, allData.Count - 2);
 
                     //Turns each relative url into an absolute one.
                     for (int j = 0; j < loadedUrls.Count; j++)
@@ -462,34 +460,15 @@ namespace CrystalKeeper.Gui
                     elementsContainer.Children.Add(fieldNameGui);
 
                     //Sets the orientation to be horizontal if chosen.
-                    if (tExtraImagePos == TemplateImagePos.Left ||
-                        tExtraImagePos == TemplateImagePos.Right)
+                    if (extraImagePos == TemplateImagePos.Left ||
+                        extraImagePos == TemplateImagePos.Right)
                     {
                         elementsContainer.Orientation = Orientation.Horizontal;
                     }
 
-                    //Sets up the context menu for the image options.
-                    ContextMenu menu = new ContextMenu();
-                    MenuItem animatable = new MenuItem();
-                    animatable.Header = "Rotate through images?";
-                    animatable.IsCheckable = true;
-                    animatable.IsChecked = isAnimated;
-                    menu.Items.Add(animatable);
-                    elementsContainer.ContextMenu = menu;
-
-                    //Clicking the animated option toggles it and refreshes.
-                    animatable.Click += (a, b) =>
-                    {
-                        string options = (!isAnimated) ? "True" : "False";
-                        string newData = options + "|" + string.Join("|", loadedUrls);
-                        field.SetData("data", newData);
-
-                        InvalidatePage?.Invoke(this, null);
-                    };
-
                     if (!isAnimated)
                     {
-                        StackPanel imagesContainer = new StackPanel();
+                        Grid imagesContainer = new Grid();
 
                         //Creates an image for each url.
                         for (int j = 0; j < loadedUrls.Count; j++)
@@ -498,9 +477,8 @@ namespace CrystalKeeper.Gui
                             bool isUrlValid = true;
 
                             //Sets margins based on orientation.
-                            if (templateType == TemplateFieldType.EntryImages &&
-                                (tExtraImagePos == TemplateImagePos.Left ||
-                                tExtraImagePos == TemplateImagePos.Right))
+                            if (extraImagePos == TemplateImagePos.Left ||
+                                extraImagePos == TemplateImagePos.Right)
                             {
                                 thumbnail.Margin = new Thickness(4, 2, 12, 2);
                             }
@@ -511,126 +489,6 @@ namespace CrystalKeeper.Gui
 
                             int index = j; //For lambda capture.
 
-                            //Sets up an upload image button.
-                            var bttnUpload = new Image();
-                            BitmapImage newImg = new BitmapImage(new Uri("pack://application:,,,/Assets/BttnAdd.png"));
-                            bttnUpload.Source = newImg;
-                            bttnUpload.ToolTip = "Click to select images.";
-
-                            //Sets up a delete image button.
-                            var bttnDelete = new Image();
-                            newImg = new BitmapImage(new Uri("pack://application:,,,/Assets/BttnDelete.png"));
-                            bttnDelete.Source = newImg;
-                            bttnDelete.ToolTip = "Click to delete all images.";
-
-                            //Disables the delete button if there's nothing to delete.
-                            if (!File.Exists(loadedUrls[j]))
-                            {
-                                bttnDelete.IsEnabled = false;
-                                bttnDelete.Opacity = 0.5;
-                            }
-
-                            //Highlights the upload button when the mouse enters image bounds.
-                            bttnUpload.MouseEnter += (a, b) =>
-                            {
-                                newImg = new BitmapImage();
-                                newImg.BeginInit();
-                                newImg.UriSource = new Uri("pack://application:,,,/Assets/BttnAddHover.png");
-                                newImg.EndInit();
-                                bttnUpload.Source = newImg;
-                            };
-
-                            //Un-highlights the upload button when the mouse leaves image bounds.
-                            bttnUpload.MouseLeave += (a, b) =>
-                            {
-                                newImg = new BitmapImage();
-                                newImg.BeginInit();
-                                newImg.UriSource = new Uri("pack://application:,,,/Assets/BttnAdd.png");
-                                newImg.EndInit();
-                                bttnUpload.Source = newImg;
-                            };
-
-                            //Handles uploading images.
-                            bttnUpload.MouseDown += (a, b) =>
-                            {
-                                OpenFileDialog dlg = new OpenFileDialog();
-
-                                //Opens the directory of the first url.
-                                if (File.Exists(loadedUrls.First()))
-                                {
-                                    dlg.InitialDirectory = loadedUrls.First();
-                                }
-
-                                dlg.Multiselect = true;
-                                dlg.CheckPathExists = true;
-                                dlg.Filter = "images|*.bmp;*.jpg;*.jpeg;*.gif;*.tif;*.tiff;*.png";
-                                dlg.FilterIndex = 0;
-                                dlg.Title = "Load image";
-
-                                if (dlg.ShowDialog() == true)
-                                {
-                                    for (int k = 0; k < dlg.FileNames.Length; k++)
-                                    {
-                                        if (k == 0)
-                                        {
-                                            loadedUrls[index] = dlg.FileNames[k];
-                                        }
-                                        else
-                                        {
-                                            loadedUrls.Add(dlg.FileNames[k]);
-                                        }
-                                        string options = (isAnimated) ? "True" : "False";
-                                        string newData = string.Join("|", loadedUrls);
-                                        newData = options + "|" + newData;
-                                        field.SetData("data", newData);
-                                    }
-
-                                    //TODO: Invalidates the page to update.
-                                    InvalidatePage?.Invoke(this, null);
-                                }
-                            };
-
-                            //Highlights the delete button when the mouse enters image bounds.
-                            bttnDelete.MouseEnter += (a, b) =>
-                            {
-                                newImg = new BitmapImage();
-                                newImg.BeginInit();
-                                newImg.UriSource = new Uri("pack://application:,,,/Assets/BttnDeleteHover.png");
-                                newImg.EndInit();
-                                bttnDelete.Source = newImg;
-                            };
-
-                            //Un-highlights the delete button when the mouse leaves image bounds.
-                            bttnDelete.MouseLeave += (a, b) =>
-                            {
-                                newImg = new BitmapImage();
-                                newImg.BeginInit();
-                                newImg.UriSource = new Uri("pack://application:,,,/Assets/BttnDelete.png");
-                                newImg.EndInit();
-                                bttnDelete.Source = newImg;
-                            };
-
-                            //Prompts to delete the existing image.
-                            bttnDelete.MouseDown += (a, b) =>
-                            {
-                                var mssgResult = MessageBox.Show("Are you sure you want to delete the image?",
-                                    "Confirm deletion",
-                                    MessageBoxButton.YesNo);
-
-                                if (mssgResult == MessageBoxResult.Yes)
-                                {
-                                    loadedUrls.RemoveAt(index);
-
-                                    string options = (isAnimated) ? "True" : "False";
-                                    string newData = string.Join("|", loadedUrls);
-                                    newData = options + "|" + newData;
-                                    field.SetData("data", newData);
-
-                                    //TODO: Invalidates the page to update.
-                                    InvalidatePage?.Invoke(this, null);
-                                }
-                            };
-
                             //Resizes the image.
                             thumbnail.Loaded += (a, b) =>
                             {
@@ -638,6 +496,17 @@ namespace CrystalKeeper.Gui
                                 {
                                     thumbnail.MaxWidth = thumbnail.GetSourceWidth();
                                     thumbnail.MaxHeight = thumbnail.GetSourceHeight();
+
+                                    //Limits to 500px. Sets only one dimension
+                                    //so the other can adapt automatically.
+                                    if (thumbnail.MaxHeight > 500)
+                                    {
+                                        thumbnail.MaxHeight = 500;
+                                    }
+                                    else if (thumbnail.MaxWidth > 500)
+                                    {
+                                        thumbnail.MaxWidth = 500;
+                                    }
                                 }
                                 else
                                 {
@@ -646,10 +515,8 @@ namespace CrystalKeeper.Gui
                                 }
                             };
 
-                            StackPanel contentControls = new StackPanel();
-                            contentControls.Orientation = Orientation.Horizontal;
-                            contentControls.Children.Add(bttnDelete);
-                            contentControls.Children.Add(bttnUpload);
+                            StackPanel contentControls = CreateImageControls(
+                                field, loadedUrls, index, isAnimated, isMuted);
 
                             //Centers the content controls to match centered image fields.
                             if (templateType == TemplateFieldType.EntryImages && tCenterImages)
@@ -657,38 +524,11 @@ namespace CrystalKeeper.Gui
                                 contentControls.HorizontalAlignment = HorizontalAlignment.Center;
                             }
 
-                            if (templateType == TemplateFieldType.EntryImages)
-                            {
-                                //Reverses element order.
-                                if (tExtraImagePos == TemplateImagePos.Above ||
-                                    tExtraImagePos == TemplateImagePos.Left)
-                                {
-                                    List<UIElement> elements = new List<UIElement>();
-                                    for (int k = 0; k < imagesContainer.Children.Count; k++)
-                                    {
-                                        elements.Add(imagesContainer.Children[k]);
-                                    }
-                                    elements.Reverse();
-                                    imagesContainer.Children.Clear();
-                                    for (int k = 0; k < elements.Count; k++)
-                                    {
-                                        imagesContainer.Children.Add(elements[k]);
-                                    }
-                                }
-
-                                //Changes orientation.
-                                if (tExtraImagePos == TemplateImagePos.Left ||
-                                    tExtraImagePos == TemplateImagePos.Right)
-                                {
-                                    imagesContainer.Orientation = Orientation.Horizontal;
-                                }
-                            }
-
                             StackPanel imageControls = new StackPanel();
                             imageControls.Children.Add(contentControls);
                             imageControls.Children.Add(thumbnail);
 
-                            elementsContainer.Children.Add(imageControls);
+                            imagesContainer.Children.Add(imageControls);
 
                             //Waits until the image is fully loaded.
                             thumbnail.Loaded += (a, b) =>
@@ -699,12 +539,11 @@ namespace CrystalKeeper.Gui
                                 {
                                     //Sets up a broken image button.
                                     var bttnBrokenImage = new Image();
-                                    newImg = new BitmapImage(new Uri("pack://application:,,,/Assets/BrokenImage.png"));
+                                    var newImg = new BitmapImage(new Uri(Assets.BrokenImage));
                                     bttnBrokenImage.Source = newImg;
                                     bttnBrokenImage.MaxWidth = newImg.Width;
                                     bttnBrokenImage.MaxHeight = newImg.Height;
-                                    bttnBrokenImage.ToolTip = "Image link is broken " +
-                                        "-- click to locate or reset image.";
+                                    bttnBrokenImage.ToolTip = GlobalStrings.TipBrokenImage;
 
                                     //Allows user to select a new image url.
                                     bttnBrokenImage.MouseDown += (c, d) =>
@@ -721,14 +560,15 @@ namespace CrystalKeeper.Gui
                                         dlg.FileName = Path.GetFileName(thumbnail.ImgUrl);
 
                                         dlg.CheckPathExists = true;
-                                        dlg.Filter = "images|*.bmp;*.jpg;*.jpeg;*.gif;*.tif;*.tiff;*.png";
+                                        dlg.Filter = GlobalStrings.FilterImages;
                                         dlg.FilterIndex = 0;
-                                        dlg.Title = "Load image";
+                                        dlg.Title = GlobalStrings.CaptionLoadImage;
 
                                         if (dlg.ShowDialog() == true)
                                         {
                                             loadedUrls[index] = dlg.FileName;
                                             string options = (isAnimated) ? "True" : "False";
+                                            options += "|" + ((isMuted) ? "True" : "False");
                                             string newData = string.Join("|", loadedUrls);
                                             newData = options + "|" + newData;
                                             field.SetData("data", newData);
@@ -743,17 +583,91 @@ namespace CrystalKeeper.Gui
                                 }
                             };
                         }
+
+                        //Reverses element order.
+                        if (extraImagePos == TemplateImagePos.Above ||
+                            extraImagePos == TemplateImagePos.Left)
+                        {
+                            List<UIElement> elements = new List<UIElement>();
+                            for (int k = 0; k < imagesContainer.Children.Count; k++)
+                            {
+                                elements.Add(imagesContainer.Children[k]);
+                            }
+                            elements.Reverse();
+                            imagesContainer.Children.Clear();
+                            for (int k = 0; k < elements.Count; k++)
+                            {
+                                imagesContainer.Children.Add(elements[k]);
+                            }
+                        }
+
+                        //Sets position of elements.
+                        for (int k = 0; k < imagesContainer.Children.Count; k++)
+                        {
+                            var item = imagesContainer.Children[k];
+
+                            if (extraImagePos == TemplateImagePos.Left ||
+                                extraImagePos == TemplateImagePos.Right)
+                            {
+                                //Centers controls that support it.
+                                if (typeof(FrameworkElement).IsAssignableFrom(item.GetType()))
+                                {
+                                    ((FrameworkElement)item).VerticalAlignment = VerticalAlignment.Center;
+                                }
+
+                                Grid.SetColumn(item, imagesContainer.ColumnDefinitions.Count);
+                                imagesContainer.ColumnDefinitions.Add(new ColumnDefinition());
+                            }
+                            else
+                            {
+                                Grid.SetRow(item, imagesContainer.RowDefinitions.Count);
+                                imagesContainer.RowDefinitions.Add(new RowDefinition());
+                            }
+                        }
+
+                        ScrollViewer horzScroller = new ScrollViewer();
+                        horzScroller.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                        horzScroller.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+                        horzScroller.Content = imagesContainer;
+
+                        //Centers the scrollbar for new items.
+                        horzScroller.Loaded += (a, b) =>
+                        {
+                            horzScroller.ScrollToHorizontalOffset(horzScroller.ScrollableWidth / 2);
+                        };
+
+                        //Sets the width and columns of the images container.
+                        if ((templateType == TemplateFieldType.EntryImages) &&
+                            tCenterImages)
+                        {
+                            AdjustWidths(horzScroller, false);
+                            Grid.SetRow(horzScroller, 1);
+                            gui.GuiItems.Children.Add(horzScroller);
+                        }
+                        else if (isFirstColumn)
+                        {
+                            AdjustWidths(horzScroller, tTwoColumns);
+                            gui.LeftColItems.Children.Add(horzScroller);
+                        }
+                        else
+                        {
+                            AdjustWidths(horzScroller, tTwoColumns);
+                            gui.RightColItems.Children.Add(horzScroller);
+                        }
+
+                        continue;
                     }
                     else
                     {
                         MediaElement media = null;
                         ImgAnimated thumbnail = null;
 
-                        if (loadedUrls.Count == 2 &&
+                        if (loadedUrls.Count >= 1 &&
                             (loadedUrls[0].ToLower().EndsWith(".wmv") ||
                             loadedUrls[0].ToLower().EndsWith(".mp4")))
                         {
                             media = new MediaElement();
+                            media.IsMuted = isMuted;
 
                             try
                             {
@@ -770,12 +684,12 @@ namespace CrystalKeeper.Gui
                             }
                             catch (Exception)
                             {
-                                MessageBox.Show("The file couldn't be loaded" +
-                                    "or played correctly.");
+                                MessageBox.Show(GlobalStrings.DlgMediaNotLoadedWarning);
 
                                 loadedUrls.RemoveAt(0);
 
                                 string options = (isAnimated) ? "True" : "False";
+                                options += "|" + ((isMuted) ? "True" : "False");
                                 string newData = string.Join("|", loadedUrls);
                                 newData = options + "|" + newData;
                                 field.SetData("data", newData);
@@ -787,119 +701,13 @@ namespace CrystalKeeper.Gui
                         else
                         {
                             thumbnail = new ImgAnimated(loadedUrls, true);
+                            thumbnail.SetPlaybackDelay(1000);
                             thumbnail.MaxWidth = thumbnail.GetSourceWidth();
                             thumbnail.MaxHeight = thumbnail.GetSourceHeight();
                         }
 
-                        //Sets up an upload image button.
-                        var bttnUpload = new Image();
-                        BitmapImage newImg = new BitmapImage(new Uri("pack://application:,,,/Assets/BttnAdd.png"));
-                        bttnUpload.Source = newImg;
-                        bttnUpload.ToolTip = "Click to select images or a movie.";
-
-                        //Sets up a delete image button.
-                        var bttnDelete = new Image();
-                        newImg = new BitmapImage(new Uri("pack://application:,,,/Assets/BttnDelete.png"));
-                        bttnDelete.Source = newImg;
-                        bttnDelete.ToolTip = "Click to delete all images.";
-
-                        //Disables the delete button if there's nothing to delete.
-                        if (!File.Exists(loadedUrls.FirstOrDefault()))
-                        {
-                            bttnDelete.IsEnabled = false;
-                            bttnDelete.Opacity = 0.5;
-                        }
-
-                        //Highlights the upload button when the mouse enters image bounds.
-                        bttnUpload.MouseEnter += (a, b) =>
-                        {
-                            newImg = new BitmapImage();
-                            newImg.BeginInit();
-                            newImg.UriSource = new Uri("pack://application:,,,/Assets/BttnAddHover.png");
-                            newImg.EndInit();
-                            bttnUpload.Source = newImg;
-                        };
-
-                        //Un-highlights the upload button when the mouse leaves image bounds.
-                        bttnUpload.MouseLeave += (a, b) =>
-                        {
-                            newImg = new BitmapImage();
-                            newImg.BeginInit();
-                            newImg.UriSource = new Uri("pack://application:,,,/Assets/BttnAdd.png");
-                            newImg.EndInit();
-                            bttnUpload.Source = newImg;
-                        };
-
-                        //Handles uploading an image to change it.
-                        bttnUpload.MouseDown += (a, b) =>
-                        {
-                            OpenFileDialog dlg = new OpenFileDialog();
-
-                            //Opens the directory of the first url.
-                            if (File.Exists(loadedUrls.First()))
-                            {
-                                dlg.InitialDirectory = loadedUrls.First();
-                            }
-
-                            dlg.CheckPathExists = true;
-                            dlg.Filter = "images and movies|*.bmp;*.jpg;*.jpeg;*.gif;*.tif;*.tiff;*.png;*.wmv;*.mp4";
-                            dlg.FilterIndex = 0;
-                            dlg.Multiselect = true;
-                            dlg.Title = "Load image";
-
-                            if (dlg.ShowDialog() == true)
-                            {
-                                string options = (isAnimated) ? "True" : "False";
-                                string newData = string.Join("|", dlg.FileNames);
-                                newData = options + "|" + newData;
-                                field.SetData("data", newData);
-
-                                //TODO: Invalidates the page to update.
-                                InvalidatePage?.Invoke(this, null);
-                            }
-                        };
-
-                        //Highlights the delete button when the mouse enters image bounds.
-                        bttnDelete.MouseEnter += (a, b) =>
-                        {
-                            newImg = new BitmapImage();
-                            newImg.BeginInit();
-                            newImg.UriSource = new Uri("pack://application:,,,/Assets/BttnDeleteHover.png");
-                            newImg.EndInit();
-                            bttnDelete.Source = newImg;
-                        };
-
-                        //Un-highlights the delete button when the mouse leaves image bounds.
-                        bttnDelete.MouseLeave += (a, b) =>
-                        {
-                            newImg = new BitmapImage();
-                            newImg.BeginInit();
-                            newImg.UriSource = new Uri("pack://application:,,,/Assets/BttnDelete.png");
-                            newImg.EndInit();
-                            bttnDelete.Source = newImg;
-                        };
-
-                        //Prompts to delete the existing image.
-                        bttnDelete.MouseDown += (a, b) =>
-                        {
-                            var mssgResult = MessageBox.Show("Are you sure you want to delete the image?",
-                                "Confirm deletion",
-                                MessageBoxButton.YesNo);
-
-                            if (mssgResult == MessageBoxResult.Yes)
-                            {
-                                string options = (isAnimated) ? "True|" : "False|";
-                                field.SetData("data", options);
-
-                                //TODO: Invalidates the page to update.
-                                InvalidatePage?.Invoke(this, null);
-                            }
-                        };
-
-                        StackPanel contentControls = new StackPanel();
-                        contentControls.Orientation = Orientation.Horizontal;
-                        contentControls.Children.Add(bttnDelete);
-                        contentControls.Children.Add(bttnUpload);
+                        StackPanel contentControls = CreateImageControls(
+                            field, loadedUrls, 0, isAnimated, isMuted);
 
                         //Centers the content controls to match centered image fields.
                         if (templateType == TemplateFieldType.EntryImages && tCenterImages)
@@ -942,6 +750,288 @@ namespace CrystalKeeper.Gui
         }
 
         /// <summary>
+        /// Creates and returns an image controls bar for an image.
+        /// </summary>
+        private StackPanel CreateImageControls(
+            DataItem field,
+            List<string> urls,
+            int urlIndex,
+            bool isAnimatedMedia,
+            bool isMuted)
+        {
+            //Sets up an upload image button.
+            var bttnUpload = new Image();
+            BitmapImage newImg = new BitmapImage(new Uri(Assets.BttnAddStill));
+            bttnUpload.Source = newImg;
+            bttnUpload.ToolTip = GlobalStrings.TipBttnUpload;
+
+            //Sets up an upload movie button.
+            var bttnUploadMovie = new Image();
+            newImg = new BitmapImage(new Uri(Assets.BttnAddMovie));
+            bttnUploadMovie.Source = newImg;
+            bttnUploadMovie.ToolTip = GlobalStrings.TipBttnUploadMovie;
+
+            //Sets up a delete image button.
+            var bttnDelete = new Image();
+            newImg = new BitmapImage(new Uri(Assets.BttnDelete));
+            bttnDelete.Source = newImg;
+            bttnDelete.ToolTip = GlobalStrings.TipBttnDelete;
+
+            //Sets up a mute button.
+            var bttnVolume = new Image();
+            newImg = (isMuted) ?
+                new BitmapImage(new Uri(Assets.BttnVolumeOff)) :
+                new BitmapImage(new Uri(Assets.BttnVolumeOn));
+            bttnVolume.Source = newImg;
+            bttnVolume.ToolTip = GlobalStrings.TipBttnMute;
+            
+            //Disables the delete button if there's nothing to delete.
+            if (!File.Exists(urls[urlIndex]))
+            {
+                bttnDelete.IsEnabled = false;
+                bttnDelete.Opacity = 0.5;
+            }
+
+            //Highlights the upload button when the mouse enters image bounds.
+            bttnUpload.MouseEnter += (a, b) =>
+            {
+                newImg = new BitmapImage();
+                newImg.BeginInit();
+                newImg.UriSource = new Uri(Assets.BttnAddHover);
+                newImg.EndInit();
+                bttnUpload.Source = newImg;
+            };
+
+            //Un-highlights the upload button when the mouse leaves image bounds.
+            bttnUpload.MouseLeave += (a, b) =>
+            {
+                newImg = new BitmapImage();
+                newImg.BeginInit();
+                newImg.UriSource = new Uri(Assets.BttnAddStill);
+                newImg.EndInit();
+                bttnUpload.Source = newImg;
+            };
+
+            //Handles uploading images.
+            bttnUpload.MouseDown += (a, b) =>
+            {
+                OpenFileDialog dlg = new OpenFileDialog();
+
+                //Opens the directory of the first url.
+                if (File.Exists(urls.First()))
+                {
+                    dlg.InitialDirectory = urls.First();
+                }
+
+                dlg.Multiselect = true;
+                dlg.CheckPathExists = true;
+                dlg.Filter = GlobalStrings.FilterImages;
+                dlg.FilterIndex = 0;
+                dlg.Title = GlobalStrings.CaptionLoadImage;
+
+                if (dlg.ShowDialog() == true)
+                {
+                    //Ensures no file is larger than 2GB.
+                    for (int k = 0; k < dlg.FileNames.Length; k++)
+                    {
+                        if (new FileInfo(dlg.FileNames[k]).Length >= 2147000000)
+                        {
+                            MessageBox.Show(
+                                GlobalStrings.DlgImageTooBigWarning,
+                                GlobalStrings.DlgImageTooBigCaption);
+
+                            return;
+                        }
+                    }
+
+                    //Replaces all images for multi-image uploads.
+                    if (dlg.FileNames.Length > 1)
+                    {
+                        urls.Clear();
+                    }
+
+                    //Sets or adds images to the list.
+                    for (int k = 0; k < dlg.FileNames.Length; k++)
+                    {
+                        if (k == 0 && dlg.FileNames.Length == 1)
+                        {
+                            urls[urlIndex] = dlg.FileNames[k];
+                        }
+                        else
+                        {
+                            urls.Add(dlg.FileNames[k]);
+                        }
+                    }
+
+                    string newData = string.Join("|", urls);
+                    newData = "False|False|" + newData;
+                    field.SetData("data", newData);
+
+                    //Redraws the page.
+                    InvalidatePage?.Invoke(this, null);
+                }
+            };
+
+            //Highlights the upload movie button when the mouse enters image bounds.
+            bttnUploadMovie.MouseEnter += (a, b) =>
+            {
+                newImg = new BitmapImage();
+                newImg.BeginInit();
+                newImg.UriSource = new Uri(Assets.BttnAddMovieHover);
+                newImg.EndInit();
+                bttnUploadMovie.Source = newImg;
+            };
+
+            //Un-highlights the upload button when the mouse leaves image bounds.
+            bttnUploadMovie.MouseLeave += (a, b) =>
+            {
+                newImg = new BitmapImage();
+                newImg.BeginInit();
+                newImg.UriSource = new Uri(Assets.BttnAddMovie);
+                newImg.EndInit();
+                bttnUploadMovie.Source = newImg;
+            };
+
+            //Handles uploading movies and multiple images.
+            bttnUploadMovie.MouseDown += (a, b) =>
+            {
+                OpenFileDialog dlg = new OpenFileDialog();
+
+                //Opens the directory of the first url.
+                if (File.Exists(urls.First()))
+                {
+                    dlg.InitialDirectory = urls.First();
+                }
+
+                dlg.Multiselect = true;
+                dlg.CheckPathExists = true;
+                dlg.Filter = GlobalStrings.FilterImagesOrMovie;
+                dlg.FilterIndex = 0;
+                dlg.Title = GlobalStrings.CaptionLoadImagesOrMovie;
+
+                if (dlg.ShowDialog() == true)
+                {
+                    //Ensures no file is larger than 2GB.
+                    for (int k = 0; k < dlg.FileNames.Length; k++)
+                    {
+                        if (new FileInfo(dlg.FileNames[k]).Length >= 2147000000)
+                        {
+                            MessageBox.Show(
+                                GlobalStrings.DlgImageTooBigWarning,
+                                GlobalStrings.DlgImageTooBigCaption);
+
+                            return;
+                        }
+                    }
+
+                    string newData = string.Join("|", dlg.FileNames);
+                    newData = "True|False|" + newData;
+                    field.SetData("data", newData);
+
+                    //Redraws the page.
+                    InvalidatePage?.Invoke(this, null);
+                }
+            };
+
+            //Highlights the delete button when the mouse enters image bounds.
+            bttnDelete.MouseEnter += (a, b) =>
+            {
+                newImg = new BitmapImage();
+                newImg.BeginInit();
+                newImg.UriSource = new Uri(Assets.BttnDeleteHover);
+                newImg.EndInit();
+                bttnDelete.Source = newImg;
+            };
+
+            //Un-highlights the delete button when the mouse leaves image bounds.
+            bttnDelete.MouseLeave += (a, b) =>
+            {
+                newImg = new BitmapImage();
+                newImg.BeginInit();
+                newImg.UriSource = new Uri(Assets.BttnDelete);
+                newImg.EndInit();
+                bttnDelete.Source = newImg;
+            };
+
+            //Prompts to delete the existing image.
+            bttnDelete.MouseDown += (a, b) =>
+            {
+                var mssgResult = MessageBox.Show(
+                    GlobalStrings.DlgDeleteImageWarning,
+                    GlobalStrings.DlgDeleteImageCaption,
+                    MessageBoxButton.YesNo);
+
+                if (mssgResult == MessageBoxResult.Yes)
+                {
+                    //Clears the url(s) of an animation or movie.
+                    if (isAnimatedMedia)
+                    {
+                        urls.Clear();
+                    }
+
+                    //Removes a url for an image.
+                    else
+                    {
+                        urls.RemoveAt(urlIndex);
+                    }
+
+                    string newData = string.Join("|", urls);
+                    newData = "False|False|" + newData;
+                    field.SetData("data", newData);
+
+                    //Redraws the page.
+                    InvalidatePage?.Invoke(this, null);
+                }
+            };
+
+            //Highlights the delete button when the mouse enters image bounds.
+            bttnVolume.MouseEnter += (a, b) =>
+            {
+                newImg = new BitmapImage();
+                newImg.BeginInit();
+                newImg.UriSource = (isMuted) ?
+                    new Uri(Assets.BttnVolumeOffHover) :
+                    new Uri(Assets.BttnVolumeOnHover);
+                newImg.EndInit();
+                bttnVolume.Source = newImg;
+            };
+
+            //Un-highlights the delete button when the mouse leaves image bounds.
+            bttnVolume.MouseLeave += (a, b) =>
+            {
+                newImg = new BitmapImage();
+                newImg.BeginInit();
+                newImg.UriSource = (isMuted) ?
+                    new Uri(Assets.BttnVolumeOff) :
+                    new Uri(Assets.BttnVolumeOn);
+                newImg.EndInit();
+                bttnVolume.Source = newImg;
+            };
+
+            //Prompts to delete the existing image.
+            bttnVolume.MouseDown += (a, b) =>
+            {
+                string newData = string.Join("|", urls);
+                newData = isAnimatedMedia + "|" + !isMuted + "|" + newData;
+                field.SetData("data", newData);
+
+                //Redraws the page.
+                InvalidatePage?.Invoke(this, null);
+            };
+
+            StackPanel contentControls = new StackPanel();
+            contentControls.Orientation = Orientation.Horizontal;
+            contentControls.Children.Add(bttnDelete);
+            contentControls.Children.Add(bttnUpload);
+            contentControls.Children.Add(bttnUploadMovie);
+            if (isAnimatedMedia)
+            {
+                contentControls.Children.Add(bttnVolume);
+            }
+            return contentControls;
+        }
+
+        /// <summary>
         /// Sets the width of the given element to adjust automatically with
         /// respect to the template layout.
         /// </summary>
@@ -953,8 +1043,6 @@ namespace CrystalKeeper.Gui
         /// </param>
         private void AdjustWidths(FrameworkElement element, bool useTwoColumns)
         {
-            //TODO: elements don't recess after expanding.
-
             //Evaluates the max width when the layout updates.
             gui.TxtbxEntryName.LayoutUpdated += (a, b) =>
             {

@@ -282,29 +282,27 @@ namespace CrystalKeeper.Gui
         public void NextImage()
         {
             //Exits unless there is something to animate.
-            if (images.Count < 1)
+            if (images.Count == 0)
             {
                 return;
             }
 
-            if (frame == images.Count - 1)
+            frame++;
+
+            if (frame == images.Count)
             {
                 frame = 0;
             }
-            else
+
+            //Synchronizes thread access to change source.
+            Action action = delegate
             {
-                frame++;
+                images[frame].Freeze();
+                Source = images[frame];
+            };
 
-                //Synchronizes thread access to change source.
-                Action action = delegate
-                {
-                    images[frame].Freeze();
-                    Source = images[frame];
-                };
-
-                //Executes the action (unless there's a race condition).
-                try { Dispatcher.Invoke(action); } catch {}
-            }
+            //Executes the action (unless there's a race condition).
+            try { Dispatcher.Invoke(action); } catch {}
         }
         
         /// <summary>

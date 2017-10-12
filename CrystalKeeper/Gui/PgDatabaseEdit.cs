@@ -105,7 +105,7 @@ namespace CrystalKeeper.Gui
             //Sets the database name.
             if (string.IsNullOrWhiteSpace((string)dat.GetData("name")))
             {
-                gui.TxtblkDatabaseName.Text = "Untitled";
+                gui.TxtblkDatabaseName.Text = GlobalStrings.NameUntitled;
             }
             else
             {
@@ -131,11 +131,13 @@ namespace CrystalKeeper.Gui
             //Sets the mode combobox.
             if ((bool)dat.GetData("defUseEditMode"))
             {
-                gui.CmbxDefaultEditMode.SelectedValue = "Edit";
+                gui.CmbxDefaultEditMode.SelectedValue =
+                    GlobalStrings.DatabaseEditDefEditModeEdit;
             }
             else
             {
-                gui.CmbxDefaultEditMode.SelectedValue = "View";
+                gui.CmbxDefaultEditMode.SelectedValue =
+                    GlobalStrings.DatabaseEditDefEditModeView;
             }
 
             //Handles changes to mode combobox.
@@ -143,41 +145,9 @@ namespace CrystalKeeper.Gui
                 new SelectionChangedEventHandler((a, b) =>
             {
                 dat.SetData("defUseEditMode",
-                    (string)gui.CmbxDefaultEditMode.SelectedValue == "Edit");
+                    (string)gui.CmbxDefaultEditMode.SelectedValue ==
+                    GlobalStrings.DatabaseEditDefEditModeEdit);
             });
-            #endregion
-
-            #region Search style combobox
-            //Sets the search style combobox.
-            if ((bool)dat.GetData("defSearchByText"))
-            {
-                gui.CmbxDefaultSearchMode.SelectedValue = "Name";
-            }
-            else
-            {
-                gui.CmbxDefaultSearchMode.SelectedValue = "Image";
-            }
-
-            //Handles changes to search style combobox.
-            gui.CmbxDefaultSearchMode.SelectionChanged +=
-                new SelectionChangedEventHandler((a, b) =>
-                {
-                    dat.SetData("defSearchByText",
-                        (string)gui.CmbxDefaultSearchMode.SelectedValue == "Name");
-                });
-            #endregion
-
-            #region Cache data checkbox
-            //Sets the cache data checkbox.
-            gui.ChkbxCacheData.IsChecked = (bool)dat.GetData("defCacheData");
-
-            //Handles changes to mode combobox.
-            gui.ChkbxCacheData.Click +=
-                new System.Windows.RoutedEventHandler((a, b) =>
-                {
-                    dat.SetData("defCacheData",
-                        (bool)gui.ChkbxCacheData.IsChecked);
-                });
             #endregion
 
             #region Description
@@ -271,9 +241,8 @@ namespace CrystalKeeper.Gui
                 {
                     OpenFileDialog dlg = new OpenFileDialog();
                     dlg.CheckPathExists = true;
-                    dlg.Filter = "*pictures|*.bmp;*.exif;*.gif;" +
-                        "*.jpg;*.jpeg;*.png;*.ico;*.icon";
-                    dlg.Title = "Load database";
+                    dlg.Filter = GlobalStrings.FilterPictures;
+                    dlg.Title = GlobalStrings.CaptionLoadDatabase;
 
                     dlg.FileOk +=
                         new System.ComponentModel.CancelEventHandler((c, d) =>

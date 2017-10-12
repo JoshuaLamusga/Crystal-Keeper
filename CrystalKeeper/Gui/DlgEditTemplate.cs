@@ -36,16 +36,6 @@ namespace CrystalKeeper.Gui
         /// Stores the currently active field.
         /// </summary>
         private LstbxDataItem activeField;
-
-        /// <summary>
-        /// Fires when project data is changed.
-        /// </summary>
-        public event EventHandler DataNameChanged;
-
-        /// <summary>
-        /// Indicates whether non-template data is edited.
-        /// </summary>
-        private bool referencesInvalidated;
         #endregion
 
         #region Properties
@@ -64,21 +54,6 @@ namespace CrystalKeeper.Gui
                 return activeField;
             }
         }
-
-        /// <summary>
-        /// Indicates whether non-template data is edited.
-        /// </summary>
-        public bool ReferencesInvalidated
-        {
-            get
-            {
-                return referencesInvalidated;
-            }
-            set
-            {
-                referencesInvalidated = value;
-            }
-        }
         #endregion
 
         #region Constructors
@@ -92,7 +67,6 @@ namespace CrystalKeeper.Gui
         {
             this.project = project;
             this.template = project.GetItemByGuid(template.guid);
-            referencesInvalidated = false;
             activeField = null;
             ConstructPage();
         }
@@ -150,12 +124,9 @@ namespace CrystalKeeper.Gui
             gui.ChkbxFieldNameInvisible.IsChecked =
                 (bool)activeField.GetItem().GetData("isTitleVisible");
 
-            //If checked, the field name is left of (not above) the field.
-            gui.ChkbxFieldNameInline.IsChecked =
-                (bool)activeField.GetItem().GetData("isTitleInline");
-
             //Sets visibility of image-specific field options.
-            if (dataType == TemplateFieldType.Images)
+            if (dataType == TemplateFieldType.EntryImages ||
+                dataType == TemplateFieldType.Images)
             {
                 gui.FieldImageOptions.Visibility = Visibility.Visible;
                 gui.FieldImageOptions.IsEnabled = true;
@@ -184,10 +155,6 @@ namespace CrystalKeeper.Gui
                         gui.CmbxItemUnder.IsSelected = true;
                         break;
                 }
-
-                //Sets the default number of extra images.
-                gui.TxtbxNumImages.Text =
-                    ((byte)activeField.GetItem().GetData("numExtraImages")).ToString();
             }
 
             //Shows or hides the unchangeable entry images field.
@@ -211,8 +178,33 @@ namespace CrystalKeeper.Gui
         {
             gui = new DlgEditTemplateGui();
 
-            //Hides the entry images field by default.
+            //Hides the entry images field and image options by default.
             gui.ItemTypeEntryImages.Visibility = Visibility.Collapsed;
+            gui.FieldImageOptions.Visibility = Visibility.Collapsed;
+
+            //Composes context menus.
+            ContextMenu menu = new ContextMenu();
+
+            //Deletes the active field.
+            MenuItem menuDelete = new MenuItem();
+            menuDelete.Header = GlobalStrings.ContextMenuDelete;
+            menuDelete.Click += (a, b) => { DeleteField(); };
+            menu.Items.Add(menuDelete);
+
+            //Moves the active field.
+            MenuItem menuMove = new MenuItem();
+            menuMove.Header = GlobalStrings.ContextMenuMoveColumn;
+            menuMove.Click += (a, b) => { MoveFieldColumn(); };
+            menu.Items.Add(menuMove);
+
+            //Renames the active field.
+            MenuItem menuRename = new MenuItem();
+            menuRename.Header = GlobalStrings.ContextMenuRename;
+            menuRename.Click += (a, b) => { PromptRenameField(); };
+            menu.Items.Add(menuRename);
+
+            gui.LstbxCol1.ContextMenu = menu;
+            gui.LstbxCol2.ContextMenu = menu;
 
             #region Delete template
             gui.TxtblkDelete.MouseDown += (a, b) =>
@@ -221,16 +213,18 @@ namespace CrystalKeeper.Gui
                 MessageBoxResult result = MessageBoxResult.Yes;
                 if (cols.Count > 0)
                 {
-                    result = MessageBox.Show("This template is used by " +
-                        cols.Count + "collection(s). Deleting it will " +
-                        "delete all associated collections. Are you sure?",
-                        "Confirm deleting template", MessageBoxButton.YesNo);
+                    result = MessageBox.Show(
+                        GlobalStrings.DlgDeleteTemplateWarningA + cols.Count
+                        + GlobalStrings.DlgDeleteTemplateWarningB,
+                        GlobalStrings.DlgDeleteTemplateCaption,
+                        MessageBoxButton.YesNo);
                 }
                 else
                 {
-                    result = MessageBox.Show("You are about to delete " +
-                        "this template. Are you sure?", "Confirm deleting " +
-                        "template", MessageBoxButton.YesNo);
+                    result = MessageBox.Show(
+                        GlobalStrings.DlgDeleteTemplateNoEntries,
+                        GlobalStrings.DlgDeleteTemplateCaption,
+                        MessageBoxButton.YesNo);
                 }
 
                 if (result == MessageBoxResult.Yes)
@@ -281,7 +275,7 @@ namespace CrystalKeeper.Gui
             //Sets the template name.
             if (string.IsNullOrWhiteSpace((string)template.GetData("name")))
             {
-                gui.TxtbxTemplateName.Text = "Untitled";
+                gui.TxtbxTemplateName.Text = GlobalStrings.NameUntitled;
                 template.SetData("name", gui.TxtbxTemplateName.Text);
             }
             else
@@ -299,71 +293,6 @@ namespace CrystalKeeper.Gui
 
             //Handles changes.
             gui.ChkbxCenterMainImages.Click += ChkbxCenterMainImages_Click;
-            #endregion
-
-            #region Number of extra images
-            //Sets the default number of extra images.
-            gui.TxtbxNumImages.Text =
-                ((byte)template.GetData("numExtraImages")).ToString();
-
-            gui.TxtbxNumImages.TextChanged += TxtbxNumImages_TextChanged;
-            #endregion
-
-            #region Extra image anchor position
-            //Constructs the relevant ComboBoxItems.
-            ComboBoxItem itemAbove = new ComboBoxItem();
-            itemAbove.Content = "Above";
-            ComboBoxItem itemLeft = new ComboBoxItem();
-            itemLeft.Content = "Left of";
-            ComboBoxItem itemRight = new ComboBoxItem();
-            itemRight.Content = "Right of";
-            ComboBoxItem itemUnder = new ComboBoxItem();
-
-            itemUnder.Content = "Under";
-            itemUnder.IsSelected = true;
-
-            gui.CmbxImageAnchor.Items.Add(itemAbove);
-            gui.CmbxImageAnchor.Items.Add(itemUnder);
-            gui.CmbxImageAnchor.Items.Add(itemLeft);
-            gui.CmbxImageAnchor.Items.Add(itemRight);
-
-            //Sets the default image anchor position.
-            switch ((TemplateImagePos)(int)template.GetData("extraImagePos"))
-            {
-                case TemplateImagePos.Above:
-                    itemAbove.IsSelected = true;
-                    break;
-                case TemplateImagePos.Left:
-                    itemLeft.IsSelected = true;
-                    break;
-                case TemplateImagePos.Right:
-                    itemRight.IsSelected = true;
-                    break;
-                case TemplateImagePos.Under:
-                    itemUnder.IsSelected = true;
-                    break;
-            }
-
-            //Changes the image anchor position on the page.
-            gui.CmbxImageAnchor.SelectionChanged += new SelectionChangedEventHandler((a, b) =>
-            {
-                if (itemAbove.IsSelected)
-                {
-                    template.SetData("extraImagePos", (int)TemplateImagePos.Above);
-                }
-                else if (itemLeft.IsSelected)
-                {
-                    template.SetData("extraImagePos", (int)TemplateImagePos.Left);
-                }
-                else if (itemRight.IsSelected)
-                {
-                    template.SetData("extraImagePos", (int)TemplateImagePos.Right);
-                }
-                else if (itemUnder.IsSelected)
-                {
-                    template.SetData("extraImagePos", (int)TemplateImagePos.Under);
-                }
-            });
             #endregion
 
             #region Use one column, Use two columns
@@ -430,118 +359,6 @@ namespace CrystalKeeper.Gui
             }
             #endregion
 
-            #region Field functions
-            #region Refresh column order
-            //Makes the column order of the data match the gui.
-            var funcRefreshOrder = new Action(() =>
-            {
-                for (int i = 0; i < gui.LstbxCol1.Items.Count; i++)
-                {
-                    ((LstbxDataItem)gui.LstbxCol1.Items.GetItemAt(i))
-                        .GetItem().SetData("columnOrder", i);
-                }
-                for (int i = 0; i < gui.LstbxCol2.Items.Count; i++)
-                {
-                    ((LstbxDataItem)gui.LstbxCol2.Items.GetItemAt(i))
-                        .GetItem().SetData("columnOrder", i);
-                }
-            });
-            #endregion
-
-            #region Field, move left/right
-            var funcFieldMove = new Action(() =>
-            {
-                if (ActiveField == null)
-                {
-                    return;
-                }
-
-                //Stores the template with the new column and position.
-                DataItem template = project.GetTemplateItemTemplate(ActiveField.GetItem());
-                DataItem newColumn;
-
-                //Gets the new position of the field in the other column.
-                if (gui.LstbxCol1.Items.Contains(ActiveField))
-                {
-                    newColumn = project.GetTemplateColumns(template).ElementAtOrDefault(1);
-                }
-                else
-                {
-                    newColumn = project.GetTemplateColumns(template).ElementAtOrDefault(0);
-                }
-
-                ActiveField.GetItem().SetData("refGuid", newColumn.guid);
-
-                //Moves the item to the other column.
-                if (gui.LstbxCol1.Items.Contains(ActiveField))
-                {
-                    gui.LstbxCol1.Items.Remove(ActiveField);
-                    gui.LstbxCol2.Items.Add(ActiveField);
-                }
-                else if (gui.LstbxCol2.Items.Contains(ActiveField))
-                {
-                    gui.LstbxCol2.Items.Remove(ActiveField);
-                    gui.LstbxCol1.Items.Add(ActiveField);
-                }
-
-                funcRefreshOrder();
-            });
-            #endregion
-
-            #region Field, selected
-            var funcFieldSelected = new Action<LstbxDataItem>((newItem) =>
-            {
-                ActiveField = newItem;
-                var type = (TemplateFieldType)newItem.GetItem().GetData("dataType");
-
-                //Disables the combobox when there are no interchangeable fields.
-                gui.CmbxDataType.IsEnabled = !(type == TemplateFieldType.Images ||
-                    type == TemplateFieldType.EntryImages ||
-                    type == TemplateFieldType.MoneyUSD ||
-                    type == TemplateFieldType.Text);
-
-                //Hides non-interchangeable fields.
-                if (type == TemplateFieldType.Hyperlink ||
-                type == TemplateFieldType.Min_Formula ||
-                type == TemplateFieldType.Min_Group ||
-                type == TemplateFieldType.Min_Locality ||
-                type == TemplateFieldType.Min_Name)
-                {
-                    gui.CmbxDataType.IsEnabled = true;
-                    gui.ItemTypeImages.Visibility = Visibility.Collapsed;
-                    gui.ItemTypeMoneyUSD.Visibility = Visibility.Collapsed;
-                    gui.ItemTypeText.Visibility = Visibility.Collapsed;
-                }
-                else
-                {
-                    gui.ItemTypeImages.Visibility = Visibility.Visible;
-                    gui.ItemTypeMoneyUSD.Visibility = Visibility.Visible;
-                    gui.ItemTypeText.Visibility = Visibility.Visible;
-                }
-
-                //Shows or hides the entry images field.
-                if (type == TemplateFieldType.EntryImages)
-                {
-                    gui.ItemTypeEntryImages.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    gui.ItemTypeEntryImages.Visibility = Visibility.Collapsed;
-                }
-
-                //Ensures only one item is selected at once.
-                if (gui.LstbxCol1.Items.Contains(ActiveField))
-                {
-                    gui.LstbxCol2.SelectedItem = null;
-                }
-                else
-                {
-                    gui.LstbxCol1.SelectedItem = null;
-                }
-            });
-            #endregion
-            #endregion
-
             #region Fields
             #region Populate fields
             //Adds every field in order for each column.
@@ -570,13 +387,15 @@ namespace CrystalKeeper.Gui
 
                         item.Selected += new RoutedEventHandler((a, b) =>
                         {
-                            funcFieldSelected(item);
+                            RefreshFieldOptions(item);
                         });
 
                         //Allows renaming.
                         item.MouseDoubleClick += new MouseButtonEventHandler((a, b) =>
                         {
-                            DlgTextbox dlg = new DlgTextbox("Rename item");
+                            DlgTextbox dlg = new DlgTextbox(
+                                GlobalStrings.CaptionTextboxRename);
+
                             if (dlg.ShowDialog() == true)
                             {
                                 string result = dlg.GetText();
@@ -650,7 +469,7 @@ namespace CrystalKeeper.Gui
                                     gui.TxtbxNewField.Text,
                                     cols[i].guid,
                                     newType,
-                                    true, true, true,
+                                    true, true,
                                     project.GetTemplateColumnFields(cols[i]).Count);
 
                                 //Updates the GUI to match.
@@ -661,13 +480,15 @@ namespace CrystalKeeper.Gui
 
                                 newItem.Selected += new RoutedEventHandler((c, d) =>
                                 {
-                                    funcFieldSelected(newItem);
+                                    RefreshFieldOptions(newItem);
                                 });
 
                                 //Allows renaming.
                                 newItem.MouseDoubleClick += new MouseButtonEventHandler((c, d) =>
                                 {
-                                    DlgTextbox dlg = new DlgTextbox("Rename item");
+                                    DlgTextbox dlg = new DlgTextbox(
+                                        GlobalStrings.CaptionTextboxRename);
+
                                     if (dlg.ShowDialog() == true)
                                     {
                                         string result = dlg.GetText();
@@ -699,207 +520,57 @@ namespace CrystalKeeper.Gui
                     }
 
                     gui.TxtbxNewField.Text = String.Empty;
-                    funcRefreshOrder();
+                    RefreshColumnOrder();
                 }
-            });
-            #endregion
-
-            #region Warn user dialog
-            var funcWarnUser = new Func<bool>(() =>
-            {
-                List<DataItem> uses = project.GetTemplateCollections(template);
-                if (uses.Count > 0)
-                {
-                    string collectionsUsing = String.Empty;
-                    for (int i = 0; i < uses.Count; i++)
-                    {
-                        collectionsUsing += (string)uses[i].GetData("name");
-                        if (i != uses.Count - 1)
-                        {
-                            collectionsUsing += ", ";
-                        }
-                    }
-
-                    var result = MessageBox.Show(
-                        "This template is in use. Deleting this field " +
-                            "will delete all entry data associated with " +
-                            "it. \n\nThe collections using this " +
-                            "template are: " + collectionsUsing,
-                        "Template in use",
-                        MessageBoxButton.OKCancel,
-                        MessageBoxImage.Warning);
-
-                    return (result == MessageBoxResult.OK);
-                }
-
-                return true;
             });
             #endregion
 
             #region Keyboard event handling
+            //Handles keyboard events for the 1st column.
             gui.LstbxCol1.KeyDown += new KeyEventHandler((a, b) =>
             {
-                #region Delete key pressed: Delete field
+                //Deletes the field when delete is pressed.
                 if (b.Key == Key.Delete && b.IsDown &&
                     ActiveField != null)
                 {
-                    //Cannot delete the special entry images field.
-                    if ((TemplateFieldType)(int)(ActiveField.GetItem().GetData("dataType")) ==
-                        TemplateFieldType.EntryImages)
-                    {
-                        return;
-                    }
-
-                    //Warns the user and asks for confirmation.
-                    if (!funcWarnUser())
-                    {
-                        return;
-                    }
-
-                    gui.LstbxCol1.Items.Remove(ActiveField);
-
-                    //For each collection using this template.
-                    DataItem template = project.GetTemplateItemTemplate(ActiveField.GetItem());
-                    List<DataItem> cols = project.GetTemplateCollections(template);
-                    for (int i = 0; i < cols.Count; i++)
-                    {
-                        //For each entry in the collection.
-                        List<DataItem> entries = project.GetCollectionEntries(cols[i]);
-                        for (int j = 0; j < entries.Count; j++)
-                        {
-                            //Finds all fields of each entry and removes fields
-                            //that match the field removed from the template.
-                            List<DataItem> entryFields = project.GetEntryFields(entries[j]);
-                            for (int k = 0; k < entryFields.Count; k++)
-                            {
-                                DataItem field = project.GetFieldTemplateField(entryFields[k]);
-                                if (ActiveField.GetItem().guid == field.guid)
-                                {
-                                    project.Items.Remove(entryFields[k]);
-                                }
-                            }
-                        }
-                    }
-
-                    //Deletes the template field last.
-                    project.Items.Remove(ActiveField.GetItem());
-
-                    //Refreshes the gui.
-                    funcRefreshOrder();
-
-                    //Indicates the main display needs to be refreshed.
-                    referencesInvalidated = true;
+                    DeleteField();
                 }
-                #endregion
 
-                #region Right key pressed: Move to 2nd column
+                //Moves the field to the opposite column.
                 else if (b.Key == Key.Right && b.IsDown && ActiveField != null)
                 {
-                    funcFieldMove();
+                    MoveFieldColumn();
                 }
-                #endregion
 
-                #region F2 key pressed: Rename field
+                //Renames the field when F2 is pressed.
                 else if (b.Key == Key.F2 && b.IsDown && ActiveField != null)
                 {
-                    //Allows renaming.
-                    DlgTextbox dlg = new DlgTextbox("Rename item");
-                    if (dlg.ShowDialog() == true)
-                    {
-                        string result = dlg.GetText();
-
-                        if (!String.IsNullOrWhiteSpace(result))
-                        {
-                            ActiveField.GetItem().SetData("name", result);
-                            ActiveField.Content = result;
-                            gui.TxtblkFieldName.Text = result;
-                        }
-                    }
+                    PromptRenameField();
                 }
-                #endregion
             });
 
+            //Handles keyboard events for the 2nd column.
             gui.LstbxCol2.KeyDown += new KeyEventHandler((a, b) =>
             {
-                #region Delete key pressed: Delete field
+                //Deletes the field when delete is pressed.
                 if (b.Key == Key.Delete && b.IsDown &&
                     ActiveField != null)
                 {
-                    //Cannot delete the special entry images field.
-                    if ((TemplateFieldType)(int)(ActiveField.GetItem().GetData("dataType")) ==
-                        TemplateFieldType.EntryImages)
-                    {
-                        return;
-                    }
-
-                    //Warns the user and asks for confirmation.
-                    if (!funcWarnUser())
-                    {
-                        return;
-                    }
-
-                    gui.LstbxCol2.Items.Remove(ActiveField);
-
-                    //For each collection using this template.
-                    DataItem template = project.GetTemplateItemTemplate(ActiveField.GetItem());
-                    List<DataItem> cols = project.GetTemplateCollections(template);
-                    for (int i = 0; i < cols.Count; i++)
-                    {
-                        //For each entry in the collection.
-                        List<DataItem> entries = project.GetCollectionEntries(cols[i]);
-                        for (int j = 0; j < entries.Count; j++)
-                        {
-                            //Finds all fields of each entry and removes fields
-                            //that match the field removed from the template.
-                            List<DataItem> entryFields = project.GetEntryFields(entries[j]);
-                            for (int k = 0; k < entryFields.Count; k++)
-                            {
-                                DataItem field = project.GetFieldTemplateField(entryFields[k]);
-                                if (ActiveField.GetItem().guid == field.guid)
-                                {
-                                    project.Items.Remove(entryFields[k]);
-                                }
-                            }
-                        }
-                    }
-
-                    //Deletes the template field last.
-                    project.Items.Remove(ActiveField.GetItem());
-
-                    //Refreshes the gui.
-                    funcRefreshOrder();
-
-                    //Indicates the main display needs to be refreshed.
-                    referencesInvalidated = true;
+                    DeleteField();
                 }
-                #endregion
 
-                #region Left key pressed: Move to 1st column
+                //Moves the field to the opposite column.
                 else if (b.Key == Key.Left && b.IsDown &&
                     gui.LstbxCol2.SelectedItem != null)
                 {
-                    funcFieldMove();
+                    MoveFieldColumn();
                 }
-                #endregion
 
-                #region F2 key pressed: Rename field
+                //Renames the field when F2 is pressed.
                 else if (b.Key == Key.F2 && b.IsDown && ActiveField != null)
                 {
-                    //Allows renaming.
-                    DlgTextbox dlg = new DlgTextbox("Rename item");
-                    if (dlg.ShowDialog() == true)
-                    {
-                        string result = dlg.GetText();
-
-                        if (!String.IsNullOrWhiteSpace(result))
-                        {
-                            ActiveField.GetItem().SetData("name", result);
-                            ActiveField.Content = result;
-                            gui.TxtblkFieldName.Text = result;
-                        }
-                    }
+                    PromptRenameField();
                 }
-                #endregion
             });
             #endregion
             #endregion
@@ -909,7 +580,7 @@ namespace CrystalKeeper.Gui
             {
                 if (gui.LstbxCol2.SelectedItem != null)
                 {
-                    funcFieldMove();
+                    MoveFieldColumn();
                 }
             });
             #endregion
@@ -919,7 +590,7 @@ namespace CrystalKeeper.Gui
             {
                 if (gui.LstbxCol1.SelectedItem != null)
                 {
-                    funcFieldMove();
+                    MoveFieldColumn();
                 }
             });
             #endregion
@@ -956,7 +627,7 @@ namespace CrystalKeeper.Gui
                         ActiveField.Refresh();
                         otherField.Refresh();
                         UpdateFieldData();
-                        funcRefreshOrder();
+                        RefreshColumnOrder();
 
                         //Selects the moved item.
                         otherField.IsSelected = true;
@@ -997,7 +668,7 @@ namespace CrystalKeeper.Gui
                         ActiveField.Refresh();
                         otherField.Refresh();
                         UpdateFieldData();
-                        funcRefreshOrder();
+                        RefreshColumnOrder();
 
                         //Selects the moved item.
                         otherField.IsSelected = true;
@@ -1009,66 +680,224 @@ namespace CrystalKeeper.Gui
             gui.CmbxDataType.SelectionChanged += CmbxDataType_SelectionChanged;
             gui.ChkbxFieldInvisible.Click += ChkbxFieldInvisible_Click;
             gui.ChkbxFieldNameInvisible.Click += ChkbxFieldNameInvisible_Click;
-            gui.ChkbxFieldNameInline.Click += ChkbxFieldNameInline_Click;
             gui.CmbxFieldImageAnchor.SelectionChanged += CmbxFieldImageAnchor_SelectionChanged;
-            gui.TxtbxFieldNumImages.TextChanged += TxtbxFieldNumImages_TextChanged;
             gui.BttnSaveChanges.Click += BttnSaveChanges_Click;
         }
 
         /// <summary>
-        /// Stores the number of images for the associated image field.
+        /// Prompts the user to rename the active field.
         /// </summary>
-        private void TxtbxFieldNumImages_TextChanged(object sender, TextChangedEventArgs e)
+        private void PromptRenameField()
         {
-            if (activeField == null)
+            //Allows renaming.
+            DlgTextbox dlg = new DlgTextbox(
+                GlobalStrings.CaptionTextboxRename);
+
+            if (dlg.ShowDialog() == true)
+            {
+                string result = dlg.GetText();
+
+                if (!String.IsNullOrWhiteSpace(result))
+                {
+                    ActiveField.GetItem().SetData("name", result);
+                    ActiveField.Content = result;
+                    gui.TxtblkFieldName.Text = result;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Moves the selected field to the other column.
+        /// </summary>
+        private void MoveFieldColumn()
+        {
+            if (ActiveField == null)
             {
                 return;
             }
 
-            //Filters non-numeric input.
-            string data = String.Empty;
-            for (int i = 0; i < gui.TxtbxNumImages.Text.Length; i++)
+            //Stores the template with the new column and position.
+            DataItem template = project.GetTemplateItemTemplate(ActiveField.GetItem());
+            DataItem newColumn;
+
+            //Gets the new position of the field in the other column.
+            if (gui.LstbxCol1.Items.Contains(ActiveField))
             {
-                switch (gui.TxtbxNumImages.Text[i])
+                newColumn = project.GetTemplateColumns(template).ElementAtOrDefault(1);
+            }
+            else
+            {
+                newColumn = project.GetTemplateColumns(template).ElementAtOrDefault(0);
+            }
+
+            ActiveField.GetItem().SetData("refGuid", newColumn.guid);
+
+            //Moves the item to the other column.
+            if (gui.LstbxCol1.Items.Contains(ActiveField))
+            {
+                gui.LstbxCol1.Items.Remove(ActiveField);
+                gui.LstbxCol2.Items.Add(ActiveField);
+            }
+            else if (gui.LstbxCol2.Items.Contains(ActiveField))
+            {
+                gui.LstbxCol2.Items.Remove(ActiveField);
+                gui.LstbxCol1.Items.Add(ActiveField);
+            }
+
+            RefreshColumnOrder();
+        }
+
+        /// <summary>
+        /// Updates field options and gui to match the selected field.
+        /// </summary>
+        private void RefreshFieldOptions(LstbxDataItem newItem)
+        {
+            ActiveField = newItem;
+            var type = (TemplateFieldType)newItem.GetItem().GetData("dataType");
+
+            //Disables the combobox when there are no interchangeable fields.
+            gui.CmbxDataType.IsEnabled = !(type == TemplateFieldType.Images ||
+                type == TemplateFieldType.EntryImages ||
+                type == TemplateFieldType.MoneyUSD ||
+                type == TemplateFieldType.Text);
+
+            //Hides non-interchangeable fields.
+            if (type == TemplateFieldType.Hyperlink ||
+            type == TemplateFieldType.Min_Formula ||
+            type == TemplateFieldType.Min_Group ||
+            type == TemplateFieldType.Min_Locality ||
+            type == TemplateFieldType.Min_Name)
+            {
+                gui.CmbxDataType.IsEnabled = true;
+                gui.ItemTypeImages.Visibility = Visibility.Collapsed;
+                gui.ItemTypeMoneyUSD.Visibility = Visibility.Collapsed;
+                gui.ItemTypeText.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                gui.ItemTypeImages.Visibility = Visibility.Visible;
+                gui.ItemTypeMoneyUSD.Visibility = Visibility.Visible;
+                gui.ItemTypeText.Visibility = Visibility.Visible;
+            }
+
+            //Shows or hides the entry images field.
+            if (type == TemplateFieldType.EntryImages)
+            {
+                gui.ItemTypeEntryImages.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                gui.ItemTypeEntryImages.Visibility = Visibility.Collapsed;
+            }
+
+            //Ensures only one item is selected at once.
+            if (gui.LstbxCol1.Items.Contains(ActiveField))
+            {
+                gui.LstbxCol2.SelectedItem = null;
+            }
+            else
+            {
+                gui.LstbxCol1.SelectedItem = null;
+            }
+        }
+
+        /// <summary>
+        /// Updates the order of the columns to match visual order.
+        /// </summary>
+        private void RefreshColumnOrder()
+        {
+            for (int i = 0; i < gui.LstbxCol1.Items.Count; i++)
+            {
+                ((LstbxDataItem)gui.LstbxCol1.Items.GetItemAt(i))
+                    .GetItem().SetData("columnOrder", i);
+            }
+            for (int i = 0; i < gui.LstbxCol2.Items.Count; i++)
+            {
+                ((LstbxDataItem)gui.LstbxCol2.Items.GetItemAt(i))
+                    .GetItem().SetData("columnOrder", i);
+            }
+        }
+
+        /// <summary>
+        /// Warns the user about deleting the field and returns true if
+        /// the action is accepted, false otherwise.
+        /// </summary>
+        private bool PromptDeleteField()
+        {
+            List<DataItem> uses = project.GetTemplateCollections(template);
+            if (uses.Count > 0)
+            {
+                string collectionsUsing = String.Empty;
+                for (int i = 0; i < uses.Count; i++)
                 {
-                    case '0':
-                    case '1':
-                    case '2':
-                    case '3':
-                    case '4':
-                    case '5':
-                    case '6':
-                    case '7':
-                    case '8':
-                    case '9':
-                        data += gui.TxtbxNumImages.Text[i];
-                        break;
-                    default:
-                        break;
+                    collectionsUsing += (string)uses[i].GetData("name");
+                    if (i != uses.Count - 1)
+                    {
+                        collectionsUsing += ", ";
+                    }
+                }
+
+                var result = MessageBox.Show(
+                    GlobalStrings.DlgDeleteField + collectionsUsing,
+                    GlobalStrings.DlgDeleteFieldCaption,
+                    MessageBoxButton.OKCancel,
+                    MessageBoxImage.Warning);
+
+                return (result == MessageBoxResult.OK);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Deletes the selected field.
+        /// </summary>
+        private void DeleteField()
+        {
+            //Cannot delete the special entry images field.
+            if ((TemplateFieldType)(int)(ActiveField.GetItem().GetData("dataType")) ==
+                TemplateFieldType.EntryImages)
+            {
+                return;
+            }
+
+            //Warns the user and asks for confirmation.
+            if (!PromptDeleteField())
+            {
+                return;
+            }
+
+            gui.LstbxCol1.Items.Remove(ActiveField);
+            gui.LstbxCol2.Items.Remove(ActiveField);
+
+            //For each collection using this template.
+            DataItem template = project.GetTemplateItemTemplate(ActiveField.GetItem());
+            List<DataItem> cols = project.GetTemplateCollections(template);
+            for (int i = 0; i < cols.Count; i++)
+            {
+                //For each entry in the collection.
+                List<DataItem> entries = project.GetCollectionEntries(cols[i]);
+                for (int j = 0; j < entries.Count; j++)
+                {
+                    //Finds all fields of each entry and removes fields
+                    //that match the field removed from the template.
+                    List<DataItem> entryFields = project.GetEntryFields(entries[j]);
+                    for (int k = 0; k < entryFields.Count; k++)
+                    {
+                        DataItem field = project.GetFieldTemplateField(entryFields[k]);
+                        if (ActiveField.GetItem().guid == field.guid)
+                        {
+                            project.Items.Remove(entryFields[k]);
+                        }
+                    }
                 }
             }
-            gui.TxtbxNumImages.Text = data;
 
-            //Handles empty text.
-            if (String.IsNullOrWhiteSpace(gui.TxtbxNumImages.Text))
-            {
-                gui.TxtbxNumImages.Text = "0";
-            }
+            //Deletes the template field last.
+            project.Items.Remove(ActiveField.GetItem());
 
-            //Handles copy/pasted giant numbers.
-            byte testByte;
-            if (!Byte.TryParse(gui.TxtbxNumImages.Text, out testByte))
-            {
-                gui.TxtbxNumImages.Text = "100";
-            }
-            //Handles numbers in the byte range above 100.
-            else if (Byte.Parse(gui.TxtbxNumImages.Text) > 100)
-            {
-                gui.TxtbxNumImages.Text = "100";
-            }
-
-            //Sets the underlying data.
-            activeField.GetItem().SetData("numExtraImages", Byte.Parse(gui.TxtbxNumImages.Text));
+            //Refreshes the gui.
+            RefreshColumnOrder();
         }
 
         /// <summary>
@@ -1097,21 +926,6 @@ namespace CrystalKeeper.Gui
             {
                 activeField.GetItem().SetData("extraImagePos", (int)TemplateImagePos.Under);
             }
-        }
-
-        /// <summary>
-        /// Changes whether the name of the field is displayed above the field
-        /// or to the left of it. If checked, the field is inline to the left.
-        /// </summary>
-        private void ChkbxFieldNameInline_Click(object sender, RoutedEventArgs e)
-        {
-            if (ActiveField == null)
-            {
-                return;
-            }
-
-            activeField.GetItem().SetData("isTitleInline",
-                gui.ChkbxFieldNameInline.IsChecked);
         }
 
         /// <summary>
@@ -1212,12 +1026,9 @@ namespace CrystalKeeper.Gui
             gui.ChkbxFieldNameInvisible.IsChecked =
                 (bool)activeField.GetItem().GetData("isTitleVisible");
 
-            //Sets the field name's location relative to the field.
-            gui.ChkbxFieldNameInline.IsChecked =
-                (bool)activeField.GetItem().GetData("isTitleInline");
-
             //Sets visibility of image-specific field options.
-            if (gui.ItemTypeImages.IsSelected)
+            if (gui.ItemTypeEntryImages.IsSelected ||
+                gui.ItemTypeImages.IsSelected)
             {
                 gui.FieldImageOptions.Visibility = Visibility.Visible;
                 gui.FieldImageOptions.IsEnabled = true;
@@ -1246,10 +1057,6 @@ namespace CrystalKeeper.Gui
                         gui.CmbxItemUnder.IsSelected = true;
                         break;
                 }
-
-                //Sets the default number of extra images.
-                gui.TxtbxNumImages.Text =
-                    ((byte)activeField.GetItem().GetData("numExtraImages")).ToString();
             }
         }
 
@@ -1361,58 +1168,7 @@ namespace CrystalKeeper.Gui
         }
 
         /// <summary>
-        /// Handles changes to the number of images.
-        /// </summary>
-        private void TxtbxNumImages_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            //Filters non-numeric input.
-            string data = String.Empty;
-            for (int i = 0; i < gui.TxtbxNumImages.Text.Length; i++)
-            {
-                switch (gui.TxtbxNumImages.Text[i])
-                {
-                    case '0':
-                    case '1':
-                    case '2':
-                    case '3':
-                    case '4':
-                    case '5':
-                    case '6':
-                    case '7':
-                    case '8':
-                    case '9':
-                        data += gui.TxtbxNumImages.Text[i];
-                        break;
-                    default:
-                        break;
-                }
-            }
-            gui.TxtbxNumImages.Text = data;
-
-            //Handles empty text.
-            if (String.IsNullOrWhiteSpace(gui.TxtbxNumImages.Text))
-            {
-                gui.TxtbxNumImages.Text = "0";
-            }
-
-            //Handles copy/pasted giant numbers.
-            byte testByte;
-            if (!Byte.TryParse(gui.TxtbxNumImages.Text, out testByte))
-            {
-                gui.TxtbxNumImages.Text = "100";
-            }
-            //Handles numbers in the byte range above 100.
-            else if (Byte.Parse(gui.TxtbxNumImages.Text) > 100)
-            {
-                gui.TxtbxNumImages.Text = "100";
-            }
-
-            //Sets the underlying data.
-            template.SetData("numExtraImages", Byte.Parse(gui.TxtbxNumImages.Text));
-        }
-
-        /// <summary>
-        /// Handles changes.
+        /// Handles changes to the center images checkbox.
         /// </summary>
         private void ChkbxCenterMainImages_Click(object sender, RoutedEventArgs e)
         {
@@ -1431,8 +1187,6 @@ namespace CrystalKeeper.Gui
 
             //If the textbox is empty, it will keep the last character.
             gui.TxtbxTemplateName.Text = (string)template.GetData("name");
-
-            DataNameChanged?.Invoke(this, null);
         }
         #endregion
 

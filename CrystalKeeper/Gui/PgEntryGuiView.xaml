@@ -7,8 +7,7 @@
     d:DesignHeight="300" d:DesignWidth="300">
     
     <!--Lists all items vertically.-->
-    <Grid Name="GuiItems"
-          HorizontalAlignment="Stretch">
+    <Grid Name="GuiItems">
 
         <!-- 3x1 dimensions. -->
         <Grid.RowDefinitions>
@@ -22,7 +21,6 @@
             FontSize="24px"
             FontWeight="Bold"
             Grid.Row="0"
-            HorizontalAlignment="Stretch"
             TextAlignment="Center"
             Padding="0,0,0,24px"/>
 
@@ -30,23 +28,22 @@
         
         <!-- Creates a grid to contain all dynamic data. -->
         <Grid Name="ColumnGrid"
-              Grid.Row="2"
-              HorizontalAlignment="Stretch"
-              MaxWidth="600">
+              Grid.Row="2">
             <!-- Defines each column. -->
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Name="LeftCol"/>
-                <ColumnDefinition Name="RightCol"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Name="LeftCol" Width="20*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Name="RightCol" Width="20*"/>
+                <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
 
             <!-- Creates a stackpanel for both columns. -->
             <StackPanel Name="LeftColItems"
-                Grid.Column="0"
-                HorizontalAlignment="Stretch">
+                Grid.Column="1">
             </StackPanel>
             <StackPanel Name="RightColItems"
-                Grid.Column="1"
-                HorizontalAlignment="Stretch">
+                Grid.Column="3">
             </StackPanel>
         </Grid>
     </Grid>

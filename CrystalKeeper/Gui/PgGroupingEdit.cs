@@ -139,7 +139,7 @@ namespace CrystalKeeper.Gui
             //Sets the grouping name.
             if (string.IsNullOrWhiteSpace((string)grouping.GetData("name")))
             {
-                gui.TxtblkGroupingName.Text = "Untitled";
+                gui.TxtblkGroupingName.Text = GlobalStrings.NameUntitled;
             }
             else
             {
@@ -456,8 +456,7 @@ namespace CrystalKeeper.Gui
 
             TextBlock txtblkPhrase1 = new TextBlock();
             txtblkPhrase1.Margin = new Thickness(4);
-            txtblkPhrase1.Text = "Add entries that start with " +
-                "any of the letters from ";
+            txtblkPhrase1.Text = GlobalStrings.GroupingEditByLetterA;
 
             TextBox txtbxFromLetter = new TextBox();
             txtbxFromLetter.Margin = new Thickness(4);
@@ -466,7 +465,7 @@ namespace CrystalKeeper.Gui
 
             TextBlock txtblkPhrase2 = new TextBlock();
             txtblkPhrase2.Margin = new Thickness(4);
-            txtblkPhrase2.Text = " to ";
+            txtblkPhrase2.Text = GlobalStrings.GroupingEditByLetterB;
 
             TextBox txtbxToLetter = new TextBox();
             txtbxToLetter.Margin = new Thickness(4);
@@ -475,7 +474,7 @@ namespace CrystalKeeper.Gui
 
             Button bttnRemoveCond = new Button();
             bttnRemoveCond.Margin = new Thickness(4);
-            bttnRemoveCond.Content = "Delete";
+            bttnRemoveCond.Content = GlobalStrings.ConditionRemove;
 
             pnlCondition.Children.Add(txtblkPhrase1);
             pnlCondition.Children.Add(txtbxFromLetter);

@@ -1,7 +1,8 @@
 ﻿<Window x:Class="CrystalKeeper.Gui.DlgEditTemplateGui"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Edit templates..."
+    xmlns:local="clr-namespace:CrystalKeeper.Core"
+    Title="{x:Static local:GlobalStrings.CaptionEditTemplates}"
     SizeToContent="Height"
     Width="600px"
     WindowStartupLocation="CenterScreen"
@@ -13,7 +14,7 @@
         </Grid.RowDefinitions>
         <!--Lists all items vertically.-->
         <TabControl Grid.Row="0">
-            <TabItem Header="Settings">
+            <TabItem Header="{x:Static local:GlobalStrings.TemplateEditorSettingsTab}">
                 <StackPanel HorizontalAlignment="Center">
                     <!--Title. Text set automatically.-->
                     <TextBox Name="TxtbxTemplateName"
@@ -26,56 +27,26 @@
                        Width="300px"
                        MaxWidth="300px"/>
                     <GroupBox
-                        Header="Images">
+                        Header="{x:Static local:GlobalStrings.TemplateEditorImagesSection}">
                         <StackPanel>
                             <CheckBox Name="ChkbxCenterMainImages"
                                 Margin="5px"
-                                Content="Center images at the top of each entry"/>
-                            <WrapPanel
-                                Margin="0,0,0,5px">
-                                <TextBlock
-                                    Text="Display up to "
-                                    Padding="4px"
-                                    VerticalAlignment="Center"/>
-                                <TextBox Name="TxtbxNumImages"
-                                    Padding="4px"
-                                    MinWidth="25px"/>
-                                <TextBlock
-                                    Text="extra images per entry"
-                                    Padding="4px"
-                                    MinWidth="75px"/>
-                            </WrapPanel>
-                            <WrapPanel>
-                                <TextBlock
-                                    Text="Extra images"
-                                    Padding="4px"
-                                    MinWidth="75px"/>
-                                <!--Combobox items constructed dynamically-->
-                                <ComboBox Name="CmbxImageAnchor"
-                                    Padding="4px"
-                                    MinWidth="75px"
-                                    SelectedValuePath="Content">
-                                </ComboBox>
-                                <TextBlock
-                                    Text="the main image"
-                                    Padding="4px"
-                                    MinWidth="75px"/>
-                            </WrapPanel>
+                                Content="{x:Static local:GlobalStrings.TemplateEditorCenterImages}"/>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox
-                        Header="Organization">
+                        Header="{x:Static local:GlobalStrings.TemplateEditorOrganizationSection}">
                         <StackPanel>
                             <RadioButton Name="RadOneColumn"
                                 GroupName="RadNumColumns"
                                 Margin="0,5px,0,5px"
-                                Content="Entries use one column"/>
+                                Content="{x:Static local:GlobalStrings.TemplateEditorOneColumn}"/>
                             <RadioButton Name="RadTwoColumns"
                                 GroupName="RadNumColumns"
-                                Content="Entries use two columns"/>
+                                Content="{x:Static local:GlobalStrings.TemplateEditorTwoColumns}"/>
                         </StackPanel>
                     </GroupBox>
-                    <GroupBox Header="Font">
+                    <GroupBox Header="{x:Static local:GlobalStrings.TemplateEditorFontSection}">
                         <StackPanel>
                             <WrapPanel
                                 Margin="5px,10px,0,0">
@@ -88,7 +59,7 @@
                                 <TextBlock Name="TxtblkTitleFontColor"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
-                                    Text="Title font color"/>
+                                    Text="{x:Static local:GlobalStrings.TemplateEditorTitleFontColor}"/>
                             </WrapPanel>
                             <WrapPanel
                                 Margin="5px,10px,0,5px">
@@ -101,11 +72,11 @@
                                 <TextBlock Name="TxtblkFontColor"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
-                                    Text="Content font color"/>
+                                    Text="{x:Static local:GlobalStrings.TemplateEditorContentFontColor}"/>
                             </WrapPanel>
                             <WrapPanel>
                                 <TextBlock
-                                    Text="Font: "
+                                    Text="{x:Static local:GlobalStrings.TemplateEditorFont}"
                                     Padding="4px"
                                     VerticalAlignment="Center"/>
                                 <!--Fonts loaded automatically-->
@@ -120,7 +91,7 @@
                 </StackPanel>
             </TabItem>
             <TabItem Name="FieldTab"
-                Header="Fields">
+                Header="{x:Static local:GlobalStrings.TemplateEditorFieldsTab}">
                 <Grid Name="FieldTabGrid">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
@@ -149,7 +120,7 @@
                                 <Style.Resources>
                                     <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
                                         <VisualBrush.Visual>
-                                            <Label Content="Type the name of a new field..." Foreground="LightGray" />
+                                            <Label Content="{x:Static local:GlobalStrings.HintNewField}" Foreground="LightGray" />
                                         </VisualBrush.Visual>
                                     </VisualBrush>
                                 </Style.Resources>
@@ -171,16 +142,26 @@
                         Grid.Column="1"
                         MinWidth="100px"
                         VerticalAlignment="Center"
-                        Margin="0,0,10px,0">
-                        <ComboBoxItem Name="NewItemTypeText" IsSelected="True">Text</ComboBoxItem>
-                        <ComboBoxItem Name="NewItemTypeImages">Images</ComboBoxItem>
-                        <ComboBoxItem Name="NewItemTypeEntryMinName">Mineral Name</ComboBoxItem>
-                        <ComboBoxItem Name="NewItemTypeEntryMinFormula">Mineral Formula</ComboBoxItem>
-                        <ComboBoxItem Name="NewItemTypeEntryMinGroup">Mineral Grouping</ComboBoxItem>
-                        <ComboBoxItem Name="NewItemTypeEntryMinLocality">Mineral Locality</ComboBoxItem>
-                        <ComboBoxItem Name="NewItemTypeHyperlink">Hyperlink</ComboBoxItem>
-                        <ComboBoxItem Name="NewItemTypeMoneyUSD">Money (USD)</ComboBoxItem>
-                    </ComboBox>
+                        Margin="0,0,10px,0"
+                        ToolTip="{x:Static local:GlobalStrings.TipFieldEditorNewDataType}">
+                        <ComboBoxItem Name="NewItemTypeText"
+                            Content="{x:Static local:GlobalStrings.CmbxItemTypeText}"
+                            IsSelected="True"/>
+                        <ComboBoxItem Name="NewItemTypeImages"
+                            Content="{x:Static local:GlobalStrings.CmbxItemTypeImages}"/>
+                        <ComboBoxItem Name="NewItemTypeEntryMinName"
+                            Content="{x:Static local:GlobalStrings.CmbxItemTypeMinName}"/>
+                        <ComboBoxItem Name="NewItemTypeEntryMinFormula"
+                            Content="{x:Static local:GlobalStrings.CmbxItemTypeMinFormula}"/>
+                        <ComboBoxItem Name="NewItemTypeEntryMinGroup"
+                            Content="{x:Static local:GlobalStrings.CmbxItemTypeMinGrouping}"/>
+                        <ComboBoxItem Name="NewItemTypeEntryMinLocality"
+                            Content="{x:Static local:GlobalStrings.CmbxItemTypeMinLocality}"/>
+                        <ComboBoxItem Name="NewItemTypeHyperlink"
+                            Content="{x:Static local:GlobalStrings.CmbxItemTypeHyperlink}"/>
+                        <ComboBoxItem Name="NewItemTypeMoneyUSD"
+                            Content="{x:Static local:GlobalStrings.CmbxItemTypeMoneyUSD}"/>
+                        </ComboBox>
                 </Grid>
                     <ListBox Name="LstbxCol1"
                         Grid.Row="1"
@@ -193,13 +174,15 @@
                         Height="32px"
                         Margin="0px, 0px, 4px, 0px"
                         Width="32px"
-                        Source="pack://application:,,,/Assets/BttnMvLeft.png"/>
+                        Source="pack://application:,,,/Assets/BttnMvLeft.png"
+                        ToolTip="{x:Static local:GlobalStrings.TipFieldEditorMoveLeft}"/>
                     <Image Name="BttnMoveRight"
                         Grid.Row="1"
                         Grid.Column="2"
                         Height="32px"
                         Width="32px"
-                        Source="pack://application:,,,/Assets/BttnMvRight.png"/>
+                        Source="pack://application:,,,/Assets/BttnMvRight.png"
+                        ToolTip="{x:Static local:GlobalStrings.TipFieldEditorMoveRight}"/>
                     <ListBox Name="LstbxCol2"
                         Grid.Row="1"
                         Grid.Column="3"
@@ -213,12 +196,14 @@
                             Height="16px"
                             Width="16px"
                             Source="pack://application:,,,/Assets/BttnMvUp.png"
-                            VerticalAlignment="Top"/>
+                            VerticalAlignment="Top"
+                            ToolTip="{x:Static local:GlobalStrings.TipFieldEditorMoveUp}"/>
                         <Image Name="BttnMoveDown"
                             Height="16px"
                             Width="16px"
                             Source="pack://application:,,,/Assets/BttnMvDown.png"
-                            VerticalAlignment="Top"/>
+                            VerticalAlignment="Top"
+                            ToolTip="{x:Static local:GlobalStrings.TipFieldEditorMoveDown}"/>
                         <TextBlock Name="TxtblkFieldName"
                             Width="150px"
                             Margin="0,0,10px,0"
@@ -227,40 +212,46 @@
                             VerticalAlignment="Top"/>
                         <WrapPanel>
                             <TextBlock
-                                Text="Data type:"
+                                Text="{x:Static local:GlobalStrings.FieldEditorDataType}"
                                 VerticalAlignment="Center"
                                 Padding="0,0,5px,0"/>
                             <ComboBox Name="CmbxDataType"
                                 IsEnabled="False"
                                 MinWidth="100px"
                                 VerticalAlignment="Center"
-                                Margin="0,0,10px,0">
-                                <ComboBoxItem Name="ItemTypeEntryImages">Entry Images</ComboBoxItem>
-                                <ComboBoxItem Name="ItemTypeText">Text</ComboBoxItem>
-                                <ComboBoxItem Name="ItemTypeImages">Images</ComboBoxItem>
-                                <ComboBoxItem Name="ItemTypeEntryMinName">Mineral Name</ComboBoxItem>
-                                <ComboBoxItem Name="ItemTypeEntryMinFormula">Mineral Formula</ComboBoxItem>
-                                <ComboBoxItem Name="ItemTypeEntryMinGroup">Mineral Grouping</ComboBoxItem>
-                                <ComboBoxItem Name="ItemTypeEntryMinLocality">Mineral Locality</ComboBoxItem>
-                                <ComboBoxItem Name="ItemTypeHyperlink">Hyperlink</ComboBoxItem>
-                                <ComboBoxItem Name="ItemTypeMoneyUSD">Money (USD)</ComboBoxItem>
+                                Margin="0,0,10px,0"
+                                ToolTip="{x:Static local:GlobalStrings.TipFieldEditorDataType}">
+                                <ComboBoxItem Name="ItemTypeEntryImages"
+                                    Content="{x:Static local:GlobalStrings.CmbxItemTypeEntryImages}"/>
+                                <ComboBoxItem Name="ItemTypeText"
+                                    Content="{x:Static local:GlobalStrings.CmbxItemTypeText}"/>
+                                <ComboBoxItem Name="ItemTypeImages"
+                                    Content="{x:Static local:GlobalStrings.CmbxItemTypeImages}"/>
+                                <ComboBoxItem Name="ItemTypeEntryMinName"
+                                    Content="{x:Static local:GlobalStrings.CmbxItemTypeMinName}"/>
+                                <ComboBoxItem Name="ItemTypeEntryMinFormula"
+                                    Content="{x:Static local:GlobalStrings.CmbxItemTypeMinFormula}"/>
+                                <ComboBoxItem Name="ItemTypeEntryMinGroup"
+                                    Content="{x:Static local:GlobalStrings.CmbxItemTypeMinGrouping}"/>
+                                <ComboBoxItem Name="ItemTypeEntryMinLocality"
+                                    Content="{x:Static local:GlobalStrings.CmbxItemTypeMinLocality}"/>
+                                <ComboBoxItem Name="ItemTypeHyperlink"
+                                    Content="{x:Static local:GlobalStrings.CmbxItemTypeHyperlink}"/>
+                                <ComboBoxItem Name="ItemTypeMoneyUSD"
+                                    Content="{x:Static local:GlobalStrings.CmbxItemTypeMoneyUSD}"/>
                             </ComboBox>
                         </WrapPanel>
                         <!-- Field options -->
                         <StackPanel>
                             <CheckBox Name="ChkbxFieldInvisible"
-                                Content="Show this field with entries"
+                                Content="{x:Static local:GlobalStrings.FieldEditorFieldInvisible}"
                                 VerticalAlignment="Center"
                                 VerticalContentAlignment="Center"/>
                             <CheckBox Name="ChkbxFieldNameInvisible"
-                                Content="Show the field name"
+                                Content="{x:Static local:GlobalStrings.FieldEditorFieldNameInvisible}"
                                 VerticalAlignment="Center"
                                 VerticalContentAlignment="Center"/>
-                            <CheckBox Name="ChkbxFieldNameInline"
-                                Content="Show field name left of field"
-                                VerticalAlignment="Center"
-                                VerticalContentAlignment="Center"/>
-                            <GroupBox Name="FieldImageOptions"
+                            <Border Name="FieldImageOptions"
                                 IsEnabled="False"
                                 Margin="0,10px,0,0"
                                 Padding="0,10px,0,0"
@@ -269,48 +260,44 @@
                                     <WrapPanel
                                     Margin="0,0,0,5px">
                                         <TextBlock
-                                            Text="Display up to "
+                                            Text="{x:Static local:GlobalStrings.TemplateEditorExtraImagesA}"
                                             Padding="4px"
                                             VerticalAlignment="Center"/>
                                         <TextBox Name="TxtbxFieldNumImages"
                                             Padding="4px"
                                             MinWidth="25px"/>
                                         <TextBlock
-                                            Text="extra images"
+                                            Text="{x:Static local:GlobalStrings.TemplateEditorExtraImagesBShort}"
                                             Padding="4px"
                                             MinWidth="75px"/>
                                     </WrapPanel>
                                     <WrapPanel>
                                         <TextBlock
-                                            Text="Extra images"
+                                            Text="{x:Static local:GlobalStrings.TemplateEditorImageAnchorA}"
                                             Padding="4px"
                                             MinWidth="75px"/>
                                         <!--Combobox items constructed dynamically-->
                                         <ComboBox Name="CmbxFieldImageAnchor"
                                             Padding="4px"
-                                            MinWidth="75px"
+                                            MinWidth="60px"
                                             SelectedValuePath="Content">
-                                            <ComboBoxItem Name="CmbxItemAbove">
-                                                Above
-                                            </ComboBoxItem>
-                                            <ComboBoxItem Name="CmbxItemLeft">
-                                                Left
-                                            </ComboBoxItem>
-                                            <ComboBoxItem Name="CmbxItemRight">
-                                                Right
-                                            </ComboBoxItem>
+                                            <ComboBoxItem Name="CmbxItemAbove"
+                                                Content="{x:Static local:GlobalStrings.CmbxImageAnchorAbove}"/>
+                                            <ComboBoxItem Name="CmbxItemLeft"
+                                                Content="{x:Static local:GlobalStrings.CmbxImageAnchorLeft}"/>
+                                            <ComboBoxItem Name="CmbxItemRight"
+                                                Content="{x:Static local:GlobalStrings.CmbxImageAnchorRight}"/>
                                             <ComboBoxItem Name="CmbxItemUnder"
-                                                IsSelected="True">
-                                                Under
-                                            </ComboBoxItem>
+                                                Content="{x:Static local:GlobalStrings.CmbxImageAnchorUnder}"
+                                                IsSelected="True"/>
                                         </ComboBox>
                                         <TextBlock
-                                            Text="main image"
+                                            Text="{x:Static local:GlobalStrings.TemplateEditorImageAnchorBShort}"
                                             Padding="4px"
                                             MinWidth="75px"/>
                                     </WrapPanel>
                                 </StackPanel>
-                            </GroupBox>
+                            </Border>
                         </StackPanel>
                     </StackPanel>
                 </Grid>
@@ -326,23 +313,20 @@
             <Button Name="BttnSaveChanges"
                 Grid.Column="1"
                 Margin="10px"
-                Width="96px">
-                Save Changes
-            </Button>
+                Width="96px"
+                Content="{x:Static local:GlobalStrings.TemplateEditorSaveChanges}"/>
             <Button Name="BttnCancel"
                 IsCancel="True"
                 Grid.Column="2"
                 Margin="10px"
-                Width="96px">
-                Cancel
-            </Button>
+                Width="96px"
+                Content="{x:Static local:GlobalStrings.TemplateEditorCancel}"/>
             <TextBlock Name="TxtblkDelete"
                 Foreground="Red"
                 Grid.Column="3"
                 HorizontalAlignment="Center"
-                VerticalAlignment="Center">
-                Delete template
-            </TextBlock>
+                VerticalAlignment="Center"
+                Text="{x:Static local:GlobalStrings.TemplateEditorDeleteTemplate}"/>
         </Grid>
     </Grid>
 </Window>

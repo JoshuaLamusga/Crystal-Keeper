@@ -49,6 +49,55 @@ namespace CrystalKeeper.Core
 
         #region Public Methods
         /// <summary>
+        /// Returns a valid url in the appdata folder using the
+        /// path information of the given url. The resulting file
+        /// path is guaranteed to be unique from any existing files
+        /// in the appdata folder.
+        /// </summary>
+        /// <param name="relUrl">
+        /// A relative url to append to the base appdata url.
+        /// </param>
+        public static string GetAppdataFolder(string relUrl)
+        {
+            string dir = Environment.GetFolderPath(
+                Environment.SpecialFolder.LocalApplicationData)
+                + "\\Crystal Keeper\\";
+
+            if (relUrl == String.Empty)
+            {
+                return dir;
+            }
+
+            try
+            {
+                //Removes the root and appends it to the appdata folder.
+                string newUrl = relUrl.Substring(Path.GetPathRoot(relUrl).Length);
+                string newUrlExt = Path.GetExtension(newUrl);
+                newUrl = MakeAbsoluteUrl(dir, newUrl);
+                newUrl = newUrl.Substring(0, newUrl.Length - newUrlExt.Length);
+
+                //Creates the directories if they don't exist.
+                Directory.CreateDirectory(Path.GetDirectoryName(newUrl));
+
+                //Ensures a unique filepath is generated.
+                Random rng = new Random();
+                int uniqueNum = rng.Next();
+
+                while (File.Exists(newUrl + uniqueNum + newUrlExt))
+                {
+                    uniqueNum = rng.Next();
+                }
+
+                return newUrl + uniqueNum + newUrlExt;
+            }
+            catch (ArgumentException e)
+            {
+                Log("Bad url with GetAppdataFolder(): " + e.StackTrace);
+                return dir;
+            }
+        }
+
+        /// <summary>
         /// Returns a list of recently opened urls, if any.
         /// </summary>
         public static string GetRecentlyOpened()

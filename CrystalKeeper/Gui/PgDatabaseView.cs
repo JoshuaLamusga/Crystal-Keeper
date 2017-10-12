@@ -123,7 +123,7 @@ namespace CrystalKeeper.Gui
             //Sets the database name.
             if (string.IsNullOrWhiteSpace((string)dat.GetData("name")))
             {
-                gui.TxtblkDatabaseName.Text = "Untitled";
+                gui.TxtblkDatabaseName.Text = GlobalStrings.NameUntitled;
             }
             else
             {
@@ -145,7 +145,7 @@ namespace CrystalKeeper.Gui
             {
                 //Creates the message as a textblock.
                 TextBlock emptyMessage = new TextBlock();
-                emptyMessage.Text = "No collections have been created yet";
+                emptyMessage.Text = GlobalStrings.HintNoCollections;
                 emptyMessage.HorizontalAlignment = HorizontalAlignment.Center;
                 emptyMessage.VerticalAlignment = VerticalAlignment.Center;
                 emptyMessage.Foreground = Brushes.LightGray;

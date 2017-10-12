@@ -55,10 +55,8 @@ namespace CrystalKeeper.Core
 
             //Automatically adds the database item.
             DataItem item = new DataItem(NewGuid(), DataItemTypes.Database);
-            item.SetData("name", "Untitled");
+            item.SetData("name", GlobalStrings.NameUntitled);
             item.SetData("defUseEditMode", false);
-            item.SetData("defSearchByText", true);
-            item.SetData("defCacheData", true);
             item.SetData("description", String.Empty);
             item.SetData("imageBackgroundEnabled", false);
             item.SetData("imageUrl", String.Empty);
@@ -146,9 +144,8 @@ namespace CrystalKeeper.Core
             {
                 Utils.Log("Could not open " + url + " for read access.");
 
-                //Tell the user the file did not load and cancel it.
-                MessageBox.Show("The file was not loaded because it was " +
-                    "prevented from being loaded in that location.");
+                //Tells the user the file did not load and cancel it.
+                MessageBox.Show(GlobalStrings.DlgCannotOpenForRead);
 
                 return null;
             }
@@ -156,9 +153,8 @@ namespace CrystalKeeper.Core
             {
                 Utils.Log("Could not open " + url + " because it's too long.");
 
-                //Tell the user the file did not load and cancel it.
-                MessageBox.Show("The file was not loaded because the " +
-                    "filename is too long to process.");
+                //Tells the user the file did not load and cancel it.
+                MessageBox.Show(GlobalStrings.DlgCannotOpenTooLong);
 
                 return null;
             }
@@ -166,9 +162,8 @@ namespace CrystalKeeper.Core
             {
                 Utils.Log("Could not open " + url + " because the directory wasn't found.");
 
-                //Tell the user the file did not load and cancel it.
-                MessageBox.Show("The file was not loaded because the " +
-                    "location to load it in was changed while trying to load.");
+                //Tells the user the file did not load and cancel it.
+                MessageBox.Show(GlobalStrings.DlgCannotOpenNotFound);
 
                 return null;
             }
@@ -177,9 +172,8 @@ namespace CrystalKeeper.Core
                 Utils.Log("Could not open " + url + ". Exception: " +
                     e.GetBaseException().StackTrace);
 
-                //Tell the user the file did not load and cancel it.
-                MessageBox.Show("The file could not be loaded for an " +
-                    "unknown reason.");
+                //Tells the user the file did not load and cancel it.
+                MessageBox.Show(GlobalStrings.DlgCannotOpenUnknown);
 
                 return null;
             }
@@ -207,8 +201,6 @@ namespace CrystalKeeper.Core
                         case DataItemTypes.Database:
                             item.SetData("name", reader.ReadString());
                             item.SetData("defUseEditMode", reader.ReadBoolean());
-                            item.SetData("defSearchByText", reader.ReadBoolean());
-                            item.SetData("defCacheData", reader.ReadBoolean());
                             item.SetData("description", reader.ReadString());
                             item.SetData("imageBackgroundEnabled", reader.ReadBoolean());
                             item.SetData("imageUrl", reader.ReadString());
@@ -247,8 +239,6 @@ namespace CrystalKeeper.Core
                             item.SetData("name", reader.ReadString());
                             item.SetData("centerImages", reader.ReadBoolean());
                             item.SetData("twoColumns", reader.ReadBoolean());
-                            item.SetData("numExtraImages", reader.ReadByte());
-                            item.SetData("extraImagePos", reader.ReadInt32());
                             item.SetData("fontFamilies", reader.ReadString());
                             item.SetData("headerColorR", reader.ReadByte());
                             item.SetData("headerColorG", reader.ReadByte());
@@ -267,7 +257,6 @@ namespace CrystalKeeper.Core
                             item.SetData("dataType", reader.ReadInt32());
                             item.SetData("isVisible", reader.ReadBoolean());
                             item.SetData("isTitleVisible", reader.ReadBoolean());
-                            item.SetData("isTitleInline", reader.ReadBoolean());
                             item.SetData("columnOrder", reader.ReadInt32());
                             item.SetData("numExtraImages", reader.ReadByte());
                             item.SetData("extraImagePos", reader.ReadInt32());
@@ -284,7 +273,58 @@ namespace CrystalKeeper.Core
                     var tField = newItems.FirstOrDefault(
                         o => o.guid == (ulong)fields[i].GetData("templateFieldGuid"));
 
-                    if ((TemplateFieldType)tField?.GetData("dataType") != TemplateFieldType.Text)
+                    var ttype = (TemplateFieldType)tField?.GetData("dataType");
+
+                    //Parses large binary-based data.
+                    if (ttype == TemplateFieldType.EntryImages ||
+                        ttype == TemplateFieldType.Images)
+                    {
+                        var binData = (byte[])fields[i].GetData("data");
+
+                        //Reads data to files.
+                        using (MemoryStream ms = new MemoryStream(binData))
+                        {
+                            using (BinaryReader br = new BinaryReader(ms))
+                            {
+                                //Gets the metadata and iterates through urls.
+                                var metadata = br.ReadString();
+                                var metaUrls = metadata.Split('|');
+
+                                for (int j = 2; j < metaUrls.Length; j++)
+                                {
+                                    //Skips empty urls of default image fields.
+                                    if (metaUrls[j] == String.Empty)
+                                    {
+                                        continue;
+                                    }
+
+                                    int numBytes = br.ReadInt32();
+                                    byte[] fileData = br.ReadBytes(numBytes);
+                                    string newUrl = Utils.GetAppdataFolder(metaUrls[j]);
+                                    metaUrls[j] = newUrl;
+
+                                    //Writes data to the absolute url filepath.
+                                    using (FileStream fs = new FileStream(
+                                        newUrl, FileMode.Create))
+                                    {
+                                        using (BinaryWriter writer = new BinaryWriter(fs))
+                                        {
+                                            writer.Write(fileData);
+                                        }
+                                    }
+                                }
+
+                                //Replaces loaded binary data with metadata.
+                                fields[i].SetData("data", String.Join("|", metaUrls));
+                            }
+                        }
+                    }
+
+                    //Preserves all binary-based data.
+                    else if (ttype == TemplateFieldType.Text) { }
+
+                    //Parses all object-based data.
+                    else
                     {
                         try
                         {
@@ -295,9 +335,8 @@ namespace CrystalKeeper.Core
                         {
                             Utils.Log("Cannot serialize " + url + " to load.");
 
-                            //Tell the user the file did not load and cancel it.
-                            MessageBox.Show("The file could not be loaded because " +
-                                "it is unrecognizable or not a Crystal Keeper file.");
+                            //Tells the user the file did not load and cancel it.
+                            MessageBox.Show(GlobalStrings.DlgCannotOpenUnrecognized);
 
                             return null;
                         }
@@ -311,9 +350,8 @@ namespace CrystalKeeper.Core
             {
                 Utils.Log("Unexpected end-of-stream in " + url + ".");
 
-                //Tell the user the file did not load and cancel it.
-                MessageBox.Show("The file could not be loaded because " +
-                    "it is corrupted.");
+                //Tells the user the file did not load and cancel it.
+                MessageBox.Show(GlobalStrings.DlgCannotOpenCorrupt);
 
                 return null;
             }
@@ -356,9 +394,8 @@ namespace CrystalKeeper.Core
             {
                 Utils.Log("Could not open " + url + " for write access.");
 
-                //Tell the user the file did not save and cancel it.
-                MessageBox.Show("The file was not saved because it was " +
-                    "prevented from being saved in that location.");
+                //Tells the user the file did not save and cancel it.
+                MessageBox.Show(GlobalStrings.DlgCannotOpenForRead);
 
                 return;
             }
@@ -366,9 +403,8 @@ namespace CrystalKeeper.Core
             {
                 Utils.Log("Could not open " + url + " because it's too long.");
 
-                //Tell the user the file did not save and cancel it.
-                MessageBox.Show("The file was not saved because the " +
-                    "filename is too long. Please use a shorter name.");
+                //Tells the user the file did not save and cancel it.
+                MessageBox.Show(GlobalStrings.DlgCannotOpenTooLong);
 
                 return;
             }
@@ -376,9 +412,8 @@ namespace CrystalKeeper.Core
             {
                 Utils.Log("Could not open " + url + " because the directory wasn't found.");
 
-                //Tell the user the file did not save and cancel it.
-                MessageBox.Show("The file was not saved because the " +
-                    "location to save it in was changed while trying to save.");
+                //Tells the user the file did not save and cancel it.
+                MessageBox.Show(GlobalStrings.DlgCannotOpenNotFound);
 
                 return;
             }
@@ -386,9 +421,8 @@ namespace CrystalKeeper.Core
             {
                 Utils.Log("Could not open " + url + ". Exception: " + e.GetBaseException().Message);
 
-                //Tell the user the file did not save and cancel it.
-                MessageBox.Show("The file could not be saved. Try " +
-                    "specifying a different location or filename.");
+                //Tells the user the file did not save and cancel it.
+                MessageBox.Show(GlobalStrings.DlgCannotOpenUnknown);
 
                 return;
             }
@@ -403,45 +437,6 @@ namespace CrystalKeeper.Core
             if (newPath != String.Empty)
             {
                 GetDatabase().SetData("imageUrl", newPath);
-            }
-
-            //Ensures all image paths are relative.
-            List<DataItem> entries = GetItemsByType(DataItemTypes.Entry);
-            for (int i = 0; i < entries.Count; i++)
-            {
-                List<DataItem> fields = GetEntryFields(entries[i]);
-                for (int j = 0; j < fields.Count; j++)
-                {
-                    DataItem templateField = GetItemByGuid((ulong)fields[j].GetData("templateFieldGuid"));
-                    var fieldType = (TemplateFieldType)(int)templateField.GetData("dataType");
-
-                    //Reads the image-formatted fields.
-                    if (fieldType == TemplateFieldType.Images ||
-                        fieldType == TemplateFieldType.EntryImages)
-                    {
-                        var data = ((string)fields[j].GetData("data")).Split('|');
-                        string newData = data.FirstOrDefault();
-                        if (newData.Trim() != String.Empty)
-                        {
-                            newData += "|";
-                        }
-
-                        //Reads all urls and makes them relative if not so.
-                        for (int k = 1; k < data.Length; k++)
-                        {
-                            string newUrl = Utils.MakeRelativeUrl(url, data[k]);
-                            if (newUrl != String.Empty)
-                            {
-                                newData += newUrl;
-                            }
-                            if (k != data.Length - 1)
-                            {
-                                newData += "|";
-                            }
-                        }
-                        fields[j].SetData("data", newData);
-                    }
-                }
             }
 
             //Writes all data items in arbitrary order.
@@ -466,8 +461,6 @@ namespace CrystalKeeper.Core
                         case DataItemTypes.Database:
                             writer.Write((string)item.GetData("name"));
                             writer.Write((bool)item.GetData("defUseEditMode"));
-                            writer.Write((bool)item.GetData("defSearchByText"));
-                            writer.Write((bool)item.GetData("defCacheData"));
                             writer.Write((string)item.GetData("description"));
                             writer.Write((bool)item.GetData("imageBackgroundEnabled"));
                             writer.Write((string)item.GetData("imageUrl"));
@@ -480,10 +473,61 @@ namespace CrystalKeeper.Core
                             writer.Write((ulong)item.GetData("refGuid"));
                             writer.Write((ulong)item.GetData("templateFieldGuid"));
 
-                            //Writes the size of the data chunk, then saves it.
-                            var rawData = Utils.ObjectToByteArray(item.GetData("data"));
-                            writer.Write(rawData.Length);
-                            writer.Write(rawData);
+                            DataItem templateField = GetItemByGuid((ulong)item.GetData("templateFieldGuid"));
+                            var fieldType = (TemplateFieldType)(int)templateField.GetData("dataType");
+
+                            //Parses large binary-based data.
+                            if (fieldType == TemplateFieldType.Images ||
+                                fieldType == TemplateFieldType.EntryImages)
+                            {
+                                //Gets the metadata and reads file data of each url.                        
+                                var metadata = ((string)item.GetData("data"));
+                                var metaUrls = metadata.Split('|');
+
+                                using (MemoryStream ms = new MemoryStream())
+                                {
+                                    using (BinaryWriter br = new BinaryWriter(ms))
+                                    {
+                                        br.Write(metadata);
+
+                                        //Appends bytes and size of each url to data.
+                                        for (int k = 2; k < metaUrls.Length; k++)
+                                        {
+                                            if (File.Exists(metaUrls[k]))
+                                            {
+                                                var fileData = File.ReadAllBytes(metaUrls[k]);
+
+                                                br.Write(fileData.Length);
+                                                br.Write(fileData);
+                                            }
+                                        }
+
+                                        metadata = String.Join("|", metaUrls);
+                                    }
+
+                                    if (metaUrls.Length > 0)
+                                    {
+                                        //Writes the size of the data chunk, then saves it.
+                                        var rawData = ms.ToArray();
+                                        writer.Write(rawData.Length);
+                                        writer.Write(rawData);
+                                    }
+                                    else
+                                    {
+                                        //Writes the size of the data chunk, then saves it.
+                                        var rawData = Utils.ObjectToByteArray(item.GetData("data"));
+                                        writer.Write(rawData.Length);
+                                        writer.Write(rawData);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                //Writes the size of the data chunk, then saves it.
+                                var rawData = Utils.ObjectToByteArray(item.GetData("data"));
+                                writer.Write(rawData.Length);
+                                writer.Write(rawData);
+                            }
                             break;
                         case DataItemTypes.Grouping:
                             writer.Write((string)item.GetData("name"));
@@ -506,8 +550,6 @@ namespace CrystalKeeper.Core
                             writer.Write((string)item.GetData("name"));
                             writer.Write((bool)item.GetData("centerImages"));
                             writer.Write((bool)item.GetData("twoColumns"));
-                            writer.Write((byte)item.GetData("numExtraImages"));
-                            writer.Write((int)item.GetData("extraImagePos"));
                             writer.Write((string)item.GetData("fontFamilies"));
                             writer.Write((byte)item.GetData("headerColorR"));
                             writer.Write((byte)item.GetData("headerColorG"));
@@ -526,7 +568,6 @@ namespace CrystalKeeper.Core
                             writer.Write((int)item.GetData("dataType"));
                             writer.Write((bool)item.GetData("isVisible"));
                             writer.Write((bool)item.GetData("isTitleVisible"));
-                            writer.Write((bool)item.GetData("isTitleInline"));
                             writer.Write((int)item.GetData("columnOrder"));
                             writer.Write((byte)item.GetData("numExtraImages"));
                             writer.Write((int)item.GetData("extraImagePos"));
@@ -538,7 +579,7 @@ namespace CrystalKeeper.Core
                     Utils.Log("Invalid cast exception: " + e.GetBaseException().Message);
 
                     //Tell the user the file did not save and cancel it.
-                    MessageBox.Show("The file is corrupt and cannot be saved.");
+                    MessageBox.Show(GlobalStrings.DlgCannotSaveCorrupt);
                 }
             }
 
@@ -609,8 +650,6 @@ namespace CrystalKeeper.Core
             item.SetData("name", name);
             item.SetData("centerImages", centerImages);
             item.SetData("twoColumns", twoColumns);
-            item.SetData("numExtraImages", numExtraImages);
-            item.SetData("extraImagePos", (int)extraImagePos);
             item.SetData("fontFamilies", fontFamilies);
             item.SetData("headerColorR", headerColorR);
             item.SetData("headerColorG", headerColorG);
@@ -647,7 +686,6 @@ namespace CrystalKeeper.Core
             TemplateFieldType dataType,
             bool isVisible,
             bool isTitleVisible,
-            bool isTitleInline,
             int columnOrder)
         {
             DataItem item = new DataItem(
@@ -659,7 +697,6 @@ namespace CrystalKeeper.Core
             item.SetData("dataType", (int)dataType);
             item.SetData("isVisible", isVisible);
             item.SetData("isTitleVisible", isTitleVisible);
-            item.SetData("isTitleInline", isTitleInline);
             item.SetData("columnOrder", columnOrder);
             item.SetData("numExtraImages", (byte)3);
             item.SetData("extraImagePos", TemplateImagePos.Under);
@@ -698,7 +735,6 @@ namespace CrystalKeeper.Core
             TemplateFieldType dataType,
             bool isVisible,
             bool isTitleVisible,
-            bool isTitleInline,
             int columnOrder,
             byte numExtraImages,
             TemplateImagePos extraImagePos)
@@ -712,7 +748,6 @@ namespace CrystalKeeper.Core
             item.SetData("dataType", (int)dataType);
             item.SetData("isVisible", isVisible);
             item.SetData("isTitleVisible", isTitleVisible);
-            item.SetData("isTitleInline", isTitleInline);
             item.SetData("columnOrder", columnOrder);
             item.SetData("numExtraImages", numExtraImages);
             item.SetData("extraImagePos", extraImagePos);
@@ -1429,8 +1464,6 @@ namespace CrystalKeeper.Core
             DataItem item = new DataItem(NewGuid(), DataItemTypes.Database);
             item.SetData("name", "Untitled");
             item.SetData("defUseEditMode", false);
-            item.SetData("defSearchByText", true);
-            item.SetData("defCacheData", true);
             item.SetData("description", String.Empty);
             item.SetData("imageBackgroundEnabled", false);
             item.SetData("imageUrl", String.Empty);

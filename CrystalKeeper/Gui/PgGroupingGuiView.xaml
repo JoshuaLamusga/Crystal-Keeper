@@ -10,13 +10,13 @@
         HorizontalAlignment="Center">
         <!--Title. Text set automatically.-->
         <TextBlock Name="TxtblkCollectionName"
-                   Padding="0,0,0,24px"
-                   HorizontalAlignment="Center"
-                   TextAlignment="Center"
-                   VerticalAlignment="Center"
-                   FontWeight="Bold"
-                   FontSize="24px"
-                   Width="300px"
-                   MaxWidth="300px"/>
+            Padding="0,0,0,24px"
+            HorizontalAlignment="Center"
+            TextAlignment="Center"
+            VerticalAlignment="Center"
+            FontWeight="Bold"
+            FontSize="24px"
+            Width="300px"
+            MaxWidth="300px"/>
     </StackPanel>
 </UserControl>

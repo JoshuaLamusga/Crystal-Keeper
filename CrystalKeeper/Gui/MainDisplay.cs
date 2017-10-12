@@ -169,13 +169,15 @@ namespace CrystalKeeper.Gui
             this.project.Items.CollectionChanged += ChangeTreeview;
             gui.GuiTreeView.KeyDown += GuiTreeView_KeyDown;
             gui.GuiTreeView.SelectedItemChanged += GuiTreeView_SelectedItemChanged;
-            gui.Closing += _gui_Closing;
+            gui.Closing += Gui_Closing;
+            gui.Closed += Gui_Closed;
             gui.GuiFileNew.Click += GuiFileNew_Click;
             gui.GuiFileOpen.Click += GuiFileOpen_Click;
             gui.GuiFileSave.Click += GuiFileSave_Click;
             gui.GuiFileSaveAs.Click += GuiFileSaveAs_Click;
-            gui.KeyDown += _gui_KeyDown;
+            gui.KeyDown += Gui_KeyDown;
             gui.GuiHelpAbout.Click += GuiHelpAbout_Click;
+            gui.GuiHelpHelp.Click += GuiHelpHelp_Click;
             gui.GuiNewCollection.KeyDown += GuiNewCollection_KeyDown;
             gui.GuiNewGrouping.KeyDown += GuiNewGrouping_KeyDown;
             gui.GuiNewEntry.KeyDown += GuiNewEntry_KeyDown;
@@ -187,8 +189,45 @@ namespace CrystalKeeper.Gui
             gui.GuiPrint.MouseDown += GuiPrint_MouseDown;
             gui.GuiTemplateNew.Click += GuiTemplateNew_Click;
 
+            //Creates the treeview context menu.
+            ContextMenu menu = new ContextMenu();
+
+            //Handles deleting the current item.
+            MenuItem itemDelete = new MenuItem();
+            itemDelete.Header = GlobalStrings.ContextMenuDelete;
+            itemDelete.Click += (a, b) => { DeleteTreeViewItem(); };
+            menu.Items.Add(itemDelete);
+
+            //Handles renaming the current item.
+            MenuItem itemRename = new MenuItem();
+            itemRename.Header = GlobalStrings.ContextMenuRename;
+            itemRename.Click += (a, b) => { RenameTreeViewItem(); };
+            menu.Items.Add(itemRename);
+
+            //Attaches the menu for display.
+            gui.GuiTreeView.ContextMenu = menu;
+
             UpdateRecentFiles();
             ConstructVisuals();
+        }
+
+        /// <summary>
+        /// Cleans up files no longer in use.
+        /// </summary>
+        private void Gui_Closed(object sender, EventArgs e)
+        {
+            try
+            {
+                string folder = Utils.GetAppdataFolder(String.Empty);
+                if (Directory.Exists(folder))
+                {
+                    Directory.Delete(folder, true);
+                }
+            }
+            catch (IOException ex)
+            {
+                Utils.Log("IO error when deleting data: " + ex.Message);
+            }
         }
 
         /// <summary>
@@ -197,60 +236,89 @@ namespace CrystalKeeper.Gui
         private void InitializeDefaultProject()
         {
             //Sets up a layout for minerals.
-            ulong mineralGuid = project.AddTemplate("Minerals", true, true,
-                3, TemplateImagePos.Under, String.Empty, 0, 0, 0, 0, 0, 0);
+            ulong mineralGuid = project.AddTemplate(
+                GlobalStrings.DefaultTemplateMineralsTitle,
+                true, true, 3, TemplateImagePos.Under, String.Empty,
+                0, 0, 0, 0, 0, 0);
             ulong col1Guid = project.AddTemplateColumnData(true, mineralGuid);
             ulong col2Guid = project.AddTemplateColumnData(false, mineralGuid);
-            project.AddTemplateField("Images", col1Guid,
-                TemplateFieldType.EntryImages, true, false, false, 0);
-            project.AddTemplateField("Extra Images", col1Guid,
-                TemplateFieldType.Images, true, false, false, 1);
-            project.AddTemplateField("Primary Mineral Species", col1Guid,
-                TemplateFieldType.Min_Name, true, true, false, 2);
-            project.AddTemplateField("Secondary Mineral Species", col1Guid,
-                TemplateFieldType.Min_Name, true, true, false, 3);
-            project.AddTemplateField("Primary Chemical Formula", col2Guid,
-                TemplateFieldType.Min_Formula, true, true, false, 0);
-            project.AddTemplateField("Species Group", col2Guid,
-                TemplateFieldType.Min_Group, true, true, false, 1);
-            project.AddTemplateField("Origin / Location", col2Guid,
-                TemplateFieldType.Text, true, true, false, 2);
-            project.AddTemplateField("GPS Location", col2Guid,
-                TemplateFieldType.Hyperlink, true, true, false, 3);
-            project.AddTemplateField("Market Value", col2Guid,
-                TemplateFieldType.MoneyUSD, true, true, false, 4);
-            project.AddTemplateField("Notes", col2Guid,
-                TemplateFieldType.Text, true, true, false, 5);
+            project.AddTemplateField(GlobalStrings.DefaultTemplateMineralsImages, col1Guid,
+                TemplateFieldType.EntryImages, true, false, 0);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateMineralsPrimaryMineralSpecies,
+                col1Guid, TemplateFieldType.Min_Name, true, true, 1);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateMineralsSecondaryMineralSpecies,
+                col1Guid, TemplateFieldType.Min_Name, true, true, 2);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateMineralsDimensions,
+                col1Guid, TemplateFieldType.Text, true, true, 3);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateMineralsMarketValue,
+                col1Guid, TemplateFieldType.MoneyUSD, true, true, 4);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateMineralsPrimaryChemicalFormula,
+                col2Guid, TemplateFieldType.Min_Formula, true, true, 0);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateMineralsSpeciesGroup,
+                col2Guid, TemplateFieldType.Min_Group, true, true, 1);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateMineralsOriginLocation,
+                col2Guid, TemplateFieldType.Text, true, true, 2);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateMineralsGpsLocation,
+                col2Guid, TemplateFieldType.Hyperlink, true, true, 3);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateMineralsNotes,
+                col2Guid, TemplateFieldType.Text, true, true, 4);
 
             //Sets up a layout for locality notes.
-            ulong localitiesGuid = project.AddTemplate("Localities", false, false,
-                3, TemplateImagePos.Under, String.Empty, 0, 0, 0, 0, 0, 0);
+            ulong localitiesGuid = project.AddTemplate(
+                GlobalStrings.DefaultTemplateLocalitiesTitle,
+                false, false, 3, TemplateImagePos.Under, String.Empty,
+                0, 0, 0, 0, 0, 0);
             col1Guid = project.AddTemplateColumnData(true, localitiesGuid);
-            project.AddTemplateField("Images", col1Guid,
-                TemplateFieldType.EntryImages, true, false, false, 0);
-            project.AddTemplateField("Locality Name", col1Guid,
-                TemplateFieldType.Text, true, true, false, 1);
-            project.AddTemplateField("GPS Location", col1Guid,
-                TemplateFieldType.Hyperlink, true, true, false, 2);
-            project.AddTemplateField("Notes", col1Guid,
-                TemplateFieldType.Text, true, true, false, 3);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateLocalitiesImages,
+                col1Guid, TemplateFieldType.EntryImages, true, false, 0);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateLocalitiesLocalityName,
+                col1Guid, TemplateFieldType.Text, true, true, 1);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateLocalitiesGpsLocation,
+                col1Guid, TemplateFieldType.Hyperlink, true, true, 2);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateLocalitiesNotes,
+                col1Guid, TemplateFieldType.Text, true, true, 3);
 
             //Sets up a layout for other notes.
-            ulong notesGuid = project.AddTemplate("Notes", false, false,
-                3, TemplateImagePos.Under, String.Empty, 0, 0, 0, 0, 0, 0);
+            ulong notesGuid = project.AddTemplate(
+                GlobalStrings.DefaultTemplateNotesTitle,
+                false, false, 3, TemplateImagePos.Under, String.Empty,
+                0, 0, 0, 0, 0, 0);
             col1Guid = project.AddTemplateColumnData(true, notesGuid);
-            project.AddTemplateField("Images", col1Guid,
-                TemplateFieldType.EntryImages, true, false, false, 0);
-            project.AddTemplateField("Notes", col1Guid,
-                TemplateFieldType.Text, true, true, false, 0);
+            project.AddTemplateField(GlobalStrings.DefaultTemplateNotesImages,
+                col1Guid, TemplateFieldType.EntryImages, true, false, 0);
+            project.AddTemplateField(GlobalStrings.DefaultTemplateNotesNotes,
+                col1Guid, TemplateFieldType.Text, true, true, 0);
 
             //Sets up default collections with each template.
-            ulong mnrlCol = project.AddCollection("Minerals", "My mineral collection.", mineralGuid);
-            ulong lctnCol = project.AddCollection("Localities", "A collection of localities.", localitiesGuid);
-            ulong noteCol = project.AddCollection("Notes", "Some miscellaneous notes.", notesGuid);
-            project.AddGrouping("all", mnrlCol);
-            project.AddGrouping("all", lctnCol);
-            project.AddGrouping("all", noteCol);
+            ulong mnrlCol = project.AddCollection(
+                GlobalStrings.DefaultTemplateCollectionMinerals,
+                GlobalStrings.DefaultTemplateCollectionMineralsDescription,
+                mineralGuid);
+            ulong lctnCol = project.AddCollection(
+                GlobalStrings.DefaultTemplateCollectionLocalities,
+                GlobalStrings.DefaultTemplateCollectionLocalitiesDescription,
+                localitiesGuid);
+            ulong noteCol = project.AddCollection(
+                GlobalStrings.DefaultTemplateCollectionNotes,
+                GlobalStrings.DefaultTemplateCollectionNotesDescription,
+                notesGuid);
+
+            project.AddGrouping(GlobalStrings.AutoAllGroup, mnrlCol);
+            project.AddGrouping(GlobalStrings.AutoAllGroup, lctnCol);
+            project.AddGrouping(GlobalStrings.AutoAllGroup, noteCol);
 
             ConstructVisuals();
         }
@@ -260,77 +328,12 @@ namespace CrystalKeeper.Gui
         /// </summary>
         private void GuiTemplateNew_Click(object sender, RoutedEventArgs e)
         {
-            //True if opening an existing template, else false.
-            bool isEditing = false;
-
-            //Copies the entire project so changes can be saved or discarded.
-            Project projectCopy = new Project(project);
-
-            MenuDataItem newMenuItem = null;
-            DataItem template = null;
-
-            //Opens an associated template for the menu if it exists.
-            if (sender is MenuDataItem &&
-                ((MenuDataItem)sender).GetItem().type == DataItemTypes.Template)
+            if (sender != null)
             {
-                newMenuItem = (MenuDataItem)sender;
-                template = newMenuItem.GetItem();
-                isEditing = true;
+                PromptEditTemplates(sender);
             }
 
-            //If there is no associated template, a new one is created.
-            else
-            {
-                template = projectCopy.GetItemByGuid(projectCopy.AddTemplate(
-                String.Empty, true, true, 3, TemplateImagePos.Under,
-                "Arial", 0, 0, 0, 0, 0, 0));
-
-                //Creates two template columns.
-                ulong col1 = projectCopy.AddTemplateColumnData(true, template.guid);
-                projectCopy.AddTemplateColumnData(false, template.guid);
-
-                //Creates the required entry name and images fields.
-                projectCopy.AddTemplateField("images", col1,
-                    TemplateFieldType.EntryImages, true, true, true, 0);
-
-                //Adds the template to the list of templates.
-                newMenuItem = new MenuDataItem(template);
-                newMenuItem.Click += GuiTemplateNew_Click;
-            }
-
-            //Opens the dialog to set the template data.
-            var dlg = new DlgEditTemplate(projectCopy, template);
-            if (dlg.ShowDialog() == true)
-            {
-                //Copies the project and resets event handlers.
-                project = projectCopy;
-
-                //Updates the name of the item.
-                newMenuItem.Header = (string)project
-                    .GetItemByGuid(template.guid).GetData("name");
-
-                //Rebinds project event hooks lost during copy.
-                project.Items.CollectionChanged += ChangeTreeview;
-
-                //Adds the new menu item if one was created.
-                if (!isEditing)
-                {
-                    gui.GuiMenuTemplates.Items.Add(newMenuItem);
-                }
-
-                if (dlg.ReferencesInvalidated)
-                {
-                    ConstructVisuals();
-                    SetPage();
-                };
-            }
-
-            //Handles template deletion.
-            else if (!projectCopy.Items.Contains(template))
-            {
-                project.Items.Remove(template);
-                gui.GuiMenuTemplates.Items.Remove(newMenuItem);
-            }
+            e.Handled = true;
         }
 
         /// <summary>
@@ -478,11 +481,15 @@ namespace CrystalKeeper.Gui
                                 dataType == TemplateFieldType.Min_Name ||
                                 dataType == TemplateFieldType.Min_Group ||
                                 dataType == TemplateFieldType.Min_Locality ||
-                                dataType == TemplateFieldType.Hyperlink ||
+                                dataType == TemplateFieldType.Hyperlink)
+                            {
+                                project.AddField(entryGuid, templateColFields[j].guid, String.Empty);
+                            }
+                            else if (
                                 dataType == TemplateFieldType.EntryImages ||
                                 dataType == TemplateFieldType.Images)
                             {
-                                project.AddField(entryGuid, templateColFields[j].guid, String.Empty);
+                                project.AddField(entryGuid, templateColFields[j].guid, "False|False|");
                             }
                             else if (dataType == TemplateFieldType.MoneyUSD)
                             {
@@ -501,7 +508,8 @@ namespace CrystalKeeper.Gui
                     {
                         for (int i = 0; i < grps.Count; i++)
                         {
-                            if ((string)grps[i].GetData("name") == "all")
+                            if ((string)grps[i].GetData("name") ==
+                                GlobalStrings.AutoAllGroup)
                             {
                                 if (grps[i].guid < allGrp)
                                 {
@@ -612,9 +620,9 @@ namespace CrystalKeeper.Gui
                 //If there are no templates, a collection cannot be made.
                 if (project.GetItemsByType(DataItemTypes.Template).Count == 0)
                 {
-                    if (MessageBox.Show("A template must exist before you " +
-                        "can create a collection. Would you like to create " +
-                        "a template?", "Create template?",
+                    if (MessageBox.Show(
+                        GlobalStrings.DlgNeedTemplateWarning,
+                        GlobalStrings.DlgNeedTemplateCaption,
                         MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                     {
                         GuiTemplateNew_Click(this, null);
@@ -634,7 +642,7 @@ namespace CrystalKeeper.Gui
                             string.Empty,
                             project.GetItemsByType(DataItemTypes.Template)[0].guid);
 
-                        project.AddGrouping("all", col);
+                        project.AddGrouping(GlobalStrings.AutoAllGroup, col);
                     }
 
                     gui.GuiNewCollection.Text = String.Empty;
@@ -659,10 +667,26 @@ namespace CrystalKeeper.Gui
         }
 
         /// <summary>
+        /// Opens a url to help.
+        /// </summary>
+        private void GuiHelpHelp_Click(object sender, RoutedEventArgs e)
+        {
+            Uri uriResult = new Uri("https://github.com/JoshuaLamusga/Crystal-Keeper/wiki/User-Documentation");
+            System.Diagnostics.Process.Start(uriResult.ToString());
+        }
+
+        /// <summary>
         /// Sets keyboard shortcuts.
         /// </summary>
-        private void _gui_KeyDown(object sender, KeyEventArgs e)
+        private void Gui_KeyDown(object sender, KeyEventArgs e)
         {
+            //If F1 is pressed, opens help.
+            if (e.KeyboardDevice.IsKeyDown(Key.F1))
+            {
+                GuiHelpHelp_Click(this, null);
+            }
+
+            //If control is held.
             if (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl) ||
                 e.KeyboardDevice.IsKeyDown(Key.RightCtrl))
             {
@@ -710,12 +734,12 @@ namespace CrystalKeeper.Gui
         /// <summary>
         /// Prompts the user to save their file before closing the program.
         /// </summary>
-        private void _gui_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void Gui_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             //Prompts to close.
             MessageBoxResult result = MessageBox.Show(
-                "Close and discard any unsaved changes?",
-                "Confirm closing the program",
+                GlobalStrings.DlgConfirmCloseWarning,
+                GlobalStrings.DlgConfirmCloseCaption,
                 MessageBoxButton.YesNo);
 
             //Cancels closing if "no" is chosen.
@@ -734,8 +758,8 @@ namespace CrystalKeeper.Gui
             SaveFileDialog dlg = new SaveFileDialog();
             dlg.CheckPathExists = true;
             dlg.DefaultExt = ".mdat";
-            dlg.Filter = "databases|*.mdat|all files|*.*";
-            dlg.Title = "Save database";
+            dlg.Filter = GlobalStrings.FilterOpenSaveDatabase;
+            dlg.Title = GlobalStrings.CaptionSaveDatabase;
 
             //Uses the old save directory if one exists.
             if (File.Exists(saveUrl))
@@ -765,8 +789,8 @@ namespace CrystalKeeper.Gui
                 SaveFileDialog dlg = new SaveFileDialog();
                 dlg.CheckPathExists = true;
                 dlg.DefaultExt = ".mdat";
-                dlg.Filter = "databases|*.mdat|all files|*.*";
-                dlg.Title = "Save database";
+                dlg.Filter = GlobalStrings.FilterOpenSaveDatabase;
+                dlg.Title = GlobalStrings.CaptionSaveDatabase;
 
                 if (dlg.ShowDialog() == true)
                 {
@@ -783,8 +807,8 @@ namespace CrystalKeeper.Gui
         {
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.CheckPathExists = true;
-            dlg.Filter = "databases|*.mdat|all files|*.*";
-            dlg.Title = "Load database";
+            dlg.Filter = GlobalStrings.FilterOpenSaveDatabase;
+            dlg.Title = GlobalStrings.CaptionLoadDatabase;
 
             if (dlg.ShowDialog() == true)
             {
@@ -809,8 +833,8 @@ namespace CrystalKeeper.Gui
         private void GuiFileNew_Click(object sender, RoutedEventArgs e)
         {
             MessageBoxResult result = MessageBox.Show(
-                    "Create a new database, discarding any unsaved changes?",
-                    "New database",
+                    GlobalStrings.DlgNewDatabaseWarning,
+                    GlobalStrings.DlgNewDatabaseCaption,
                     MessageBoxButton.YesNo);
 
             if (result == MessageBoxResult.Yes)
@@ -832,113 +856,164 @@ namespace CrystalKeeper.Gui
             if (gui.GuiTreeView.SelectedItem != null &&
                 e.Key == Key.Delete && e.IsDown)
             {
-                var selItem = (TreeViewDataItem)gui.GuiTreeView.SelectedItem;
+                DeleteTreeViewItem();
+            }
+        }
 
-                //If the selection is null, it cannot be deleted.
-                if (selItem == null || selItem.GetItem() == null)
+        /// <summary>
+        /// Deletes the active item in the treeview and its data, if possible.
+        /// </summary>
+        private void DeleteTreeViewItem()
+        {
+            var selItem = (TreeViewDataItem)gui.GuiTreeView.SelectedItem;
+
+            //If the selection is null, it cannot be deleted.
+            if (selItem == null || selItem.GetItem() == null)
+            {
+                return;
+            }
+
+            //The database cannot be deleted.
+            else if (selItem.GetItem().type == DataItemTypes.Database)
+            {
+                return;
+            }
+
+            //The all group cannot be deleted.
+            else if (selItem.GetItem().type == DataItemTypes.Grouping &&
+                (string)selItem.GetItem().GetData("name") ==
+                GlobalStrings.AutoAllGroup &&
+                GetAutoAddedGroup(selItem) == selItem.GetItem().guid)
+            {
+                return;
+            }
+
+            //Deleting an item in the auto-added "all" group deletes it everywhere.
+            else if (selItem.GetItem().type == DataItemTypes.GroupingEntryRef &&
+                (string)selItem.GetParent().GetItem().GetData("name") ==
+                GlobalStrings.AutoAllGroup &&
+                GetAutoAddedGroup(selItem) == selItem.GetParent().GetItem().guid)
+            {
+                var result = MessageBox.Show(
+                    GlobalStrings.DlgDeleteEntryWarning,
+                    GlobalStrings.DlgDeleteEntryCaption,
+                    MessageBoxButton.YesNo);
+
+                if (result == MessageBoxResult.Yes)
                 {
-                    return;
-                }
+                    //Gets the entry and all its entry references.
+                    var delEntry = project.GetEntryRefEntry(selItem.GetItem());
+                    var delEntryRefs = project.GetEntryEntryRefs(delEntry);
 
-                //The database cannot be deleted.
-                else if (selItem.GetItem().type == DataItemTypes.Database)
-                {
-                    return;
-                }
+                    //Deletes the entry.
+                    project.DeleteItem(delEntry);
 
-                //The all group cannot be deleted.
-                else if (selItem.GetItem().type == DataItemTypes.Grouping &&
-                    (string)selItem.GetItem().GetData("name") == "all" &&
-                    GetAutoAddedGroup(selItem) == selItem.GetItem().guid)
-                {
-                    return;
-                }
-
-                //Deleting an item in the auto-added "all" group deletes it everywhere.
-                else if (selItem.GetItem().type == DataItemTypes.GroupingEntryRef &&
-                    (string)selItem.GetParent().GetItem().GetData("name") == "all" &&
-                    GetAutoAddedGroup(selItem) == selItem.GetParent().GetItem().guid)
-                {
-                    var result = MessageBox.Show("Deleting this entry will " +
-                        "delete it everywhere. Continue?", "Confirm deletion",
-                        MessageBoxButton.YesNo);
-
-                    if (result == MessageBoxResult.Yes)
+                    //Deletes all entry references.
+                    for (int i = 0; i < delEntryRefs.Count; i++)
                     {
-                        //Gets the entry and all its entry references.
-                        var delEntry = project.GetEntryRefEntry(selItem.GetItem());
-                        var delEntryRefs = project.GetEntryEntryRefs(delEntry);
+                        project.DeleteItem(delEntryRefs[i]);
+                    }
+                }
+            }
 
-                        //Deletes the entry.
-                        project.DeleteItem(delEntry);
-
-                        //Deletes all entry references.
-                        for (int i = 0; i < delEntryRefs.Count; i++)
+            //Deletes other treeview item types.
+            else
+            {
+                if (selItem.GetItem().type == DataItemTypes.Collection)
+                {
+                    //Deletes all groups and their entry references.
+                    var childGrps = project.GetCollectionGroupings(selItem.GetItem());
+                    for (int i = 0; i < childGrps.Count; i++)
+                    {
+                        //Deletes all entry references per group.
+                        var grpEntryRefs = project.GetGroupingEntryRefs(childGrps[i]);
+                        for (int j = 0; j < grpEntryRefs.Count; j++)
                         {
-                            project.DeleteItem(delEntryRefs[i]);
+                            project.DeleteItem(grpEntryRefs[i]);
+                        }
+
+                        project.DeleteItem(childGrps[i]);
+                    }
+
+                    //Deletes all entries.
+                    var childEnts = project.GetCollectionEntries(selItem.GetItem());
+                    for (int i = 0; i < childEnts.Count; i++)
+                    {
+                        //Deletes all entry fields per entry.
+                        var entryFields = project.GetEntryFields(childEnts[i]);
+                        for (int j = 0; j < entryFields.Count; j++)
+                        {
+                            project.DeleteItem(entryFields[i]);
+                        }
+
+                        project.DeleteItem(childEnts[i]);
+                    }
+                }
+                else if (selItem.GetItem().type == DataItemTypes.Grouping)
+                {
+                    //Gets the grouping entry references and entry references
+                    //of the entries, which might be more encompassing.
+                    var entries = project.GetGroupingEntries(selItem.GetItem());
+
+                    //Iterates through each entry to get its references.
+                    for (int i = 0; i < entries.Count; i++)
+                    {
+                        //Delete entries with fields whose only ref is in this group.
+                        if (project.GetEntryEntryRefs(entries[i]).Count == 1)
+                        {
+                            var fields = project.GetEntryFields(entries[i]);
+
+                            for (int j = 0; j < fields.Count; j++)
+                            {
+                                project.DeleteItem(fields[j]);
+                            }
+
+                            project.DeleteItem(entries[i]);
                         }
                     }
                 }
 
-                //Deletes other treeview item types.
+                project.DeleteItem(selItem.GetItem());
+            }
+        }
+
+        /// <summary>
+        /// Renames the active item in the treeview if possible.
+        /// </summary>
+        private void RenameTreeViewItem()
+        {
+            var selItem = (TreeViewDataItem)gui.GuiTreeView.SelectedItem;
+
+            //If the selection is null, it cannot be renamed.
+            if (selItem == null || selItem.GetItem() == null)
+            {
+                return;
+            }
+
+            //The all group cannot be renamed.
+            else if (selItem.GetItem().type == DataItemTypes.Grouping &&
+                (string)selItem.GetItem().GetData("name") ==
+                GlobalStrings.AutoAllGroup &&
+                GetAutoAddedGroup(selItem) == selItem.GetItem().guid)
+            {
+                return;
+            }
+
+            //Provides a textbox to rename the item.
+            DlgTextbox txtbx = new DlgTextbox();
+            if (txtbx.ShowDialog() == true && txtbx.GetText().Length > 0)
+            {
+                if (selItem.GetItem().type == DataItemTypes.GroupingEntryRef)
+                {
+                    project.GetEntryRefEntry(selItem.GetItem())
+                        .SetData("name", txtbx.GetText());
+                }
                 else
                 {
-                    if (selItem.GetItem().type == DataItemTypes.Collection)
-                    {
-                        //Deletes all groups and their entry references.
-                        var childGrps = project.GetCollectionGroupings(selItem.GetItem());
-                        for (int i = 0; i < childGrps.Count; i++)
-                        {
-                            //Deletes all entry references per group.
-                            var grpEntryRefs = project.GetGroupingEntryRefs(childGrps[i]);
-                            for (int j = 0; j < grpEntryRefs.Count; j++)
-                            {
-                                project.DeleteItem(grpEntryRefs[i]);
-                            }
-
-                            project.DeleteItem(childGrps[i]);
-                        }
-
-                        //Deletes all entries.
-                        var childEnts = project.GetCollectionEntries(selItem.GetItem());
-                        for (int i = 0; i < childEnts.Count; i++)
-                        {
-                            //Deletes all entry fields per entry.
-                            var entryFields = project.GetEntryFields(childEnts[i]);
-                            for (int j = 0; j < entryFields.Count; j++)
-                            {
-                                project.DeleteItem(entryFields[i]);
-                            }
-
-                            project.DeleteItem(childEnts[i]);
-                        }
-                    }
-                    else if (selItem.GetItem().type == DataItemTypes.Grouping)
-                    {
-                        //Gets the grouping entry references and entry references
-                        //of the entries, which might be more encompassing.
-                        var entries = project.GetGroupingEntries(selItem.GetItem());
-
-                        //Iterates through each entry to get its references.
-                        for (int i = 0; i < entries.Count; i++)
-                        {
-                            //Delete entries with fields whose only ref is in this group.
-                            if (project.GetEntryEntryRefs(entries[i]).Count == 1)
-                            {
-                                var fields = project.GetEntryFields(entries[i]);
-
-                                for (int j = 0; j < fields.Count; j++)
-                                {
-                                    project.DeleteItem(fields[j]);
-                                }
-
-                                project.DeleteItem(entries[i]);
-                            }
-                        }
-                    }
-
-                    project.DeleteItem(selItem.GetItem());
+                    selItem.GetItem().SetData("name", txtbx.GetText());
                 }
+
+                RefreshTreeview();
             }
         }
 
@@ -1035,7 +1110,7 @@ namespace CrystalKeeper.Gui
 
                 //Adds an item to search by name.
                 CmbxDataItem defaultItem = new CmbxDataItem(null);
-                defaultItem.Content = "Name";
+                defaultItem.Content = GlobalStrings.AutoFilterField;
                 defaultItem.MouseDown += (c, d) =>
                 {
                     treeviewFilterField = null;
@@ -1249,7 +1324,8 @@ namespace CrystalKeeper.Gui
                 {
                     for (int i = 0; i < grps.Count; i++)
                     {
-                        if ((string)grps[i].GetData("name") == "all")
+                        if ((string)grps[i].GetData("name") ==
+                            GlobalStrings.AutoAllGroup)
                         {
                             if (grps[i].guid < allGrpId)
                             {
@@ -1506,30 +1582,7 @@ namespace CrystalKeeper.Gui
                     gui.GuiMenuTemplates.Items.Add(item);
                     item.Click += new RoutedEventHandler((a, b) =>
                     {
-                        //Opens the edit template dialog for it.
-                        var dlg = new DlgEditTemplate(project, itemTemplate);
-
-                        //Updates the template name to match.
-                        dlg.DataNameChanged += new EventHandler((c, d) =>
-                        {
-                            item.Refresh();
-                        });
-
-                        //Updates the template list for a deleted template.
-                        if (dlg.ShowDialog() == false &&
-                            !project.Items.Contains(itemTemplate))
-                        {
-                            gui.GuiMenuTemplates.Items.Remove(item);
-                        }
-
-                        item.Refresh();
-
-                        //Updates the gui if non-template data changes.
-                        if (dlg.ReferencesInvalidated)
-                        {
-                            ConstructVisuals();
-                            SetPage();
-                        }
+                        PromptEditTemplates(item);
                     });
                 }
             }
@@ -1537,6 +1590,90 @@ namespace CrystalKeeper.Gui
 
             //Expands the full tree.
             dat?.ExpandSubtree();
+        }
+
+        /// <summary>
+        /// Edits an existing template if one exists, or creates a new one.
+        /// </summary>
+        /// <param name="item">
+        /// The menu item with the template data to be edited.
+        /// </param>
+        private void PromptEditTemplates(object item)
+        {
+            //True if opening an existing template, else false.
+            bool isEditing = false;
+
+            //Copies the entire project so changes can be saved or discarded.
+            Project projectCopy = new Project(project);
+
+            MenuDataItem itemToEdit = null;
+            DataItem template = null;
+
+            //Opens an associated template for the menu if it exists.
+            if (item is MenuDataItem &&
+                ((MenuDataItem)item).GetItem().type == DataItemTypes.Template)
+            {
+                itemToEdit = item as MenuDataItem;
+                template = itemToEdit.GetItem();
+                isEditing = true;
+            }
+
+            //If there is no associated template, a new one is created.
+            else
+            {
+                template = projectCopy.GetItemByGuid(projectCopy.AddTemplate(
+                String.Empty, true, true, 3, TemplateImagePos.Under,
+                "Arial", 0, 0, 0, 0, 0, 0));
+
+                //Creates two template columns.
+                ulong col1 = projectCopy.AddTemplateColumnData(true, template.guid);
+                projectCopy.AddTemplateColumnData(false, template.guid);
+
+                //Creates the required entry name and images fields.
+                projectCopy.AddTemplateField(GlobalStrings.AutoImagesField,
+                    col1, TemplateFieldType.EntryImages, true, true, 0);
+
+                //Adds the template to the list of templates.
+                itemToEdit = new MenuDataItem(template);
+                itemToEdit.Click += GuiTemplateNew_Click;
+            }
+
+            //Opens the dialog to set the template data.
+            var dlg = new DlgEditTemplate(projectCopy, template);
+
+            bool? dlgValue = dlg.ShowDialog();
+
+            //Updates the template list for a deleted template.
+            if (dlgValue == false &&
+                !projectCopy.Items.Any(a => a.guid == template.guid))
+            {
+                project.Items.Remove(template);
+                gui.GuiMenuTemplates.Items.Remove(itemToEdit);
+            }
+
+            //Saves changes to the template.
+            if (dlgValue == true)
+            {
+                //Copies the project and resets event handlers.
+                project = projectCopy;
+
+                //Updates the name of the item.
+                itemToEdit.Header = (string)project
+                    .GetItemByGuid(template.guid).GetData("name");
+
+                //Rebinds project event hooks lost during copy.
+                project.Items.CollectionChanged += ChangeTreeview;
+
+                //Adds the new menu item if one was created.
+                if (!isEditing)
+                {
+                    gui.GuiMenuTemplates.Items.Add(itemToEdit);
+                }
+                
+                //Avoids an error that somehow prevents all project changes.
+                ConstructVisuals();
+                SetPage();
+            }
         }
 
         /// <summary>
@@ -1570,7 +1707,8 @@ namespace CrystalKeeper.Gui
             {
                 for (int i = 0; i < grps.Count; i++)
                 {
-                    if ((string)grps[i].GetData("name") == "all")
+                    if ((string)grps[i].GetData("name") ==
+                        GlobalStrings.AutoAllGroup)
                     {
                         if (grps[i].guid < allGrp)
                         {
@@ -1785,7 +1923,7 @@ namespace CrystalKeeper.Gui
             }
             else if (selItem.type == DataItemTypes.Collection)
             {
-                PgCollectionView page = new PgCollectionView(project, selItem);
+                PgCollectionView page = new PgCollectionView(project, selItem, saveUrl);
 
                 if (!string.IsNullOrWhiteSpace(page.BgImage))
                 {
@@ -1828,8 +1966,7 @@ namespace CrystalKeeper.Gui
                 {
                     //Creates a message explaining the group can't be edited.
                     TextBlock emptyMessage = new TextBlock();
-                    emptyMessage.Text = "This group is auto-generated " +
-                        "and can't be edited.";
+                    emptyMessage.Text = GlobalStrings.HintGroupingNoEdit;
                     emptyMessage.HorizontalAlignment = HorizontalAlignment.Center;
                     emptyMessage.VerticalAlignment = VerticalAlignment.Center;
                     emptyMessage.Foreground = Brushes.LightGray;
@@ -1869,7 +2006,7 @@ namespace CrystalKeeper.Gui
             }
             else if (selItem.type == DataItemTypes.Grouping)
             {
-                PgGroupingView page = new PgGroupingView(project, selItem);
+                PgGroupingView page = new PgGroupingView(project, selItem, saveUrl);
 
                 if (!string.IsNullOrWhiteSpace(page.BgImage))
                 {
@@ -2012,8 +2149,8 @@ namespace CrystalKeeper.Gui
                         else
                         {
                             //Removes the file if it can't be found.
-                            MessageBox.Show("The project at " + url +
-                                " could not be loaded.");
+                            MessageBox.Show(GlobalStrings.DlgProjectNoLoadA
+                                + url + GlobalStrings.DlgProjectNoLoadB);
 
                             Utils.RegRemoveRecentlyOpen(url);
                             gui.GuiFileRecent.Items.Remove(item);
@@ -2022,8 +2159,8 @@ namespace CrystalKeeper.Gui
                     else
                     {
                         //Removes the file if it can't be found.
-                        MessageBox.Show("The project at " + url +
-                            " could not be found.");
+                        MessageBox.Show(GlobalStrings.DlgProjectNotFoundA
+                            + url + GlobalStrings.DlgProjectNotFoundB);
 
                         Utils.RegRemoveRecentlyOpen(url);
                         gui.GuiFileRecent.Items.Remove(item);

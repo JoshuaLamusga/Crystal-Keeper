@@ -70,7 +70,7 @@ namespace CrystalKeeper.Gui
                                 string.Empty,
                                 ((CmbxDataItem)gui.CmbxTemplate.SelectedItem).GetItem().guid);
 
-                            this.project.AddGrouping("all", col);
+                            this.project.AddGrouping(GlobalStrings.AutoAllGroup, col);
 
                             gui.Close();
                         }
