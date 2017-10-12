@@ -219,7 +219,10 @@ namespace CrystalKeeper.Gui
             try
             {
                 string folder = Utils.GetAppdataFolder(String.Empty);
-                Directory.Delete(folder, true);
+                if (Directory.Exists(folder))
+                {
+                    Directory.Delete(folder, true);
+                }
             }
             catch (IOException ex)
             {

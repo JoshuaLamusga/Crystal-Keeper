@@ -20,8 +20,7 @@
             Stretch="None"/>
         <StackPanel Name="GuiPanel"
             Grid.Row="1"
-            Margin="0,0,0,10">
-        </StackPanel>
+            Margin="0,0,0,10"/>
         <Button Name="GuiNew"
             IsDefault="True"
             Grid.Row="2"

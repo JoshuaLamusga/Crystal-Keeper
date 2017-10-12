@@ -22,6 +22,9 @@ namespace CrystalKeeper.Gui
         #endregion
 
         #region Constructors
+        /// <summary>
+        /// Creates a new project dialog.
+        /// </summary>
         public DlgNewProject()
         {
             gui = new DlgNewProjectGui();
@@ -32,20 +35,16 @@ namespace CrystalKeeper.Gui
             //Gets recently-opened URLs.
             var recentFiles = Utils.GetRecentlyOpened().Split('|').ToList();
 
-            //Constructs a textblock noting recent files.
-            if (recentFiles.Count > 0 && recentFiles.FirstOrDefault() != String.Empty)
-            {
-                TextBlock txtblkRecentFiles = new TextBlock();
-                txtblkRecentFiles.Text = GlobalStrings.NewProjectRecent;
-                txtblkRecentFiles.Foreground = Brushes.DarkGray;
-                txtblkRecentFiles.Margin = new Thickness(4);
-                txtblkRecentFiles.HorizontalAlignment = HorizontalAlignment.Center;
-                gui.GuiPanel.Children.Add(txtblkRecentFiles);
-            }
-            
             //Adds an entry for each recent file.
             for (int i = 0; i < recentFiles.Count; i++)
             {
+                //Skips files that don't exist.
+                if (!File.Exists(recentFiles[i]))
+                {
+                    continue;
+                }
+
+                //Builds a button for each file to open it.
                 TextBlock txtblk = new TextBlock();
                 txtblk.Tag = recentFiles[i].ToString();
                 txtblk.Text = Path.GetFileName(recentFiles[i]);
@@ -93,6 +92,17 @@ namespace CrystalKeeper.Gui
                 };
 
                 gui.GuiPanel.Children.Add(txtblk);
+            }
+
+            //Constructs a textblock noting recent files.
+            if (gui.GuiPanel.Children.Count > 0)
+            {
+                TextBlock txtblkRecentFiles = new TextBlock();
+                txtblkRecentFiles.Text = GlobalStrings.NewProjectRecent;
+                txtblkRecentFiles.Foreground = Brushes.DarkGray;
+                txtblkRecentFiles.Margin = new Thickness(4);
+                txtblkRecentFiles.HorizontalAlignment = HorizontalAlignment.Center;
+                gui.GuiPanel.Children.Insert(0, txtblkRecentFiles);
             }
         }
         #endregion
