@@ -252,8 +252,8 @@
   <data name="DefaultTemplateLocalitiesTitle" xml:space="preserve">
     <value>Localities</value>
   </data>
-  <data name="DefaultTemplateMineralsExtraImages" xml:space="preserve">
-    <value>Extra Images</value>
+  <data name="DefaultTemplateMineralsDimensions" xml:space="preserve">
+    <value>Dimensions</value>
   </data>
   <data name="DefaultTemplateMineralsGpsLocation" xml:space="preserve">
     <value>GPS Location</value>

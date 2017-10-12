@@ -6189,7 +6189,6 @@ Lazulite||MgAl_2_(PO_4_)_2_(OH)_2_|Austria|1
 Lazulite-Scorzalite Series||||0
 Lazur-Apatite||||0
 Lazur-Feldspath||||0
-Lazurite||||0
 Lazurite|Sodalite group|Na_3_Ca(Si_3_Al_3_)O_12_S|Afghanistan|1
 Lead Glass||||0
 Lead Ochre||||0

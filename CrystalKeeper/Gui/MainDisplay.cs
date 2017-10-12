@@ -225,14 +225,17 @@ namespace CrystalKeeper.Gui
             project.AddTemplateField(GlobalStrings.DefaultTemplateMineralsImages, col1Guid,
                 TemplateFieldType.EntryImages, true, false, 0);
             project.AddTemplateField(
-                GlobalStrings.DefaultTemplateMineralsExtraImages,
-                col1Guid, TemplateFieldType.Images, true, false, 1);
-            project.AddTemplateField(
                 GlobalStrings.DefaultTemplateMineralsPrimaryMineralSpecies,
-                col1Guid, TemplateFieldType.Min_Name, true, true, 2);
+                col1Guid, TemplateFieldType.Min_Name, true, true, 1);
             project.AddTemplateField(
                 GlobalStrings.DefaultTemplateMineralsSecondaryMineralSpecies,
-                col1Guid, TemplateFieldType.Min_Name, true, true, 3);
+                col1Guid, TemplateFieldType.Min_Name, true, true, 2);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateMineralsDimensions,
+                col1Guid, TemplateFieldType.Text, true, true, 3);
+            project.AddTemplateField(
+                GlobalStrings.DefaultTemplateMineralsMarketValue,
+                col1Guid, TemplateFieldType.MoneyUSD, true, true, 4);
             project.AddTemplateField(
                 GlobalStrings.DefaultTemplateMineralsPrimaryChemicalFormula,
                 col2Guid, TemplateFieldType.Min_Formula, true, true, 0);
@@ -246,11 +249,8 @@ namespace CrystalKeeper.Gui
                 GlobalStrings.DefaultTemplateMineralsGpsLocation,
                 col2Guid, TemplateFieldType.Hyperlink, true, true, 3);
             project.AddTemplateField(
-                GlobalStrings.DefaultTemplateMineralsMarketValue,
-                col2Guid, TemplateFieldType.MoneyUSD, true, true, 4);
-            project.AddTemplateField(
                 GlobalStrings.DefaultTemplateMineralsNotes,
-                col2Guid, TemplateFieldType.Text, true, true, 5);
+                col2Guid, TemplateFieldType.Text, true, true, 4);
 
             //Sets up a layout for locality notes.
             ulong localitiesGuid = project.AddTemplate(

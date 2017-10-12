@@ -493,11 +493,11 @@ namespace CrystalKeeper.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Extra Images.
+        ///   Looks up a localized string similar to Dimensions.
         /// </summary>
-        public static string DefaultTemplateMineralsExtraImages {
+        public static string DefaultTemplateMineralsDimensions {
             get {
-                return ResourceManager.GetString("DefaultTemplateMineralsExtraImages", resourceCulture);
+                return ResourceManager.GetString("DefaultTemplateMineralsDimensions", resourceCulture);
             }
         }
         

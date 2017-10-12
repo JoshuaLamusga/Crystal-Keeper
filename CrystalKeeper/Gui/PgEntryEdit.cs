@@ -468,7 +468,7 @@ namespace CrystalKeeper.Gui
 
                     if (!isAnimated)
                     {
-                        StackPanel imagesContainer = new StackPanel();
+                        Grid imagesContainer = new Grid();
 
                         //Creates an image for each url.
                         for (int j = 0; j < loadedUrls.Count; j++)
@@ -496,6 +496,17 @@ namespace CrystalKeeper.Gui
                                 {
                                     thumbnail.MaxWidth = thumbnail.GetSourceWidth();
                                     thumbnail.MaxHeight = thumbnail.GetSourceHeight();
+
+                                    //Limits to 500px. Sets only one dimension
+                                    //so the other can adapt automatically.
+                                    if (thumbnail.MaxHeight > 500)
+                                    {
+                                        thumbnail.MaxHeight = 500;
+                                    }
+                                    else if (thumbnail.MaxWidth > 500)
+                                    {
+                                        thumbnail.MaxWidth = 500;
+                                    }
                                 }
                                 else
                                 {
@@ -513,35 +524,11 @@ namespace CrystalKeeper.Gui
                                 contentControls.HorizontalAlignment = HorizontalAlignment.Center;
                             }
 
-                            //Reverses element order.
-                            if (extraImagePos == TemplateImagePos.Above ||
-                                extraImagePos == TemplateImagePos.Left)
-                            {
-                                List<UIElement> elements = new List<UIElement>();
-                                for (int k = 0; k < imagesContainer.Children.Count; k++)
-                                {
-                                    elements.Add(imagesContainer.Children[k]);
-                                }
-                                elements.Reverse();
-                                imagesContainer.Children.Clear();
-                                for (int k = 0; k < elements.Count; k++)
-                                {
-                                    imagesContainer.Children.Add(elements[k]);
-                                }
-                            }
-
-                            //Changes orientation.
-                            if (extraImagePos == TemplateImagePos.Left ||
-                                extraImagePos == TemplateImagePos.Right)
-                            {
-                                imagesContainer.Orientation = Orientation.Horizontal;
-                            }
-
                             StackPanel imageControls = new StackPanel();
                             imageControls.Children.Add(contentControls);
                             imageControls.Children.Add(thumbnail);
 
-                            elementsContainer.Children.Add(imageControls);
+                            imagesContainer.Children.Add(imageControls);
 
                             //Waits until the image is fully loaded.
                             thumbnail.Loaded += (a, b) =>
@@ -596,6 +583,79 @@ namespace CrystalKeeper.Gui
                                 }
                             };
                         }
+
+                        //Reverses element order.
+                        if (extraImagePos == TemplateImagePos.Above ||
+                            extraImagePos == TemplateImagePos.Left)
+                        {
+                            List<UIElement> elements = new List<UIElement>();
+                            for (int k = 0; k < imagesContainer.Children.Count; k++)
+                            {
+                                elements.Add(imagesContainer.Children[k]);
+                            }
+                            elements.Reverse();
+                            imagesContainer.Children.Clear();
+                            for (int k = 0; k < elements.Count; k++)
+                            {
+                                imagesContainer.Children.Add(elements[k]);
+                            }
+                        }
+
+                        //Sets position of elements.
+                        for (int k = 0; k < imagesContainer.Children.Count; k++)
+                        {
+                            var item = imagesContainer.Children[k];
+
+                            if (extraImagePos == TemplateImagePos.Left ||
+                                extraImagePos == TemplateImagePos.Right)
+                            {
+                                //Centers controls that support it.
+                                if (typeof(FrameworkElement).IsAssignableFrom(item.GetType()))
+                                {
+                                    ((FrameworkElement)item).VerticalAlignment = VerticalAlignment.Center;
+                                }
+
+                                Grid.SetColumn(item, imagesContainer.ColumnDefinitions.Count);
+                                imagesContainer.ColumnDefinitions.Add(new ColumnDefinition());
+                            }
+                            else
+                            {
+                                Grid.SetRow(item, imagesContainer.RowDefinitions.Count);
+                                imagesContainer.RowDefinitions.Add(new RowDefinition());
+                            }
+                        }
+
+                        ScrollViewer horzScroller = new ScrollViewer();
+                        horzScroller.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                        horzScroller.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+                        horzScroller.Content = imagesContainer;
+
+                        //Centers the scrollbar for new items.
+                        horzScroller.Loaded += (a, b) =>
+                        {
+                            horzScroller.ScrollToHorizontalOffset(horzScroller.ScrollableWidth / 2);
+                        };
+
+                        //Sets the width and columns of the images container.
+                        if ((templateType == TemplateFieldType.EntryImages) &&
+                            tCenterImages)
+                        {
+                            AdjustWidths(horzScroller, false);
+                            Grid.SetRow(horzScroller, 1);
+                            gui.GuiItems.Children.Add(horzScroller);
+                        }
+                        else if (isFirstColumn)
+                        {
+                            AdjustWidths(horzScroller, tTwoColumns);
+                            gui.LeftColItems.Children.Add(horzScroller);
+                        }
+                        else
+                        {
+                            AdjustWidths(horzScroller, tTwoColumns);
+                            gui.RightColItems.Children.Add(horzScroller);
+                        }
+
+                        continue;
                     }
                     else
                     {
