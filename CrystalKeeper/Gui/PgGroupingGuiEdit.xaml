@@ -14,6 +14,7 @@
             Padding="4px"
             HorizontalAlignment="Stretch"
             TextAlignment="Center"
+            TextWrapping="Wrap"
             VerticalAlignment="Center"
             FontWeight="Bold"
             FontSize="24px"/>

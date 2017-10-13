@@ -21,6 +21,7 @@
             FontWeight="Bold"
             Grid.Row="0"
             TextAlignment="Center"
+            TextWrapping="Wrap"
             Padding="4px"/>
         
         <!-- Centered entry images may be added here automatically. -->

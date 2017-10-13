@@ -206,10 +206,14 @@ namespace CrystalKeeper.Core
 
                             //Reads the image data to a file and points to it.
                             int numBytesInImage = reader.ReadInt32();
-                            byte[] fileData = reader.ReadBytes(numBytesInImage);
-                            string newUrl = Utils.GetAppdataFolder("Background.png");
-                            File.WriteAllBytes(newUrl, fileData);
-                            item.SetData("imageUrl", newUrl);
+
+                            if (numBytesInImage > 0)
+                            {
+                                byte[] fileData = reader.ReadBytes(numBytesInImage);
+                                string newUrl = Utils.GetAppdataFolder("Background.png");
+                                File.WriteAllBytes(newUrl, fileData);
+                                item.SetData("imageUrl", newUrl);
+                            }
 
                             break;
                         case DataItemTypes.Entry:
@@ -473,7 +477,7 @@ namespace CrystalKeeper.Core
                             }
                             else
                             {
-                                writer.Write(0L);
+                                writer.Write(0);
                             }
                             break;
                         case DataItemTypes.Entry:

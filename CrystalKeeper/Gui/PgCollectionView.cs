@@ -362,7 +362,8 @@ namespace CrystalKeeper.Gui
                 blk.Text = (string)grps[i].GetData("name");
                 blk.Padding = new Thickness(4);
                 blk.TextAlignment = TextAlignment.Center;
-                blk.HorizontalAlignment = HorizontalAlignment.Center;
+                blk.TextWrapping = TextWrapping.Wrap;
+                blk.HorizontalAlignment = HorizontalAlignment.Left;
                 blk.VerticalAlignment = VerticalAlignment.Bottom;
                 blk.FontSize = 14;
                 blk.Width = 300;

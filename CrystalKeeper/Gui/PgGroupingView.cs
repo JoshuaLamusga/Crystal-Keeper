@@ -352,6 +352,7 @@ namespace CrystalKeeper.Gui
                 TextBlock blk = new TextBlock();
                 blk.Background = new SolidColorBrush(Color.FromArgb(196, 255, 255, 255));
                 blk.Text = (string)project.GetEntryRefEntry(entryRefs[i]).GetData("name");
+                blk.TextWrapping = TextWrapping.Wrap;
                 blk.Padding = new Thickness(4);
                 blk.TextAlignment = TextAlignment.Center;
                 blk.HorizontalAlignment = HorizontalAlignment.Center;
