@@ -305,6 +305,9 @@ namespace CrystalKeeper.Gui
             gui.RadTwoColumns.IsChecked = isTwoColumn;
             gui.RadTwoColumns.Checked += RadTwoColumns_Checked;
 
+            gui.BttnMoveLeft.IsEnabled = isTwoColumn;
+            gui.BttnMoveRight.IsEnabled = isTwoColumn;
+
             //Disables/enables the columns on load.
             gui.LstbxCol2.IsEnabled = isTwoColumn;
             gui.BttnMoveLeft.IsEnabled = isTwoColumn;
@@ -711,7 +714,8 @@ namespace CrystalKeeper.Gui
         /// </summary>
         private void MoveFieldColumn()
         {
-            if (ActiveField == null)
+            if (ActiveField == null ||
+                !((bool)this.template.GetData("twoColumns")))
             {
                 return;
             }
@@ -1121,7 +1125,15 @@ namespace CrystalKeeper.Gui
         /// </summary>
         private void RadTwoColumns_Checked(object sender, RoutedEventArgs e)
         {
+            gui.BttnMoveLeft.IsEnabled = true;
+            gui.BttnMoveRight.IsEnabled = true;
             template.SetData("twoColumns", true);
+
+            //Adds a second column to the project if necessary.
+            if (project.GetTemplateColumns(template).Count == 1)
+            {
+                project.AddTemplateColumnData(false, template.guid);
+            }
 
             //Enables column 2.
             gui.LstbxCol2.IsEnabled = true;
@@ -1135,6 +1147,8 @@ namespace CrystalKeeper.Gui
         /// </summary>
         private void RadOneColumn_Checked(object sender, RoutedEventArgs e)
         {
+            gui.BttnMoveLeft.IsEnabled = false;
+            gui.BttnMoveRight.IsEnabled = false;
             template.SetData("twoColumns", false);
 
             //Appends all items from column 2 to column 1.
@@ -1159,6 +1173,12 @@ namespace CrystalKeeper.Gui
             {
                 ((LstbxDataItem)gui.LstbxCol1.Items.GetItemAt(i))
                     .GetItem().SetData("columnOrder", i);
+            }
+
+            //Removes the second column.
+            if (project.GetTemplateColumns(template).Count > 1)
+            {
+                project.DeleteItem(project.GetTemplateColumns(template)[1]);
             }
 
             //Disables column 2.

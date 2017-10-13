@@ -163,9 +163,8 @@ namespace CrystalKeeper.Gui
                 blk.Padding = new Thickness(4);
                 blk.TextAlignment = TextAlignment.Center;
                 blk.TextWrapping = TextWrapping.Wrap;
+                blk.HorizontalAlignment = HorizontalAlignment.Stretch;
                 blk.FontSize = 14;
-                blk.Width = 300;
-                blk.MaxWidth = 300;
 
                 //Bold when hovered.
                 blk.MouseEnter +=
