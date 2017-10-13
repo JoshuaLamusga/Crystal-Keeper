@@ -2,6 +2,7 @@
 using Microsoft.Win32;
 using System;
 using System.IO;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 
@@ -169,31 +170,25 @@ namespace CrystalKeeper.Gui
                 if (File.Exists(bgUrl))
                 {
                     gui.ImgDeleteBgImage.IsEnabled = true;
-                    gui.ImgDeleteBgImage.Visibility =
-                        System.Windows.Visibility.Visible;
+                    gui.ImgDeleteBgImage.Visibility = Visibility.Visible;
                     gui.ImgBgImage.IsEnabled = true;
-                    gui.ImgBgImage.Visibility =
-                        System.Windows.Visibility.Visible;
+                    gui.ImgBgImage.Visibility = Visibility.Visible;
                     gui.ImgBgImage.Source =
                         new BitmapImage(new Uri(bgUrl, UriKind.Absolute));
                 }
                 else
                 {
                     gui.ImgDeleteBgImage.IsEnabled = false;
-                    gui.ImgDeleteBgImage.Visibility =
-                        System.Windows.Visibility.Collapsed;
+                    gui.ImgDeleteBgImage.Visibility = Visibility.Collapsed;
                     gui.ImgBgImage.IsEnabled = false;
-                    gui.ImgBgImage.Visibility =
-                        System.Windows.Visibility.Collapsed;
+                    gui.ImgBgImage.Visibility = Visibility.Collapsed;
                 }
             }
             else
             {
                 gui.ImgDeleteBgImage.IsEnabled = false;
-                gui.ImgDeleteBgImage.Visibility =
-                    System.Windows.Visibility.Collapsed;
-                gui.ImgBgImage.Visibility =
-                    System.Windows.Visibility.Collapsed;
+                gui.ImgDeleteBgImage.Visibility = Visibility.Collapsed;
+                gui.ImgBgImage.Visibility = Visibility.Collapsed;
                 gui.ImgBgImage.IsEnabled = false;
             }
 
@@ -217,11 +212,9 @@ namespace CrystalKeeper.Gui
                 {
                     dat.SetData("imageUrl", String.Empty);
                     gui.ImgDeleteBgImage.IsEnabled = false;
-                    gui.ImgDeleteBgImage.Visibility =
-                        System.Windows.Visibility.Collapsed;
+                    gui.ImgDeleteBgImage.Visibility = Visibility.Collapsed;
                     gui.ImgBgImage.IsEnabled = false;
-                    gui.ImgBgImage.Visibility =
-                        System.Windows.Visibility.Collapsed;
+                    gui.ImgBgImage.Visibility = Visibility.Collapsed;
 
                     BgImageChanged?.Invoke(this, null);
                 });
@@ -237,7 +230,7 @@ namespace CrystalKeeper.Gui
 
             //Allows the user to browse to an image if selected.
             gui.BttnBrowseBgImage.Click +=
-                new System.Windows.RoutedEventHandler((a, b) =>
+                new RoutedEventHandler((a, b) =>
                 {
                     OpenFileDialog dlg = new OpenFileDialog();
                     dlg.CheckPathExists = true;
@@ -247,19 +240,27 @@ namespace CrystalKeeper.Gui
                     dlg.FileOk +=
                         new System.ComponentModel.CancelEventHandler((c, d) =>
                         {
-                            bgUrl = dlg.FileName;
-                            dat.SetData("imageUrl", bgUrl);
+                            try
+                            {
+                                bgUrl = dlg.FileName;
 
-                            gui.ImgDeleteBgImage.IsEnabled = true;
-                            gui.ImgDeleteBgImage.Visibility =
-                                System.Windows.Visibility.Visible;
-                            gui.ImgBgImage.IsEnabled = true;
-                            gui.ImgBgImage.Visibility =
-                                System.Windows.Visibility.Visible;
-                            gui.ImgBgImage.Source = new BitmapImage(
-                                new Uri(bgUrl, UriKind.Absolute));
+                                gui.ImgBgImage.Source = new BitmapImage(
+                                    new Uri(bgUrl, UriKind.Absolute));
 
-                            BgImageChanged?.Invoke(this, null);
+                                dat.SetData("imageUrl", bgUrl);
+
+                                gui.ImgDeleteBgImage.IsEnabled = true;
+                                gui.ImgDeleteBgImage.Visibility = Visibility.Visible;
+                                gui.ImgBgImage.IsEnabled = true;
+                                gui.ImgBgImage.Visibility = Visibility.Visible;
+
+                                BgImageChanged?.Invoke(this, null);
+                            }
+                            catch (NotSupportedException e)
+                            {
+                                Utils.Log("Uploaded non-image: " + e);
+                                MessageBox.Show(GlobalStrings.DlgUploadImageError);
+                            }
                         });
 
                     dlg.ShowDialog();

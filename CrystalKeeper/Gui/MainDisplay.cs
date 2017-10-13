@@ -85,7 +85,6 @@ namespace CrystalKeeper.Gui
         public MainDisplay()
         {
             Initialize(null);
-            SaveUrl = String.Empty;
         }
 
         /// <summary>
@@ -97,7 +96,6 @@ namespace CrystalKeeper.Gui
         public MainDisplay(Project project, string saveUrl)
         {
             Initialize(project);
-            SaveUrl = saveUrl;
         }
         #endregion
 
@@ -148,11 +146,13 @@ namespace CrystalKeeper.Gui
             if (project != null)
             {
                 this.project = project;
+                SaveUrl = saveUrl;
             }
             else
             {
                 this.project = new Project();
                 InitializeDefaultProject();
+                SaveUrl = String.Empty;
             }
 
             //Clears any selections and reverts to viewing mode.
@@ -1001,7 +1001,7 @@ namespace CrystalKeeper.Gui
 
             //Provides a textbox to rename the item.
             DlgTextbox txtbx = new DlgTextbox();
-            if (txtbx.ShowDialog() == true && txtbx.GetText().Length > 0)
+            if (txtbx.ShowDialog() == true && !String.IsNullOrWhiteSpace(txtbx.GetText()))
             {
                 if (selItem.GetItem().type == DataItemTypes.GroupingEntryRef)
                 {

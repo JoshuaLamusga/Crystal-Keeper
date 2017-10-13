@@ -936,6 +936,15 @@ namespace CrystalKeeper.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The uploaded file is not an image, or is corrupt..
+        /// </summary>
+        public static string DlgUploadImageError {
+            get {
+                return ResourceManager.GetString("DlgUploadImageError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Data type:.
         /// </summary>
         public static string FieldEditorDataType {
