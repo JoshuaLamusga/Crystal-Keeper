@@ -24,6 +24,7 @@
             Grid.Row="0"
             Padding="4px"
             TextAlignment="Center"
+            TextWrapping="Wrap"
             VerticalAlignment="Center"
             FontWeight="Bold"
             FontSize="24px"/>

@@ -13,6 +13,7 @@
             Padding="0,0,0,24px"
             HorizontalAlignment="Center"
             TextAlignment="Center"
+            TextWrapping="Wrap"
             VerticalAlignment="Center"
             FontWeight="Bold"
             FontSize="24px"
