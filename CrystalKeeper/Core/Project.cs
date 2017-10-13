@@ -203,7 +203,14 @@ namespace CrystalKeeper.Core
                             item.SetData("defUseEditMode", reader.ReadBoolean());
                             item.SetData("description", reader.ReadString());
                             item.SetData("imageBackgroundEnabled", reader.ReadBoolean());
-                            item.SetData("imageUrl", reader.ReadString());
+
+                            //Reads the image data to a file and points to it.
+                            int numBytesInImage = reader.ReadInt32();
+                            byte[] fileData = reader.ReadBytes(numBytesInImage);
+                            string newUrl = Utils.GetAppdataFolder("Background.png");
+                            File.WriteAllBytes(newUrl, fileData);
+                            item.SetData("imageUrl", newUrl);
+
                             break;
                         case DataItemTypes.Entry:
                             item.SetData("name", reader.ReadString());
@@ -432,13 +439,6 @@ namespace CrystalKeeper.Core
                 (Assembly.GetExecutingAssembly().Location)
                 .ProductVersion);
 
-            //Ensures the database image path is relative.
-            string newPath = Utils.MakeRelativeUrl(url, (string)GetDatabase().GetData("imageUrl"));
-            if (newPath != String.Empty)
-            {
-                GetDatabase().SetData("imageUrl", newPath);
-            }
-
             //Writes all data items in arbitrary order.
             for (int i = 0; i < _items.Count; i++)
             {
@@ -463,7 +463,18 @@ namespace CrystalKeeper.Core
                             writer.Write((bool)item.GetData("defUseEditMode"));
                             writer.Write((string)item.GetData("description"));
                             writer.Write((bool)item.GetData("imageBackgroundEnabled"));
-                            writer.Write((string)item.GetData("imageUrl"));
+
+                            //Reads the data from the file.
+                            string imageUrl = (string)item.GetData("imageUrl");
+                            if (File.Exists(imageUrl))
+                            {
+                                writer.Write((int)(new FileInfo(imageUrl).Length));
+                                writer.Write(File.ReadAllBytes(imageUrl));
+                            }
+                            else
+                            {
+                                writer.Write(0L);
+                            }
                             break;
                         case DataItemTypes.Entry:
                             writer.Write((string)item.GetData("name"));
