@@ -444,12 +444,6 @@ namespace CrystalKeeper.Gui
                     //Gets url data.
                     loadedUrls = allData.GetRange(2, allData.Count - 2);
 
-                    //Turns each relative url into an absolute one.
-                    for (int j = 0; j < loadedUrls.Count; j++)
-                    {
-                        loadedUrls[j] = Utils.MakeAbsoluteUrl(projectUrl, loadedUrls[j]);
-                    }
-
                     //Adds an extra image slot if one doesn't exist.
                     if (loadedUrls.LastOrDefault().Trim() != String.Empty)
                     {
@@ -628,6 +622,7 @@ namespace CrystalKeeper.Gui
                         ScrollViewer horzScroller = new ScrollViewer();
                         horzScroller.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
                         horzScroller.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+                        horzScroller.Focusable = false;
                         horzScroller.Content = imagesContainer;
 
                         //Centers the scrollbar for new items.

@@ -496,12 +496,6 @@ namespace CrystalKeeper.Gui
                     //Gets url data.
                     loadedUrls = allData.GetRange(2, allData.Count - 2);
 
-                    //Turns each relative url into an absolute one.
-                    for (int j = 0; j < loadedUrls.Count; j++)
-                    {
-                        loadedUrls[j] = Utils.MakeAbsoluteUrl(projectUrl, loadedUrls[j]);
-                    }
-
                     //If no urls are valid, skips the field.
                     if (!loadedUrls.Any((a) => { return File.Exists(a); }))
                     {

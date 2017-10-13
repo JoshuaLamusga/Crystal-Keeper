@@ -208,13 +208,6 @@ namespace CrystalKeeper.Gui
                             isAnimated = (loadedData[0] == "True");
                             isMuted = (loadedData[1] == "True");
                             urls = loadedData.GetRange(2, loadedData.Count - 2);
-
-                            //Gets absolute urls of each url and keeps valid urls.
-                            for (int k = 0; k < urls.Count; k++)
-                            {
-                                urls[k] = Utils.MakeAbsoluteUrl(projectUrl, urls[k]);
-                            }
-
                             urls = urls.Where(o => File.Exists(o)).ToList();
                         }
 
@@ -363,11 +356,9 @@ namespace CrystalKeeper.Gui
                 blk.Padding = new Thickness(4);
                 blk.TextAlignment = TextAlignment.Center;
                 blk.TextWrapping = TextWrapping.Wrap;
-                blk.HorizontalAlignment = HorizontalAlignment.Left;
+                blk.HorizontalAlignment = HorizontalAlignment.Stretch;
                 blk.VerticalAlignment = VerticalAlignment.Bottom;
                 blk.FontSize = 14;
-                blk.Width = 300;
-                blk.MaxWidth = 300;
 
                 //Bold when hovered.
                 blk.MouseEnter +=
