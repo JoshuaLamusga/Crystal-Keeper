@@ -22,7 +22,7 @@ namespace CrystalKeeper.Core
         /// <summary>
         /// A list of named properties with primitive values.
         /// </summary>
-        private Dictionary<string, object> _properties;
+        private Dictionary<string, object> properties;
         #endregion
 
         #region Constructors
@@ -37,7 +37,7 @@ namespace CrystalKeeper.Core
         {
             this.guid = guid;
             this.type = type;
-            _properties = new Dictionary<string, object>();
+            properties = new Dictionary<string, object>();
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace CrystalKeeper.Core
         {
             guid = item.guid;
             type = item.type;
-            _properties = new Dictionary<string, object>(item._properties);
+            properties = new Dictionary<string, object>(item.properties);
         }
         #endregion
 
@@ -57,44 +57,41 @@ namespace CrystalKeeper.Core
         /// </summary>
         public void ClearData()
         {
-            _properties.Clear();
+            properties.Clear();
         }
 
         /// <summary>
-        /// If guids are equal, the objects are considered equal.
+        /// Returns true if the guids are equal; false otherwise.
         /// </summary>
+        /// <param name="item">
+        /// The item to compare to this item for equality.
+        /// </param>
         public bool Equals(DataItem item)
         {
             return (guid == item?.guid);
         }
 
         /// <summary>
-        /// Returns a copy of all data.
+        /// Returns a shallow copy of all data.
         /// </summary>
-        /// <returns>
-        ///  A Dictionary object shallow copy of all data.
-        /// </returns>
         public Dictionary<string, object> GetData()
         {
-            return new Dictionary<string, object>(_properties);
+            return new Dictionary<string, object>(properties);
         }
 
         /// <summary>
-        /// Attempts to get a property by name, returning an empty string if
-        /// not found. Warning: object returned is mutable.
+        /// Returns the value associated with the named property, or an empty
+        /// string if not found. The returned value is mutable.
         /// </summary>
         /// <param name="key">
         /// The property name to search for.
         /// </param>
-        /// <returns>
-        /// The property's value if it exists, or an emtpy string otherwise.
-        /// </returns>
         public object GetData(string key)
         {
-            if (_properties.ContainsKey(key) &&
-                _properties[key] != null)
+            if (properties.ContainsKey(key) &&
+                properties[key] != null)
             {
-                return _properties[key];
+                return properties[key];
             }
 
             return String.Empty;
@@ -104,31 +101,31 @@ namespace CrystalKeeper.Core
         /// Copies the data from the given dictionary.
         /// </summary>
         /// <param name="dict">
-        /// The dictionary to be copied.
+        /// The dictionary from which to copy all entries.
         /// </param>
         public void SetData(Dictionary<string, object> dict)
         {
-            _properties = new Dictionary<string, object>(dict);
+            properties = new Dictionary<string, object>(dict);
         }
 
         /// <summary>
-        /// Adds a value to the data, overwriting it if the key exists.
+        /// Associates a value with a key, overwriting any existing value.
         /// </summary>
         /// <param name="key">
-        /// The name of the property to add.
+        /// The name of the property to add (or overwrite).
         /// </param>
         /// <param name="value">
         /// The value associated with the property.
         /// </param>
         public void SetData(string key, object value)
         {
-            if (_properties.ContainsKey(key))
+            if (properties.ContainsKey(key))
             {
-                _properties[key] = value;
+                properties[key] = value;
             }
             else
             {
-                _properties.Add(key, value);
+                properties.Add(key, value);
             }
         }
         #endregion
