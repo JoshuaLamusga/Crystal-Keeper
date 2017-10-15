@@ -1008,7 +1008,7 @@ namespace CrystalKeeper.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add entries that with any of the letters from .
+        ///   Looks up a localized string similar to Add entries in the word range from  .
         /// </summary>
         public static string GroupingEditByLetterA {
             get {
