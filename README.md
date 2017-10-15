@@ -1,4 +1,5 @@
 # Crystal Keeper
 This program is a free, serverless solution to mineral cataloguing.
 
-The database stores any number of collections, each of which rely on a template that specifies how things are visually laid out and what fields to define. Collections store entries in groupings, and each collection has a default group called 'all' which stores every entry.
+See the [User documentation](https://github.com/JoshuaLamusga/Crystal-Keeper/wiki/User-Documentation)  
+Developers, check out the [Developer documentation](https://github.com/JoshuaLamusga/Crystal-Keeper/wiki/Developer-Documentation)  
