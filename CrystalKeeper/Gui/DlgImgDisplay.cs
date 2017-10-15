@@ -86,18 +86,6 @@ namespace CrystalKeeper.Gui
 
             Refresh();
         }
-
-        /// <summary>
-        /// Closes the image viewer if escape is pressed.
-        /// </summary>
-        private void GuiGrid_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            if (e.Key == System.Windows.Input.Key.Escape)
-            {
-                e.Handled = true;
-                gui.Close();
-            }
-        }
         #endregion
 
         #region Private Methods
@@ -150,6 +138,18 @@ namespace CrystalKeeper.Gui
             else
             {
                 gui.GuiList.Visibility = System.Windows.Visibility.Visible;
+            }
+        }
+
+        /// <summary>
+        /// Closes the image viewer if escape is pressed.
+        /// </summary>
+        private void GuiGrid_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Escape)
+            {
+                e.Handled = true;
+                gui.Close();
             }
         }
         #endregion

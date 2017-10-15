@@ -417,7 +417,7 @@ The collections using this template are: </value>
     <value>pictures|*.bmp;*.exif;*.gif;*.jpg;*.jpeg;*.png;*.ico;*.icon</value>
   </data>
   <data name="GroupingEditByLetterA" xml:space="preserve">
-    <value>Add entries that with any of the letters from </value>
+    <value>Add entries in the word range from  </value>
   </data>
   <data name="GroupingEditByLetterB" xml:space="preserve">
     <value> to </value>
