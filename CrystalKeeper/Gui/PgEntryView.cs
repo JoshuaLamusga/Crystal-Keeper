@@ -191,13 +191,14 @@ namespace CrystalKeeper.Gui
                 var fieldName = (string)currTemplateField.GetData("name");
                 var tfIsVisible = (bool)currTemplateField.GetData("isVisible");
                 var tfTitleIsVisible = (bool)currTemplateField.GetData("isTitleVisible");
+                bool displaySingleColumn = (bool)currTemplateField.GetData("displaySingleColumn");
 
                 //Gets the type of data and associated grid position.
                 var isFirstColumn = (bool)project.GetItemByGuid(
                     (ulong)currTemplateField.GetData("refGuid")).GetData("isFirstColumn");
 
                 //Skips all 2nd-column fields in a single-column layout.
-                if (!tTwoColumns && !isFirstColumn)
+                if (!tTwoColumns && !isFirstColumn && !displaySingleColumn)
                 {
                     continue;
                 }
@@ -760,10 +761,18 @@ namespace CrystalKeeper.Gui
 
                 //Sets the width and columns of the element container.
                 AdjustWidths(elementsContainer, tTwoColumns);
-                if (templateType == TemplateFieldType.EntryImages && tCenterImages)
+                if ((templateType == TemplateFieldType.EntryImages &&
+                    tCenterImages) || displaySingleColumn)
                 {
-                    Grid.SetRow(elementsContainer, 1);
-                    gui.GuiItems.Children.Add(elementsContainer);
+                    if (displaySingleColumn)
+                    {
+                        gui.FooterItems.Children.Add(elementsContainer);
+                    }
+                    else
+                    {
+                        Grid.SetRow(elementsContainer, 1);
+                        gui.GuiItems.Children.Add(elementsContainer);
+                    }
                 }
                 else if (isFirstColumn)
                 {

@@ -124,6 +124,10 @@ namespace CrystalKeeper.Gui
             gui.ChkbxFieldNameInvisible.IsChecked =
                 (bool)activeField.GetItem().GetData("isTitleVisible");
 
+            //Sets the default state of display as single column.
+            gui.ChkbxDisplaySingleColumn.IsChecked =
+                (bool)activeField.GetItem().GetData("displaySingleColumn");
+
             //Sets visibility of image-specific field options.
             if (dataType == TemplateFieldType.EntryImages ||
                 dataType == TemplateFieldType.Images)
@@ -687,10 +691,25 @@ namespace CrystalKeeper.Gui
             gui.CmbxDataType.SelectionChanged += CmbxDataType_SelectionChanged;
             gui.ChkbxFieldInvisible.Click += ChkbxFieldInvisible_Click;
             gui.ChkbxFieldNameInvisible.Click += ChkbxFieldNameInvisible_Click;
+            gui.ChkbxDisplaySingleColumn.Click += ChkbxDisplaySingleColumn_Click;
             gui.ChkbxDisplayAsCarousel.Click += ChkbxDisplayAsCarousel_Click;
             gui.TxtbxFieldNumImages.TextChanged += TxtbxFieldNumImages_TextChanged;
             gui.CmbxFieldImageAnchor.SelectionChanged += CmbxFieldImageAnchor_SelectionChanged;
             gui.BttnSaveChanges.Click += BttnSaveChanges_Click;
+        }
+
+        /// <summary>
+        /// Toggles whether the field should be displayed as a single column or not.
+        /// </summary>
+        private void ChkbxDisplaySingleColumn_Click(object sender, RoutedEventArgs e)
+        {
+            if (ActiveField == null)
+            {
+                return;
+            }
+
+            activeField.GetItem().SetData("displaySingleColumn",
+                gui.ChkbxDisplaySingleColumn.IsChecked);
         }
 
         /// <summary>
@@ -1137,6 +1156,10 @@ namespace CrystalKeeper.Gui
             //Sets the default value for the number of extra images.
             gui.TxtbxFieldNumImages.Text =
                 ((byte)activeField.GetItem().GetData("numExtraImages")).ToString();
+
+            //Sets the default value for display as single column.
+            gui.ChkbxDisplaySingleColumn.IsChecked =
+                (bool)activeField.GetItem().GetData("displaySingleColumn");
 
             //Sets the default value for display as carousel.
             gui.ChkbxDisplayAsCarousel.IsChecked =

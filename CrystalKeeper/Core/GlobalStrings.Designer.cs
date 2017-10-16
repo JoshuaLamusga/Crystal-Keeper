@@ -1017,6 +1017,15 @@ namespace CrystalKeeper.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Display in footer.
+        /// </summary>
+        public static string FieldEditorDisplaySingleColumn {
+            get {
+                return ResourceManager.GetString("FieldEditorDisplaySingleColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Show this field with entries.
         /// </summary>
         public static string FieldEditorFieldInvisible {

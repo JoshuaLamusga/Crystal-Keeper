@@ -11,6 +11,8 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         
@@ -25,6 +27,7 @@
             Padding="4px"/>
         
         <!-- Centered entry images may be added here automatically. -->
+        <!-- Grid row 1 is skipped on purpose. -->
         
         <!-- Creates a grid to contain all dynamic data. -->
         <Grid Name="ColumnGrid"
@@ -46,5 +49,9 @@
                 Grid.Column="3">
             </StackPanel>
         </Grid>
+        
+        <!-- Displays items at the end of the columnar layout. -->
+        <StackPanel Name="FooterItems"
+                    Grid.Row="3"/>
     </Grid>
 </UserControl>
