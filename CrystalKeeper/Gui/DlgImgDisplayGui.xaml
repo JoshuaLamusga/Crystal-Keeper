@@ -7,7 +7,12 @@
         Title="{x:Static lang:GlobalStrings.CaptionImages}"        
         WindowStartupLocation="CenterScreen">
     <Grid Name="GuiGrid">
-        <ScrollViewer HorizontalScrollBarVisibility="Auto"
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <ScrollViewer Grid.Column="0"
+                      HorizontalScrollBarVisibility="Auto"
                       VerticalScrollBarVisibility="Auto">
             <ListBox Name="GuiList"
                      Height="{Binding ElementName=GuiGrid, Path=ActualHeight}"
@@ -15,10 +20,10 @@
                      MaxWidth="300px"
                      VerticalAlignment="Top"/>
         </ScrollViewer>
-        <local:ZoomBorder x:Name="GuiImageBorder">
+        <local:ZoomBorder x:Name="GuiImageBorder"
+                          Grid.Column="1">
             <Image Name="GuiImage"
-                   HorizontalAlignment="Center"
-                   Stretch="None"/>
+                   HorizontalAlignment="Center"/>
         </local:ZoomBorder>
     </Grid>
 </Window>

@@ -966,7 +966,7 @@ namespace CrystalKeeper.Gui
                     }
 
                     //Replaces all images for multi-image uploads.
-                    if (dlg.FileNames.Length > 1)
+                    if (dlg.FileNames.Length > 1 || displayAsCarousel)
                     {
                         urls.Clear();
                     }
@@ -974,7 +974,9 @@ namespace CrystalKeeper.Gui
                     //Sets or adds images to the list.
                     for (int k = 0; k < dlg.FileNames.Length; k++)
                     {
-                        if (k == 0 && dlg.FileNames.Length == 1)
+                        if (k == 0 &&
+                            dlg.FileNames.Length == 1 &&
+                            !displayAsCarousel)
                         {
                             urls[urlIndex] = dlg.FileNames[k];
                         }
@@ -1085,7 +1087,7 @@ namespace CrystalKeeper.Gui
                 if (mssgResult == MessageBoxResult.Yes)
                 {
                     //Clears the url(s) of an animation or movie.
-                    if (isAnimatedMedia)
+                    if (isAnimatedMedia || displayAsCarousel)
                     {
                         urls.Clear();
                     }

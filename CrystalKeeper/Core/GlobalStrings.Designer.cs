@@ -349,6 +349,42 @@ namespace CrystalKeeper.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Store up to .
+        /// </summary>
+        public static string DatabaseEditAutosaveNumA {
+            get {
+                return ResourceManager.GetString("DatabaseEditAutosaveNumA", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  backups..
+        /// </summary>
+        public static string DatabaseEditAutosaveNumB {
+            get {
+                return ResourceManager.GetString("DatabaseEditAutosaveNumB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wait .
+        /// </summary>
+        public static string DatabaseEditAutosaveSecondsA {
+            get {
+                return ResourceManager.GetString("DatabaseEditAutosaveSecondsA", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  seconds between each autosave..
+        /// </summary>
+        public static string DatabaseEditAutosaveSecondsB {
+            get {
+                return ResourceManager.GetString("DatabaseEditAutosaveSecondsB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Background image.
         /// </summary>
         public static string DatabaseEditBackgroundImage {
@@ -887,6 +923,24 @@ namespace CrystalKeeper.Core {
         public static string DlgNewDatabaseWarning {
             get {
                 return ResourceManager.GetString("DlgNewDatabaseWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm opening recent file.
+        /// </summary>
+        public static string DlgOpenRecentCaption {
+            get {
+                return ResourceManager.GetString("DlgOpenRecentCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Any unsaved changes will be lost when opening this file. Are you sure?.
+        /// </summary>
+        public static string DlgOpenRecentWarning {
+            get {
+                return ResourceManager.GetString("DlgOpenRecentWarning", resourceCulture);
             }
         }
         

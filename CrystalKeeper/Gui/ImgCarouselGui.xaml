@@ -16,9 +16,9 @@
                       HorizontalScrollBarVisibility="Auto"
                       VerticalScrollBarVisibility="Disabled">
             <StackPanel Name="GuiImageThumbnails"
-                        Height="50"
+                        Height="75"
                         HorizontalAlignment="Center"
-                        MaxHeight="50"
+                        MaxHeight="75"
                         Orientation="Horizontal">
                 <Separator/>
             </StackPanel>

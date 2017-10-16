@@ -52,17 +52,17 @@ namespace CrystalKeeper.Core
         /// Returns a unique url in the appdata folder using the given
         /// filename.
         /// </summary>
-        /// <param name="fName">
+        /// <param name="path">
         /// The filename to use. The returned filename will have a random
         /// number appended to it.
         /// </param>
-        public static string GetAppdataFolder(string fName)
+        public static string GetAppdataFolder(string path)
         {
             string dir = Environment.GetFolderPath(
                 Environment.SpecialFolder.LocalApplicationData)
                 + "\\Crystal Keeper\\";
 
-            if (fName == String.Empty)
+            if (path == String.Empty)
             {
                 return dir;
             }
@@ -70,24 +70,22 @@ namespace CrystalKeeper.Core
             try
             {
                 //Removes the root and appends it to the appdata folder.
-                string newUrl = fName.Substring(Path.GetPathRoot(fName).Length);
-                string newUrlExt = Path.GetExtension(newUrl);
-                newUrl = MakeAbsoluteUrl(dir, newUrl);
-                newUrl = newUrl.Substring(0, newUrl.Length - newUrlExt.Length);
+                string newUrlExt = Path.GetExtension(path);
+
 
                 //Creates the directories if they don't exist.
-                Directory.CreateDirectory(Path.GetDirectoryName(newUrl));
+                Directory.CreateDirectory(dir);
 
                 //Ensures a unique filepath is generated.
                 Random rng = new Random();
                 int uniqueNum = rng.Next();
 
-                while (File.Exists(newUrl + uniqueNum + newUrlExt))
+                while (File.Exists(dir + uniqueNum + newUrlExt))
                 {
                     uniqueNum = rng.Next();
                 }
 
-                return newUrl + uniqueNum + newUrlExt;
+                return dir + uniqueNum + newUrlExt;
             }
             catch (ArgumentException e)
             {

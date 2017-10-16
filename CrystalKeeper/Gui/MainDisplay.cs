@@ -111,18 +111,20 @@ namespace CrystalKeeper.Gui
             //If the project has been saved successfully before.
             if (File.Exists(saveUrl))
             {
-                int backupNumber = 0;
+                int backupNumber = 1;
+                int maxBackups = (int)project.GetDatabase().GetData("autosaveNumberofBackups");
                 string dirName = Path.GetDirectoryName(saveUrl);
                 string fName = Path.GetFileNameWithoutExtension(saveUrl);
-                string fullPath = dirName + "\\" + fName + "-bak" +
-                        backupNumber + ".mdat";
+                string fullPath = dirName + "\\" + fName + " (Backup " +
+                        backupNumber + ").mdat";
 
                 //Increases the backup number rather than overwriting.
-                while (File.Exists(fullPath))
+                //If all backups are used, the last backup is overwritten.
+                while (File.Exists(fullPath) && backupNumber < maxBackups)
                 {
                     backupNumber++;
-                    fullPath = dirName + "\\" + fName + "-bak" +
-                        backupNumber + ".mdat";
+                    fullPath = dirName + "\\" + fName + " (Backup " +
+                        backupNumber + ").mdat";
                 }
 
                 //Attempts to save to the given path.
@@ -160,7 +162,7 @@ namespace CrystalKeeper.Gui
             isEditing = false;
 
             //This timer saves the project every ten minutes automatically.
-            autosaveTimer = new Timer(600000);
+            autosaveTimer = new Timer((int)this.project.GetDatabase().GetData("autosaveDelay"));
             autosaveTimer.Elapsed += Autosave;
             autosaveTimer.Start();
 
@@ -833,9 +835,9 @@ namespace CrystalKeeper.Gui
         private void GuiFileNew_Click(object sender, RoutedEventArgs e)
         {
             MessageBoxResult result = MessageBox.Show(
-                    GlobalStrings.DlgNewDatabaseWarning,
-                    GlobalStrings.DlgNewDatabaseCaption,
-                    MessageBoxButton.YesNo);
+                GlobalStrings.DlgNewDatabaseWarning,
+                GlobalStrings.DlgNewDatabaseCaption,
+                MessageBoxButton.YesNo);
 
             if (result == MessageBoxResult.Yes)
             {
@@ -1858,6 +1860,14 @@ namespace CrystalKeeper.Gui
 
                 });
 
+                //Changes the autosave interval when set.
+                page.AutosaveTimerChanged += (a, b) =>
+                {
+                    autosaveTimer.Enabled = false;
+                    autosaveTimer.Interval = (int)project.GetDatabase().GetData("autosaveDelay");
+                    autosaveTimer.Enabled = true;
+                };
+
                 gui.GuiContent.Content = page.Gui;
             }
             else if (selItem.type == DataItemTypes.Database)
@@ -2134,6 +2144,16 @@ namespace CrystalKeeper.Gui
                     string url = (string)item.Tag;
                     if (File.Exists(url))
                     {
+                        MessageBoxResult result = MessageBox.Show(
+                            GlobalStrings.DlgOpenRecentWarning,
+                            GlobalStrings.DlgOpenRecentCaption,
+                            MessageBoxButton.YesNo);
+
+                        if (result != MessageBoxResult.Yes)
+                        {
+                            return;
+                        }
+
                         Project tempProj = Project.Load(url);
                         if (tempProj != null)
                         {

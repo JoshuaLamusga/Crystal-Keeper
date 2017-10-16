@@ -16,6 +16,8 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         
@@ -85,28 +87,37 @@
         </TextBox>
 
         <!-- The background images for each page. -->
-        <WrapPanel
-            Grid.Row="5"
-            Margin="0,10px,0,0">
+        <WrapPanel Grid.Row="5"
+                   Margin="0,10px,0,0">
             <Button Name="BttnBrowseBgImage"
-                Margin="4px"
-                Content="{x:Static local:GlobalStrings.DatabaseEditBackgroundImage}"
-                Width="128px"
-                Height="32px"
-                HorizontalAlignment="Left"/>
-
+                    Content="{x:Static local:GlobalStrings.DatabaseEditBackgroundImage}"
+                    Height="32px"
+                    HorizontalAlignment="Left"
+                    Margin="4px"
+                    Width="128px"/>
             <Image Name="ImgDeleteBgImage"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Margin="4px"
-                Visibility="Collapsed"
-                Source="pack://application:,,,/Assets/BttnDelete.png"
-                Stretch="None"/>
-            
+                   HorizontalAlignment="Center"
+                   Margin="4px"
+                   Source="pack://application:,,,/Assets/BttnDelete.png"
+                   Stretch="None"
+                   VerticalAlignment="Center"
+                   Visibility="Collapsed"/>
             <Image Name="ImgBgImage"
-                Margin="4px"
-                Width="64px"
-                Stretch="Uniform"/>
+                   Margin="4px"
+                   Stretch="Uniform"
+                   Width="64px"/>
+        </WrapPanel>
+        <WrapPanel Grid.Row="6"
+                   Margin="0,10px,0,0">
+            <TextBlock Text="{x:Static local:GlobalStrings.DatabaseEditAutosaveSecondsA}"/>
+            <TextBox Name="TxtbxAutosaveNumSeconds" MinWidth="15px"/>
+            <TextBlock Text="{x:Static local:GlobalStrings.DatabaseEditAutosaveSecondsB}"/>
+        </WrapPanel>
+        <WrapPanel Grid.Row="7"
+                   Margin="0,10px,0,0">
+            <TextBlock Text="{x:Static local:GlobalStrings.DatabaseEditAutosaveNumA}"/>
+            <TextBox Name="TxtbxAutosaveNumBackups" MinWidth="15px"/>
+            <TextBlock Text="{x:Static local:GlobalStrings.DatabaseEditAutosaveNumB}"/>
         </WrapPanel>
     </Grid>
 </UserControl>

@@ -704,4 +704,22 @@ The collections using this template are: </value>
   <data name="FieldEditorDisplayAsCarousel" xml:space="preserve">
     <value>Display as carousel</value>
   </data>
+  <data name="DatabaseEditAutosaveNumA" xml:space="preserve">
+    <value>Store up to </value>
+  </data>
+  <data name="DatabaseEditAutosaveNumB" xml:space="preserve">
+    <value> backups.</value>
+  </data>
+  <data name="DatabaseEditAutosaveSecondsA" xml:space="preserve">
+    <value>Wait </value>
+  </data>
+  <data name="DatabaseEditAutosaveSecondsB" xml:space="preserve">
+    <value> seconds between each autosave.</value>
+  </data>
+  <data name="DlgOpenRecentCaption" xml:space="preserve">
+    <value>Confirm opening recent file</value>
+  </data>
+  <data name="DlgOpenRecentWarning" xml:space="preserve">
+    <value>Any unsaved changes will be lost when opening this file. Are you sure?</value>
+  </data>
 </root>

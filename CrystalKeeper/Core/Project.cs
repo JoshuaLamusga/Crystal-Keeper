@@ -60,6 +60,8 @@ namespace CrystalKeeper.Core
             item.SetData("description", String.Empty);
             item.SetData("imageBackgroundEnabled", false);
             item.SetData("imageUrl", String.Empty);
+            item.SetData("autosaveDelay", 600000);
+            item.SetData("autosaveNumberofBackups", 1);
 
             items.Add(item);
         }
@@ -220,6 +222,17 @@ namespace CrystalKeeper.Core
                                 string newUrl = Utils.GetAppdataFolder("Background.png");
                                 File.WriteAllBytes(newUrl, fileData);
                                 item.SetData("imageUrl", newUrl);
+                            }
+
+                            if (appVersion <= 1.0)
+                            {
+                                item.SetData("autosaveDelay", 600000);
+                                item.SetData("autosaveNumberofBackups", 1);
+                            }
+                            else
+                            {
+                                item.SetData("autosaveDelay", reader.ReadInt32());
+                                item.SetData("autosaveNumberofBackups", reader.ReadInt32());
                             }
 
                             break;
@@ -494,6 +507,9 @@ namespace CrystalKeeper.Core
                             {
                                 writer.Write(0);
                             }
+
+                            writer.Write((int)item.GetData("autosaveDelay"));
+                            writer.Write((int)item.GetData("autosaveNumberofBackups"));
                             break;
                         case DataItemTypes.Entry:
                             writer.Write((string)item.GetData("name"));
@@ -734,7 +750,7 @@ namespace CrystalKeeper.Core
             item.SetData("columnOrder", columnOrder);
             item.SetData("numExtraImages", (byte)99);
             item.SetData("extraImagePos", TemplateImagePos.Under);
-            item.SetData("displayAsCarousel", false);
+            item.SetData("displayAsCarousel", true);
 
             items.Add(item);
             return item.guid;
@@ -1488,11 +1504,13 @@ namespace CrystalKeeper.Core
 
             //Automatically adds the database item.
             DataItem item = new DataItem(NewGuid(), DataItemTypes.Database);
-            item.SetData("name", "Untitled");
+            item.SetData("name", GlobalStrings.NameUntitled);
             item.SetData("defUseEditMode", false);
             item.SetData("description", String.Empty);
             item.SetData("imageBackgroundEnabled", false);
             item.SetData("imageUrl", String.Empty);
+            item.SetData("autosaveDelay", 600000);
+            item.SetData("autosaveNumberofBackups", 1);
 
             items.Add(item);
         }

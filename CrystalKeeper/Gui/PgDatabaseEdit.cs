@@ -33,6 +33,11 @@ namespace CrystalKeeper.Gui
         /// Fires when the background image changes.
         /// </summary>
         public event EventHandler BgImageChanged;
+
+        /// <summary>
+        /// Fires when information regarding autosave changes.
+        /// </summary>
+        public event EventHandler AutosaveTimerChanged;
         #endregion
 
         #region Properties
@@ -266,6 +271,89 @@ namespace CrystalKeeper.Gui
                     dlg.ShowDialog();
                 });
             #endregion
+
+            //Sets up delay between autosaves options.
+            gui.TxtbxAutosaveNumSeconds.Text = (((int)dat.GetData("autosaveDelay")) / 1000).ToString();
+            gui.TxtbxAutosaveNumSeconds.TextChanged += TxtbxAutosaveNumSeconds_TextChanged;
+
+            //Sets up delay between autosaves options.
+            gui.TxtbxAutosaveNumBackups.Text = ((int)dat.GetData("autosaveNumberofBackups")).ToString();
+            gui.TxtbxAutosaveNumBackups.TextChanged += TxtbxAutosaveNumBackups_TextChanged;
+        }
+
+        /// <summary>
+        /// Filters non-numeric input and updates project data when number
+        /// of seconds between autosaves is changed.
+        /// </summary>
+        private void TxtbxAutosaveNumSeconds_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            //Gets the text with only digits.
+            string newText = String.Empty;
+            for (int i = 0; i < gui.TxtbxAutosaveNumSeconds.Text.Length; i++)
+            {
+                if (Char.IsDigit(gui.TxtbxAutosaveNumSeconds.Text[i]))
+                {
+                    newText += gui.TxtbxAutosaveNumSeconds.Text[i];
+                }
+            }
+
+            //If the new text is different, i.e. text was filtered out.
+            if (newText != gui.TxtbxAutosaveNumSeconds.Text)
+            {
+                if (newText.Length == 0)
+                {
+                    newText = "1";
+                }
+
+                gui.TxtbxAutosaveNumSeconds.Text = newText;
+            }
+
+            //Sets the data if autosaves are at least 60 seconds apart.
+            if (Int32.TryParse(gui.TxtbxAutosaveNumSeconds.Text, out int result))
+            {
+                /*if (result < 60)
+                {
+                    result = 60;
+                    gui.TxtbxAutosaveNumSeconds.Text = "60";
+                }*/
+
+                Project.GetDatabase().SetData("autosaveDelay", result * 1000);
+                AutosaveTimerChanged?.Invoke(this, null);
+            }
+        }
+
+        /// <summary>
+        /// Filters non-numeric input and updates project data when number
+        /// of backups between autosaves is changed.
+        /// </summary>
+        private void TxtbxAutosaveNumBackups_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            //Gets the text with only digits.
+            string newText = String.Empty;
+            for (int i = 0; i < gui.TxtbxAutosaveNumBackups.Text.Length; i++)
+            {
+                if (Char.IsDigit(gui.TxtbxAutosaveNumBackups.Text[i]))
+                {
+                    newText += gui.TxtbxAutosaveNumBackups.Text[i];
+                }
+            }
+
+            //If the new text is different, i.e. text was filtered out.
+            if (newText != gui.TxtbxAutosaveNumBackups.Text)
+            {
+                if (newText.Length == 0)
+                {
+                    newText = "0";
+                }
+
+                gui.TxtbxAutosaveNumBackups.Text = newText;
+            }
+
+            //Sets the data..
+            if (Int32.TryParse(gui.TxtbxAutosaveNumBackups.Text, out int result))
+            {
+                Project.GetDatabase().SetData("autosaveNumberofBackups", result);
+            }
         }
         #endregion
     }
