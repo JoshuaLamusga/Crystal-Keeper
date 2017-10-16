@@ -835,25 +835,37 @@ namespace CrystalKeeper.Gui
             type == TemplateFieldType.Min_Name)
             {
                 gui.CmbxDataType.IsEnabled = true;
-                gui.ItemTypeImages.Visibility = Visibility.Collapsed;
-                gui.ItemTypeMoneyUSD.Visibility = Visibility.Collapsed;
-                gui.ItemTypeText.Visibility = Visibility.Collapsed;
+                gui.CmbxDataType.Items.Remove(gui.ItemTypeImages);
+                gui.CmbxDataType.Items.Remove(gui.ItemTypeMoneyUSD);
+                gui.CmbxDataType.Items.Remove(gui.ItemTypeText);
             }
             else
             {
-                gui.ItemTypeImages.Visibility = Visibility.Visible;
-                gui.ItemTypeMoneyUSD.Visibility = Visibility.Visible;
-                gui.ItemTypeText.Visibility = Visibility.Visible;
+                if (!gui.CmbxDataType.Items.Contains(gui.ItemTypeImages))
+                {
+                    gui.CmbxDataType.Items.Add(gui.ItemTypeImages);
+                }
+                if (!gui.CmbxDataType.Items.Contains(gui.ItemTypeMoneyUSD))
+                {
+                    gui.CmbxDataType.Items.Add(gui.ItemTypeMoneyUSD);
+                }
+                if (!gui.CmbxDataType.Items.Contains(gui.ItemTypeText))
+                {
+                    gui.CmbxDataType.Items.Add(gui.ItemTypeText);
+                }
             }
 
             //Shows or hides the entry images field.
             if (type == TemplateFieldType.EntryImages)
             {
-                gui.ItemTypeEntryImages.Visibility = Visibility.Visible;
+                if (!gui.CmbxDataType.Items.Contains(gui.ItemTypeEntryImages))
+                {
+                    gui.CmbxDataType.Items.Add(gui.ItemTypeEntryImages);
+                }
             }
             else
             {
-                gui.ItemTypeEntryImages.Visibility = Visibility.Collapsed;
+                gui.CmbxDataType.Items.Remove(gui.ItemTypeEntryImages);
             }
 
             //Ensures only one item is selected at once.
