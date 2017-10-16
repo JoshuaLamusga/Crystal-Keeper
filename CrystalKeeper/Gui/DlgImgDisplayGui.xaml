@@ -3,23 +3,22 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:CrystalKeeper.Gui"
         xmlns:lang="clr-namespace:CrystalKeeper.Core"
-        Title="{x:Static lang:GlobalStrings.CaptionImages}"
         Height="600" Width="800"
+        Title="{x:Static lang:GlobalStrings.CaptionImages}"        
         WindowStartupLocation="CenterScreen">
     <Grid Name="GuiGrid">
-        <ScrollViewer
-            HorizontalScrollBarVisibility="Auto"
-            VerticalScrollBarVisibility="Auto">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Auto">
             <ListBox Name="GuiList"
-                HorizontalAlignment="Left"
-                Height="{Binding ElementName=GuiGrid, Path=ActualHeight}"
-                MaxWidth="300px"
-                VerticalAlignment="Top"/>
+                     Height="{Binding ElementName=GuiGrid, Path=ActualHeight}"
+                     HorizontalAlignment="Left"
+                     MaxWidth="300px"
+                     VerticalAlignment="Top"/>
         </ScrollViewer>
         <local:ZoomBorder x:Name="GuiImageBorder">
             <Image Name="GuiImage"
-                Stretch="None"
-                HorizontalAlignment="Center"/>
+                   HorizontalAlignment="Center"
+                   Stretch="None"/>
         </local:ZoomBorder>
     </Grid>
 </Window>

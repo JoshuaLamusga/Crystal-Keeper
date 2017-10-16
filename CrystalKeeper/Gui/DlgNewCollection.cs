@@ -26,8 +26,12 @@ namespace CrystalKeeper.Gui
         /// <summary>
         /// Creates a dialog to provide the template for a collection.
         /// </summary>
-        /// <param name="project">The associated project.</param>
-        /// <param name="collection">The collection involved.</param>
+        /// <param name="project">
+        /// The associated project.
+        /// </param>
+        /// <param name="collection">
+        /// The collection involved.
+        /// </param>
         public DlgNewCollection(Project project, string collectionName)
         {
             gui = new DlgNewCollectionGui();

@@ -813,6 +813,9 @@ namespace CrystalKeeper.Gui
         /// <summary>
         /// Updates field options and gui to match the selected field.
         /// </summary>
+        /// <param name="newItem">
+        /// The selected field used to refresh options.
+        /// </param>
         private void RefreshFieldOptions(LstbxDataItem newItem)
         {
             ActiveField = newItem;

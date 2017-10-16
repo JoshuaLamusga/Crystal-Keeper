@@ -1,10 +1,10 @@
-﻿using System;
-using System.IO;
-using CrystalKeeper.GuiCore;
-using System.Runtime.Serialization.Formatters.Binary;
+﻿using CrystalKeeper.GuiCore;
 using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace CrystalKeeper.Core
 {
@@ -49,21 +49,20 @@ namespace CrystalKeeper.Core
 
         #region Public Methods
         /// <summary>
-        /// Returns a valid url in the appdata folder using the
-        /// path information of the given url. The resulting file
-        /// path is guaranteed to be unique from any existing files
-        /// in the appdata folder.
+        /// Returns a unique url in the appdata folder using the given
+        /// filename.
         /// </summary>
-        /// <param name="relUrl">
-        /// A relative url to append to the base appdata url.
+        /// <param name="fName">
+        /// The filename to use. The returned filename will have a random
+        /// number appended to it.
         /// </param>
-        public static string GetAppdataFolder(string relUrl)
+        public static string GetAppdataFolder(string fName)
         {
             string dir = Environment.GetFolderPath(
                 Environment.SpecialFolder.LocalApplicationData)
                 + "\\Crystal Keeper\\";
 
-            if (relUrl == String.Empty)
+            if (fName == String.Empty)
             {
                 return dir;
             }
@@ -71,7 +70,7 @@ namespace CrystalKeeper.Core
             try
             {
                 //Removes the root and appends it to the appdata folder.
-                string newUrl = relUrl.Substring(Path.GetPathRoot(relUrl).Length);
+                string newUrl = fName.Substring(Path.GetPathRoot(fName).Length);
                 string newUrlExt = Path.GetExtension(newUrl);
                 newUrl = MakeAbsoluteUrl(dir, newUrl);
                 newUrl = newUrl.Substring(0, newUrl.Length - newUrlExt.Length);
@@ -108,6 +107,10 @@ namespace CrystalKeeper.Core
         /// <summary>
         /// Stores up to 10 unique urls as recently opened files.
         /// </summary>
+        /// <param name="url">
+        /// The url to store. A non-unique url will be pushed up to the most
+        /// recent instead of being added redundantly.
+        /// </param>
         public static void RegAddRecentlyOpen(string url)
         {
             List<string> urls = new List<string>();
@@ -143,6 +146,9 @@ namespace CrystalKeeper.Core
         /// Removes the given url from the recently open files list,
         /// returning success.
         /// </summary>
+        /// <param name="url">
+        /// The url to remove, if it exists.
+        /// </param>
         public static bool RegRemoveRecentlyOpen(string url)
         {
             List<string> urls = regOpenRecent.Split('|').ToList();
@@ -191,9 +197,12 @@ namespace CrystalKeeper.Core
         }
 
         /// <summary>
-        /// Iterates through every item up to a depth of 5 and returns the
-        /// item matching the given condition, or null if not found.
+        /// Iterates through items in the hierarchy to return the first one
+        /// matching the given predicate, or null if none found.
         /// </summary>
+        /// <param name="condition">
+        /// The condition to be met for the item to be returned.
+        /// </param>
         public static TreeViewDataItem Find(
             this TreeViewDataItem item,
             Func<TreeViewDataItem, bool> condition)
@@ -308,10 +317,10 @@ namespace CrystalKeeper.Core
         /// url if it's already relative. Returns an empty string if an error
         /// occurs.
         /// </summary>
-        /// <param name="baseUrl">
+        /// <param name="fromUrl">
         /// The url that the second url string should be relative to.
         /// </param>
-        /// <param name="otherUrl">
+        /// <param name="toUrl">
         /// The url string to make relative to the first string.
         /// </param>
         public static string MakeRelativeUrl(string fromUrl, string toUrl)
