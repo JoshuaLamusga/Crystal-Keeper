@@ -181,7 +181,16 @@ namespace CrystalKeeper.Core
             try
             {
                 BinaryReader reader = new BinaryReader(new MemoryStream(data));
-                string appVersion = reader.ReadString();
+
+                //Reads the version and gets it in major.minor format.
+                string appVersionStr = reader.ReadString();
+                float appVersion = 0;
+
+                int dec1 = appVersionStr.IndexOf('.');
+                int dec2 = appVersionStr.Substring(dec1 + 1).IndexOf('.');
+                appVersionStr = appVersionStr.Substring(0, dec1 + dec2 + 1);
+
+                Single.TryParse(appVersionStr, out appVersion);
 
                 //As long as it's not the end of the file, read another chunk.
                 while (reader.BaseStream.Position < data.Length)
@@ -271,6 +280,14 @@ namespace CrystalKeeper.Core
                             item.SetData("columnOrder", reader.ReadInt32());
                             item.SetData("numExtraImages", reader.ReadByte());
                             item.SetData("extraImagePos", reader.ReadInt32());
+                            if (appVersion <= 1.0)
+                            {
+                                item.SetData("displayAsCarousel", false);
+                            }
+                            else
+                            {
+                                item.SetData("displayAsCarousel", reader.ReadBoolean());
+                            }
                             break;
                     }
 
@@ -586,6 +603,7 @@ namespace CrystalKeeper.Core
                             writer.Write((int)item.GetData("columnOrder"));
                             writer.Write((byte)item.GetData("numExtraImages"));
                             writer.Write((int)item.GetData("extraImagePos"));
+                            writer.Write((bool)item.GetData("displayAsCarousel"));
                             break;
                     }
                 }
@@ -713,8 +731,9 @@ namespace CrystalKeeper.Core
             item.SetData("isVisible", isVisible);
             item.SetData("isTitleVisible", isTitleVisible);
             item.SetData("columnOrder", columnOrder);
-            item.SetData("numExtraImages", (byte)3);
+            item.SetData("numExtraImages", (byte)99);
             item.SetData("extraImagePos", TemplateImagePos.Under);
+            item.SetData("displayAsCarousel", false);
 
             _items.Add(item);
             return item.guid;
@@ -752,7 +771,8 @@ namespace CrystalKeeper.Core
             bool isTitleVisible,
             int columnOrder,
             byte numExtraImages,
-            TemplateImagePos extraImagePos)
+            TemplateImagePos extraImagePos,
+            bool displayAsCarousel)
         {
             DataItem item = new DataItem(
                 NewGuid(),
@@ -766,6 +786,7 @@ namespace CrystalKeeper.Core
             item.SetData("columnOrder", columnOrder);
             item.SetData("numExtraImages", numExtraImages);
             item.SetData("extraImagePos", extraImagePos);
+            item.SetData("displayAsCarousel", displayAsCarousel);
 
             _items.Add(item);
             return item.guid;

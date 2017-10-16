@@ -478,6 +478,7 @@ namespace CrystalKeeper.Gui
                     bool isAnimated = false;
                     bool isMuted = false;
                     var extraImagePos = (TemplateImagePos)(int)currTemplateField.GetData("extraImagePos");
+                    var displayAsCarousel = (bool)currTemplateField.GetData("displayAsCarousel");
 
                     //Loads the data if it exists, or sets it if empty.
                     if (((string)fieldData) == String.Empty)
@@ -509,7 +510,7 @@ namespace CrystalKeeper.Gui
                     }
 
                     //Still images that do not rotate and are not movies.
-                    if (!isAnimated)
+                    if (!isAnimated && !displayAsCarousel)
                     {
                         Grid imagesContainer = new Grid();
 
@@ -629,6 +630,74 @@ namespace CrystalKeeper.Gui
                         }
 
                         continue;
+                    }
+
+                    else if (!isAnimated && displayAsCarousel)
+                    {
+                        ImgCarouselGui carousel = new ImgCarouselGui();
+                        carousel.Margin = new Thickness(2, 4, 2, 12);
+
+                        //Adds an image from each url to the carousel.
+                        bool isCarouselImageSet = false;
+                        for (int j = 0; j < loadedUrls.Count; j++)
+                        {
+                            ImgThumbnail thumbnail = new ImgThumbnail(loadedUrls[j]);
+                            thumbnail.Opacity = 0.75;
+                            carousel.GuiImageThumbnails.Children.Add(thumbnail);
+
+                            //Opacity visually changes when the mouse is hovered.
+                            thumbnail.MouseEnter += (a, b) =>
+                            {
+                                thumbnail.Opacity = 1;
+                            };
+
+                            thumbnail.MouseLeave += (a, b) =>
+                            {
+                                thumbnail.Opacity = 0.75;
+                            };
+
+                            //Removes invalid images and sets the first image.
+                            thumbnail.Loaded += (a, b) =>
+                            {
+                                if (thumbnail.ActualWidth <= 0)
+                                {
+                                    carousel.GuiImageThumbnails.Children.Remove(thumbnail);
+                                }
+                                else if (!isCarouselImageSet)
+                                {
+                                    isCarouselImageSet = true;
+                                    carousel.GuiDisplayedImage.Source = thumbnail.Source;
+                                    carousel.GuiDisplayedImage.ImgUrl = thumbnail.ImgUrl;
+                                    thumbnail.Visibility = Visibility.Collapsed;
+                                }
+                            };
+
+                            //Clicking a thumbnail sets it as the main image.
+                            thumbnail.PreviewMouseUp += (a, b) =>
+                            {
+                                carousel.GuiDisplayedImage.Source = thumbnail.Source;
+                                carousel.GuiDisplayedImage.ImgUrl = thumbnail.ImgUrl;
+
+                                //Hides the current thumbnail and reveals the rest.
+                                for (int k = 0; k < carousel.GuiImageThumbnails.Children.Count; k++)
+                                {
+                                    carousel.GuiImageThumbnails.Children[k].Visibility =
+                                        Visibility.Visible;
+                                }
+                                thumbnail.Visibility = Visibility.Collapsed;
+
+                                //Thumbnails shouldn't show in full in a popup.
+                                b.Handled = true;
+                            };
+
+                            //Exits when 1 + number of extra images are displayed.
+                            if (j == tNumExtraImages && tNumExtraImages > 0)
+                            {
+                                break;
+                            }
+                        }
+
+                        elementsContainer.Children.Add(carousel);
                     }
 
                     //Images that rotate or are movies.

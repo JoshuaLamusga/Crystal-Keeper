@@ -258,6 +258,10 @@
                                 Padding="0,10px,0,0"
                                 Visibility="Visible">
                                 <StackPanel>
+                                    <CheckBox Name="ChkbxDisplayAsCarousel"
+                                              Content="{x:Static local:GlobalStrings.FieldEditorDisplayAsCarousel}"
+                                              VerticalAlignment="Center"
+                                              VerticalContentAlignment="Center"/>
                                     <WrapPanel
                                     Margin="0,0,0,5px">
                                         <TextBlock

@@ -954,6 +954,15 @@ namespace CrystalKeeper.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Display as carousel.
+        /// </summary>
+        public static string FieldEditorDisplayAsCarousel {
+            get {
+                return ResourceManager.GetString("FieldEditorDisplayAsCarousel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Show this field with entries.
         /// </summary>
         public static string FieldEditorFieldInvisible {
@@ -1566,7 +1575,7 @@ namespace CrystalKeeper.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to --- Version 1.0 ---.
+        ///   Looks up a localized string similar to --- Version 1.1 ---.
         /// </summary>
         public static string TipAboutVersion {
             get {

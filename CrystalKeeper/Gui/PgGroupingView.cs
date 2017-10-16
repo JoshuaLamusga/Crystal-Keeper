@@ -219,7 +219,7 @@ namespace CrystalKeeper.Gui
                         //Loads the first still image.
                         if (!isAnimated)
                         {
-                            ImgThumbnail img = new ImgThumbnail(urls[0], false);
+                            ImgThumbnail img = new ImgThumbnail(urls[0]);
                             img.Margin = new Thickness(4);
                             img.HorizontalAlignment = HorizontalAlignment.Center;
 

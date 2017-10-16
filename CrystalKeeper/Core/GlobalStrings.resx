@@ -603,7 +603,7 @@ The collections using this template are: </value>
     <value>Crystal Keeper was developed as a free program for mineral collectors and hobbyists to store their mineral information in a convenient database with a neat and modern display.</value>
   </data>
   <data name="TipAboutVersion" xml:space="preserve">
-    <value>--- Version 1.0 ---</value>
+    <value>--- Version 1.1 ---</value>
   </data>
   <data name="TipBrokenImage" xml:space="preserve">
     <value>Image link wasn't found -- click to locate or reset image.</value>
@@ -700,5 +700,8 @@ The collections using this template are: </value>
   </data>
   <data name="DlgUploadImageError" xml:space="preserve">
     <value>The uploaded file is not an image, or is corrupt.</value>
+  </data>
+  <data name="FieldEditorDisplayAsCarousel" xml:space="preserve">
+    <value>Display as carousel</value>
   </data>
 </root>

@@ -155,6 +155,10 @@ namespace CrystalKeeper.Gui
                         gui.CmbxItemUnder.IsSelected = true;
                         break;
                 }
+
+                //Sets the default state of display as carousel.
+                gui.ChkbxDisplayAsCarousel.IsChecked =
+                    (bool)activeField.GetItem().GetData("displayAsCarousel");
             }
 
             //Shows or hides the unchangeable entry images field.
@@ -683,8 +687,63 @@ namespace CrystalKeeper.Gui
             gui.CmbxDataType.SelectionChanged += CmbxDataType_SelectionChanged;
             gui.ChkbxFieldInvisible.Click += ChkbxFieldInvisible_Click;
             gui.ChkbxFieldNameInvisible.Click += ChkbxFieldNameInvisible_Click;
+            gui.ChkbxDisplayAsCarousel.Click += ChkbxDisplayAsCarousel_Click;
+            gui.TxtbxFieldNumImages.TextChanged += TxtbxFieldNumImages_TextChanged;
             gui.CmbxFieldImageAnchor.SelectionChanged += CmbxFieldImageAnchor_SelectionChanged;
             gui.BttnSaveChanges.Click += BttnSaveChanges_Click;
+        }
+
+        /// <summary>
+        /// Sets the number of extra images to display.
+        /// </summary>
+        private void TxtbxFieldNumImages_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (ActiveField == null)
+            {
+                return;
+            }
+
+            //Gets the text with only digits.
+            string newText = String.Empty;
+            for (int i = 0; i < gui.TxtbxFieldNumImages.Text.Length; i++)
+            {
+                if (Char.IsDigit(gui.TxtbxFieldNumImages.Text[i]))
+                {
+                    newText += gui.TxtbxFieldNumImages.Text[i];
+                }
+            }
+
+            //If the new text is different, i.e. text was filtered out.
+            if (newText != gui.TxtbxFieldNumImages.Text)
+            {
+                if (newText.Length == 0)
+                {
+                    newText = "1";
+                }
+
+                gui.TxtbxFieldNumImages.Text = newText;
+            }
+
+            //Sets the data.
+            if (Byte.TryParse(gui.TxtbxFieldNumImages.Text, out byte result))
+            {
+                ActiveField.GetItem().SetData("numExtraImages", result);
+            }
+        }
+
+        /// <summary>
+        /// Toggles whether non-animated images should be displayed as a
+        /// carousel (true) or row/column (false).
+        /// </summary>
+        private void ChkbxDisplayAsCarousel_Click(object sender, RoutedEventArgs e)
+        {
+            if (ActiveField == null)
+            {
+                return;
+            }
+
+            activeField.GetItem().SetData("displayAsCarousel",
+                gui.ChkbxDisplayAsCarousel.IsChecked);
         }
 
         /// <summary>
@@ -1043,25 +1102,30 @@ namespace CrystalKeeper.Gui
                 gui.FieldImageOptions.IsEnabled = false;
             }
 
-            if (activeField != null)
+            //For image-specific fields, sets the anchor position.
+            switch ((TemplateImagePos)(int)activeField.GetItem().GetData("extraImagePos"))
             {
-                //For image-specific fields, sets the anchor position.
-                switch ((TemplateImagePos)(int)activeField.GetItem().GetData("extraImagePos"))
-                {
-                    case TemplateImagePos.Above:
-                        gui.CmbxItemAbove.IsSelected = true;
-                        break;
-                    case TemplateImagePos.Left:
-                        gui.CmbxItemLeft.IsSelected = true;
-                        break;
-                    case TemplateImagePos.Right:
-                        gui.CmbxItemRight.IsSelected = true;
-                        break;
-                    case TemplateImagePos.Under:
-                        gui.CmbxItemUnder.IsSelected = true;
-                        break;
-                }
+                case TemplateImagePos.Above:
+                    gui.CmbxItemAbove.IsSelected = true;
+                    break;
+                case TemplateImagePos.Left:
+                    gui.CmbxItemLeft.IsSelected = true;
+                    break;
+                case TemplateImagePos.Right:
+                    gui.CmbxItemRight.IsSelected = true;
+                    break;
+                case TemplateImagePos.Under:
+                    gui.CmbxItemUnder.IsSelected = true;
+                    break;
             }
+
+            //Sets the default value for the number of extra images.
+            gui.TxtbxFieldNumImages.Text =
+                ((byte)activeField.GetItem().GetData("numExtraImages")).ToString();
+
+            //Sets the default value for display as carousel.
+            gui.ChkbxDisplayAsCarousel.IsChecked =
+                (bool)activeField.GetItem().GetData("displayAsCarousel");
         }
 
         /// <summary>
