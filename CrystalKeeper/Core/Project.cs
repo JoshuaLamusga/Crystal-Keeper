@@ -294,10 +294,12 @@ namespace CrystalKeeper.Core
                             if (appVersion <= 1.0)
                             {
                                 item.SetData("displayAsCarousel", false);
+                                item.SetData("displaySingleColumn", false);
                             }
                             else
                             {
                                 item.SetData("displayAsCarousel", reader.ReadBoolean());
+                                item.SetData("displaySingleColumn", reader.ReadBoolean());
                             }
                             break;
                     }
@@ -618,6 +620,7 @@ namespace CrystalKeeper.Core
                             writer.Write((byte)item.GetData("numExtraImages"));
                             writer.Write((int)item.GetData("extraImagePos"));
                             writer.Write((bool)item.GetData("displayAsCarousel"));
+                            writer.Write((bool)item.GetData("displaySingleColumn"));
                             break;
                     }
                 }
@@ -751,6 +754,7 @@ namespace CrystalKeeper.Core
             item.SetData("numExtraImages", (byte)99);
             item.SetData("extraImagePos", TemplateImagePos.Under);
             item.SetData("displayAsCarousel", true);
+            item.SetData("displaySingleColumn", false);
 
             items.Add(item);
             return item.guid;
@@ -792,7 +796,8 @@ namespace CrystalKeeper.Core
             int columnOrder,
             byte numExtraImages,
             TemplateImagePos extraImagePos,
-            bool displayAsCarousel)
+            bool displayAsCarousel,
+            bool displaySingleColumn)
         {
             DataItem item = new DataItem(
                 NewGuid(),
@@ -807,6 +812,7 @@ namespace CrystalKeeper.Core
             item.SetData("numExtraImages", numExtraImages);
             item.SetData("extraImagePos", extraImagePos);
             item.SetData("displayAsCarousel", displayAsCarousel);
+            item.SetData("displaySingleColumn", displaySingleColumn);
 
             items.Add(item);
             return item.guid;

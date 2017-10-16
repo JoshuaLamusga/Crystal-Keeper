@@ -722,4 +722,7 @@ The collections using this template are: </value>
   <data name="DlgOpenRecentWarning" xml:space="preserve">
     <value>Any unsaved changes will be lost when opening this file. Are you sure?</value>
   </data>
+  <data name="FieldEditorDisplaySingleColumn" xml:space="preserve">
+    <value>Display in footer</value>
+  </data>
 </root>
