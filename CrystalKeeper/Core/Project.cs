@@ -11,7 +11,7 @@ namespace CrystalKeeper.Core
 {
     /// <summary>
     /// Contains functionality to save, load, and construct data hierarchies
-    /// that correspond to widgets on the screen.
+    /// that correspond to controls on the screen.
     /// </summary>
     class Project
     {
@@ -19,12 +19,12 @@ namespace CrystalKeeper.Core
         /// <summary>
         /// Stores the next GUID to be created.
         /// </summary>
-        private ulong _guidCounter;
+        private ulong guidCounter;
 
         /// <summary>
         /// Stores all data items.
         /// </summary>
-        private ObservableCollection<DataItem> _items;
+        private ObservableCollection<DataItem> items;
         #endregion
 
         #region Properties
@@ -35,11 +35,11 @@ namespace CrystalKeeper.Core
         {
             private set
             {
-                _items = value;
+                items = value;
             }
             get
             {
-                return _items;
+                return items;
             }
         }
         #endregion
@@ -50,8 +50,8 @@ namespace CrystalKeeper.Core
         /// </summary>
         public Project()
         {
-            _guidCounter = 0;
-            _items = new ObservableCollection<DataItem>();
+            guidCounter = 0;
+            items = new ObservableCollection<DataItem>();
 
             //Automatically adds the database item.
             DataItem item = new DataItem(NewGuid(), DataItemTypes.Database);
@@ -60,31 +60,33 @@ namespace CrystalKeeper.Core
             item.SetData("description", String.Empty);
             item.SetData("imageBackgroundEnabled", false);
             item.SetData("imageUrl", String.Empty);
+            item.SetData("autosaveDelay", 600000);
+            item.SetData("autosaveNumberofBackups", 1);
 
-            _items.Add(item);
+            items.Add(item);
         }
 
         /// <summary>
-        /// Starts a new project from the given set of data. Do not set the
-        /// data outside of Project.Add* methods. Tampering with the data
-        /// directly will quickly lead to issues.
+        /// Creates a project from a list of data. Avoid adding DataItem
+        /// objects created outside of Project.Add* methods this way.
+        /// Tampering with the data directly will quickly lead to issues.
         /// </summary>
         public Project(ObservableCollection<DataItem> items)
         {
-            _items = items;
+            this.items = items;
             ulong largestGuid = 0;
 
             //Loops through each item to find the largest guid.
-            for (int i = 0; i < _items.Count; i++)
+            for (int i = 0; i < this.items.Count; i++)
             {
-                if (_items[i].guid > largestGuid)
+                if (this.items[i].guid > largestGuid)
                 {
-                    largestGuid = _items[i].guid;
+                    largestGuid = this.items[i].guid;
                 }
             }
 
             //The next guid is the largest one + 1.
-            _guidCounter = largestGuid + 1;
+            guidCounter = largestGuid + 1;
         }
 
         /// <summary>
@@ -93,38 +95,36 @@ namespace CrystalKeeper.Core
         public Project(Project project)
         {
             //Populates the project with a deep copy of each item.
-            _items = new ObservableCollection<DataItem>();
+            items = new ObservableCollection<DataItem>();
             for (int i = 0; i < project.Items.Count; i++)
             {
-                _items.Add(new DataItem(project.Items[i]));
+                items.Add(new DataItem(project.Items[i]));
             }
 
             ulong largestGuid = 0;
 
             //Loops through each item to find the largest guid.
-            for (int i = 0; i < _items.Count; i++)
+            for (int i = 0; i < items.Count; i++)
             {
-                if (_items[i].guid > largestGuid)
+                if (items[i].guid > largestGuid)
                 {
-                    largestGuid = _items[i].guid;
+                    largestGuid = items[i].guid;
                 }
             }
 
             //The next guid is the largest one + 1.
-            _guidCounter = largestGuid + 1;
+            guidCounter = largestGuid + 1;
         }
         #endregion
 
         #region Static Methods
         /// <summary>
-        /// Generates a new project from the given file path.
+        /// Returns a new project loaded from the given file path. Catches
+        /// I/O errors and displays messages about them.
         /// </summary>
         /// <param name="url">
         /// The file path with the filename and extension.
         /// </param>
-        /// <returns>
-        /// A constructed project.
-        /// </returns>
         public static Project Load(string url)
         {
             //Stores all bytes in the file.
@@ -181,7 +181,16 @@ namespace CrystalKeeper.Core
             try
             {
                 BinaryReader reader = new BinaryReader(new MemoryStream(data));
-                string appVersion = reader.ReadString();
+
+                //Reads the version and gets it in major.minor format.
+                string appVersionStr = reader.ReadString();
+                float appVersion = 0;
+
+                int dec1 = appVersionStr.IndexOf('.');
+                int dec2 = appVersionStr.Substring(dec1 + 1).IndexOf('.');
+                appVersionStr = appVersionStr.Substring(0, dec1 + dec2 + 1);
+
+                Single.TryParse(appVersionStr, out appVersion);
 
                 //As long as it's not the end of the file, read another chunk.
                 while (reader.BaseStream.Position < data.Length)
@@ -213,6 +222,17 @@ namespace CrystalKeeper.Core
                                 string newUrl = Utils.GetAppdataFolder("Background.png");
                                 File.WriteAllBytes(newUrl, fileData);
                                 item.SetData("imageUrl", newUrl);
+                            }
+
+                            if (appVersion <= 1.0)
+                            {
+                                item.SetData("autosaveDelay", 600000);
+                                item.SetData("autosaveNumberofBackups", 1);
+                            }
+                            else
+                            {
+                                item.SetData("autosaveDelay", reader.ReadInt32());
+                                item.SetData("autosaveNumberofBackups", reader.ReadInt32());
                             }
 
                             break;
@@ -271,6 +291,14 @@ namespace CrystalKeeper.Core
                             item.SetData("columnOrder", reader.ReadInt32());
                             item.SetData("numExtraImages", reader.ReadByte());
                             item.SetData("extraImagePos", reader.ReadInt32());
+                            if (appVersion <= 1.0)
+                            {
+                                item.SetData("displayAsCarousel", false);
+                            }
+                            else
+                            {
+                                item.SetData("displayAsCarousel", reader.ReadBoolean());
+                            }
                             break;
                     }
 
@@ -375,7 +403,7 @@ namespace CrystalKeeper.Core
         /// </summary>
         private ulong NewGuid()
         {
-            return _guidCounter++;
+            return guidCounter++;
         }
         #endregion
 
@@ -444,9 +472,9 @@ namespace CrystalKeeper.Core
                 .ProductVersion);
 
             //Writes all data items in arbitrary order.
-            for (int i = 0; i < _items.Count; i++)
+            for (int i = 0; i < items.Count; i++)
             {
-                item = _items[i];
+                item = items[i];
 
                 //Writes header info so items can be read in any order.
                 writer.Write((byte)item.type);
@@ -479,6 +507,9 @@ namespace CrystalKeeper.Core
                             {
                                 writer.Write(0);
                             }
+
+                            writer.Write((int)item.GetData("autosaveDelay"));
+                            writer.Write((int)item.GetData("autosaveNumberofBackups"));
                             break;
                         case DataItemTypes.Entry:
                             writer.Write((string)item.GetData("name"));
@@ -586,6 +617,7 @@ namespace CrystalKeeper.Core
                             writer.Write((int)item.GetData("columnOrder"));
                             writer.Write((byte)item.GetData("numExtraImages"));
                             writer.Write((int)item.GetData("extraImagePos"));
+                            writer.Write((bool)item.GetData("displayAsCarousel"));
                             break;
                     }
                 }
@@ -673,7 +705,7 @@ namespace CrystalKeeper.Core
             item.SetData("contentColorG", contentColorG);
             item.SetData("contentColorB", contentColorB);
 
-            _items.Add(item);
+            items.Add(item);
             return item.guid;
         }
 
@@ -686,11 +718,14 @@ namespace CrystalKeeper.Core
         /// <param name="templateColumnGuid">
         /// The guid of the containing column this field belongs to.
         /// </param>
+        /// <param name="dataType">
+        /// Represents the type of data the field can contain.
+        /// </param>
         /// <param name="isVisible">
         /// True if the field should be visible to the user.
         /// </param>
-        /// <param name="dataType">
-        /// Represents the type of data the field can contain.
+        /// <param name="isTitleVisible">
+        /// True if the title above the field should be visible to the user.
         /// </param>
         /// <param name="columnOrder">
         /// Represents the position of the field in the column.
@@ -713,10 +748,11 @@ namespace CrystalKeeper.Core
             item.SetData("isVisible", isVisible);
             item.SetData("isTitleVisible", isTitleVisible);
             item.SetData("columnOrder", columnOrder);
-            item.SetData("numExtraImages", (byte)3);
+            item.SetData("numExtraImages", (byte)99);
             item.SetData("extraImagePos", TemplateImagePos.Under);
+            item.SetData("displayAsCarousel", true);
 
-            _items.Add(item);
+            items.Add(item);
             return item.guid;
         }
 
@@ -729,11 +765,14 @@ namespace CrystalKeeper.Core
         /// <param name="templateColumnGuid">
         /// The guid of the containing column this field belongs to.
         /// </param>
+        /// <param name="dataType">
+        /// Represents the type of data the field can contain.
+        /// </param>
         /// <param name="isVisible">
         /// True if the field should be visible to the user.
         /// </param>
-        /// <param name="dataType">
-        /// Represents the type of data the field can contain.
+        /// <param name="isTitleVisible">
+        /// True if the title above the field should be visible to the user.
         /// </param>
         /// <param name="columnOrder">
         /// Represents the position of the field in the column.
@@ -752,7 +791,8 @@ namespace CrystalKeeper.Core
             bool isTitleVisible,
             int columnOrder,
             byte numExtraImages,
-            TemplateImagePos extraImagePos)
+            TemplateImagePos extraImagePos,
+            bool displayAsCarousel)
         {
             DataItem item = new DataItem(
                 NewGuid(),
@@ -766,8 +806,9 @@ namespace CrystalKeeper.Core
             item.SetData("columnOrder", columnOrder);
             item.SetData("numExtraImages", numExtraImages);
             item.SetData("extraImagePos", extraImagePos);
+            item.SetData("displayAsCarousel", displayAsCarousel);
 
-            _items.Add(item);
+            items.Add(item);
             return item.guid;
         }
 
@@ -780,9 +821,6 @@ namespace CrystalKeeper.Core
         /// <param name="templateGuid">
         /// The guid of the containing template object.
         /// </param>
-        /// <param name="fieldReferences">
-        /// References to each template field by guid.
-        /// </param>
         public ulong AddTemplateColumnData(
             bool isFirstColumn,
             ulong templateGuid)
@@ -794,7 +832,7 @@ namespace CrystalKeeper.Core
             item.SetData("isFirstColumn", isFirstColumn);
             item.SetData("refGuid", templateGuid);
 
-            _items.Add(item);
+            items.Add(item);
             return item.guid;
         }
 
@@ -824,7 +862,7 @@ namespace CrystalKeeper.Core
             item.SetData("description", description);
             item.SetData("refGuid", templateGuid);
 
-            _items.Add(item);
+            items.Add(item);
             return item.guid;
         }
 
@@ -849,7 +887,7 @@ namespace CrystalKeeper.Core
             item.SetData("refGuid", collectionGuid);
             item.SetData("numConditions", (uint)0);
 
-            _items.Add(item);
+            items.Add(item);
             return item.guid;
         }
 
@@ -857,27 +895,26 @@ namespace CrystalKeeper.Core
         /// Adds a condition to a grouping for automatically
         /// including entries. Returns true if successful and false
         /// otherwise.
-        /// 
-        /// Adds a condition to alphabetically add entries starting
-        /// with the given letter and ending with another.
         /// </summary>
         /// <param name="groupGuid">
         /// The guid of the group to add a condition to.
         /// </param>
-        /// <param name="startingLetter">
-        /// All entries in the containing collection with a name that
-        /// starts with a letter from the range of this letter to the
-        /// ending letter will be automatically included.
+        /// <param name="startingString">
+        /// All entries that are within a range of words will be automatically
+        /// included. For example, Me to Mu includes "melt" and "Mt.", but not
+        /// "much". The starting string is the upper bracket of this range,
+        /// similar to Me.
         /// </param>
-        /// <param name="endingLetter">
-        /// All entries in the containing collection with a name that
-        /// starts with a letter from the range of the starting letter
-        /// to this letter will be automatically included.
+        /// <param name="endingString">
+        /// All entries that are within a range of words will be automatically
+        /// included. For example, Me to Mu includes "melt" and "Mt.", but not
+        /// "much". The starting string is the lower bracket of this range,
+        /// similar to Mu.
         /// </param>
         public bool AddGroupingCondition(
             ulong groupGuid,
-            string startingLetter,
-            string endingLetter)
+            string startingString,
+            string endingString)
         {
             DataItem item = GetItemByGuid(groupGuid);
 
@@ -892,8 +929,8 @@ namespace CrystalKeeper.Core
 
             //Sets condition data.
             item.SetData("conditionType" + numConditions, GroupingCondType.ByLetter);
-            item.SetData("condAddFromLetter" + numConditions, startingLetter);
-            item.SetData("condAddToLetter" + numConditions, endingLetter);
+            item.SetData("condAddFromLetter" + numConditions, startingString);
+            item.SetData("condAddToLetter" + numConditions, endingString);
             return true;
         }
 
@@ -917,7 +954,7 @@ namespace CrystalKeeper.Core
             item.SetData("refGuid", groupingGuid);
             item.SetData("entryGuid", entryGuid);
 
-            _items.Add(item);
+            items.Add(item);
             return item.guid;
         }
 
@@ -941,7 +978,7 @@ namespace CrystalKeeper.Core
             item.SetData("name", name);
             item.SetData("refGuid", collectionGuid);
 
-            _items.Add(item);
+            items.Add(item);
             return item.guid;
         }
 
@@ -970,7 +1007,7 @@ namespace CrystalKeeper.Core
             item.SetData("templateFieldGuid", templateFieldGuid);
             item.SetData("data", data);
 
-            _items.Add(item);
+            items.Add(item);
             return item.guid;
         }
 
@@ -985,7 +1022,7 @@ namespace CrystalKeeper.Core
         {
             if (item != null)
             {
-                return _items.Remove(item);
+                return items.Remove(item);
             }
 
             return false;
@@ -1016,7 +1053,7 @@ namespace CrystalKeeper.Core
         /// </returns>
         public DataItem GetItemByGuid(ulong guid)
         {
-            return _items.ToList().Find(new Predicate<DataItem>((item) =>
+            return items.ToList().Find(new Predicate<DataItem>((item) =>
             {
                 return (item.guid == guid);
             }));
@@ -1025,24 +1062,24 @@ namespace CrystalKeeper.Core
         /// <summary>
         /// Returns all items with the given type.
         /// </summary>
-        /// <returns>
-        /// All items matching the given type.
-        /// </returns>
+        /// <param name="type">
+        /// The type of data to return items of.
+        /// </param>
         public List<DataItem> GetItemsByType(DataItemTypes type)
         {
-            return _items.ToList().FindAll(new Predicate<DataItem>((item) =>
+            return items.ToList().FindAll(new Predicate<DataItem>((item) =>
             {
                 return (item.type == type);
             }));
         }
 
         /// <summary>
-        /// Returns the grouping dataitems of the collection dataitem.
+        /// Returns the grouping dataitems of the collection dataitem, or null
+        /// if collection is invalid.
         /// </summary>
-        /// <returns>
-        /// The grouping dataitems of the collection dataitem specified, or
-        /// null if none exist.
-        /// </returns>
+        /// <param name="collection">
+        /// A data item of type collection.
+        /// </param>
         public List<DataItem> GetCollectionGroupings(DataItem collection)
         {
             //If the data item is a collection.
@@ -1050,7 +1087,7 @@ namespace CrystalKeeper.Core
                 collection.type == DataItemTypes.Collection)
             {
                 //Gets all groupings that link to the collection.
-                return _items.ToList().FindAll(new Predicate<DataItem>((item) =>
+                return items.ToList().FindAll(new Predicate<DataItem>((item) =>
                 {
                     if (item.type == DataItemTypes.Grouping)
                     {
@@ -1069,11 +1106,11 @@ namespace CrystalKeeper.Core
         }
 
         /// <summary>
-        /// Returns a template for a collection.
+        /// Returns the template of a collection, or null if not found.
         /// </summary>
-        /// <returns>
-        /// The template dataitem of a collection dataitem.
-        /// </returns>
+        /// <param name="collection">
+        /// A data item of type collection.
+        /// </param>
         public DataItem GetCollectionTemplate(DataItem collection)
         {
             if (collection != null &&
@@ -1086,12 +1123,12 @@ namespace CrystalKeeper.Core
         }
 
         /// <summary>
-        /// Returns all entries for a collection, or null if there are none.
+        /// Returns all entries for a collection, or null if collection is
+        /// invalid.
         /// </summary>
-        /// <returns>
-        /// The entry dataitems of a collection dataitem. Returns null if no
-        /// entries exist.
-        /// </returns>
+        /// <param name="collection">
+        /// A data item of type collection.
+        /// </param>
         public List<DataItem> GetCollectionEntries(DataItem collection)
         {
             //If the data item is a collection.
@@ -1099,7 +1136,7 @@ namespace CrystalKeeper.Core
                 collection.type == DataItemTypes.Collection)
             {
                 //Gets all entries that link to the collection.
-                return _items.ToList().FindAll(new Predicate<DataItem>((item) =>
+                return items.ToList().FindAll(new Predicate<DataItem>((item) =>
                 {
                     if (item.type == DataItemTypes.Entry)
                     {
@@ -1118,11 +1155,11 @@ namespace CrystalKeeper.Core
         }
 
         /// <summary>
-        /// Returns the collection of an entry dataitem.
+        /// Returns the collection of an entry dataitem, or null if not found.
         /// </summary>
-        /// <returns>
-        /// The collection dataitem referenced by an entry dataitem.
-        /// </returns>
+        /// <param name="entry">
+        /// A data item of type entry.
+        /// </param>
         public DataItem GetEntryCollection(DataItem entry)
         {
             if (entry != null && entry.type == DataItemTypes.Entry)
@@ -1134,15 +1171,14 @@ namespace CrystalKeeper.Core
         }
 
         /// <summary>
-        /// Returns all fields for an entry, or null if there are none.
+        /// Returns all fields for an entry, or an empty list if none found.
         /// </summary>
-        /// <returns>
-        /// The fields dataitems of an entry dataitem. Returns null if no
-        /// fields exist.
-        /// </returns>
+        /// <param name="entry">
+        /// A data item of type entry.
+        /// </param>
         public List<DataItem> GetEntryFields(DataItem entry)
         {
-            return _items.ToList().FindAll(new Predicate<DataItem>((item) =>
+            return items.ToList().FindAll(new Predicate<DataItem>((item) =>
             {
                 return (item.type == DataItemTypes.EntryField &&
                     GetItemByGuid((ulong)item.GetData("refGuid"))
@@ -1151,14 +1187,12 @@ namespace CrystalKeeper.Core
         }
 
         /// <summary>
-        /// Returns all references to the given entry item.
+        /// Returns all references to the given entry item, or an empty list
+        /// if none found.
         /// </summary>
         /// <param name="entry">
-        /// A dataitem of type Entry.
+        /// A data item of type Entry.
         /// </param>
-        /// <returns>
-        /// True if successful; false otherwise.
-        /// </returns>
         public List<DataItem> GetEntryEntryRefs(DataItem entry)
         {
             var results = new List<DataItem>();
@@ -1168,10 +1202,10 @@ namespace CrystalKeeper.Core
                 return results;
             }
 
-            var items = GetItemsByType(DataItemTypes.GroupingEntryRef);
+            var itemsByType = GetItemsByType(DataItemTypes.GroupingEntryRef);
 
             //Finds all references to delete with the entry.
-            foreach (DataItem item in items)
+            foreach (DataItem item in itemsByType)
             {
                 if ((ulong)item.GetData("entryGuid") == entry.guid)
                 {
@@ -1183,12 +1217,12 @@ namespace CrystalKeeper.Core
         }
 
         /// <summary>
-        /// Returns the entry being referenced by the entry ref dataitem.
+        /// Returns the entry being referenced by the entry ref dataitem, or
+        /// null if not found.
         /// </summary>
-        /// <returns>
-        /// The entry dataitem referenced by the entry ref dataitem, or null
-        /// if an entry ref isn't provided.
-        /// </returns>
+        /// <param name="entryRef">
+        /// A data item of type grouping entry reference.
+        /// </param>
         public DataItem GetEntryRefEntry(DataItem entryRef)
         {
             if (entryRef != null &&
@@ -1201,12 +1235,12 @@ namespace CrystalKeeper.Core
         }
 
         /// <summary>
-        /// Returns the grouping container of the entry ref dataitem.
+        /// Returns the grouping container of the entry ref dataitem, or null
+        /// if not found.
         /// </summary>
-        /// <returns>
-        /// The grouping dataitem that the entry ref dataitem references, or
-        /// null if an entry ref isn't provided.
-        /// </returns>
+        /// <param name="entryRef">
+        /// A data item of type grouping entry reference.
+        /// </param>
         public DataItem GetEntryRefGrouping(DataItem entryRef)
         {
             if (entryRef != null &&
@@ -1219,11 +1253,11 @@ namespace CrystalKeeper.Core
         }
 
         /// <summary>
-        /// Returns the entry of a field dataitem.
+        /// Returns the entry of a field dataitem, or null if field is invalid.
         /// </summary>
-        /// <returns>
-        /// The entry dataitem referenced by a field dataitem.
-        /// </returns>
+        /// <param name="field">
+        /// A data item of type entry field.
+        /// </param>
         public DataItem GetFieldEntry(DataItem field)
         {
             if (field != null && field.type == DataItemTypes.EntryField)
@@ -1236,12 +1270,12 @@ namespace CrystalKeeper.Core
 
         /// <summary>
         /// Returns the corresponding template field that the given field
-        /// dataitem is "filling in" the data for.
+        /// dataitem is "filling in" the data for, or null if template field
+        /// is invalid.
         /// </summary>
-        /// <returns>
-        /// The template field dataitem referenced by the entry field
-        /// dataitem, or null if a field is not provided.
-        /// </returns>
+        /// <param name="field">
+        /// A data item of type entry field.
+        /// </param>
         public DataItem GetFieldTemplateField(DataItem field)
         {
             if (field != null && field.type == DataItemTypes.EntryField)
@@ -1253,11 +1287,12 @@ namespace CrystalKeeper.Core
         }
 
         /// <summary>
-        /// Returns the collection of a grouping dataitem.
+        /// Returns the collection of a grouping dataitem, or null if
+        /// collection is invalid.
         /// </summary>
-        /// <returns>
-        /// The collection dataitem referenced by a grouping dataitem.
-        /// </returns>
+        /// <param name="grouping">
+        /// A data item of type grouping.
+        /// </param>
         public DataItem GetGroupingCollection(DataItem grouping)
         {
             if (grouping != null && grouping.type == DataItemTypes.Grouping)
@@ -1269,20 +1304,19 @@ namespace CrystalKeeper.Core
         }
 
         /// <summary>
-        /// Returns all entry references for a grouping, or null if there are
-        /// none.
+        /// Returns all entry references for a grouping, or null if grouping
+        /// is invalid.
         /// </summary>
-        /// <returns>
-        /// The entry reference dataitems of a grouping dataitem. Returns null
-        /// if no entries exist.
-        /// </returns>
+        /// <param name="grouping">
+        /// A data item of type grouping.
+        /// </param>
         public List<DataItem> GetGroupingEntryRefs(DataItem grouping)
         {
             //If the data item is a grouping.
             if (grouping != null && grouping.type == DataItemTypes.Grouping)
             {
                 //Gets all entry references that link to its collection.
-                return _items.ToList().FindAll(new Predicate<DataItem>((item) =>
+                return items.ToList().FindAll(new Predicate<DataItem>((item) =>
                 {
                     if (item.type == DataItemTypes.GroupingEntryRef)
                     {
@@ -1301,12 +1335,11 @@ namespace CrystalKeeper.Core
         }
 
         /// <summary>
-        /// Returns all entries for a grouping, or null if there are none.
+        /// Returns all entries for a grouping, or null if grouping is invalid.
         /// </summary>
-        /// <returns>
-        /// The entry dataitems from the references of a grouping dataitem.
-        /// Returns null if no entries exist.
-        /// </returns>
+        /// <param name="grouping">
+        /// A data item of type grouping.
+        /// </param>
         public List<DataItem> GetGroupingEntries(DataItem grouping)
         {
             List<DataItem> refs = GetGroupingEntryRefs(grouping);
@@ -1323,18 +1356,16 @@ namespace CrystalKeeper.Core
                     GetItemByGuid((ulong)refs[i].GetData("entryGuid")));
             }
 
-            //If the data item isn't a grouping.
             return entries;
         }
 
         /// <summary>
         /// Returns the template referenced by the given template field or
-        /// template column data dataitem.
+        /// template column data dataitem, or null if field is invalid.
         /// </summary>
-        /// <returns>
-        /// The dataitem referenced as the template by a template field or
-        /// template column data dataitem, or null if it doesn't exist.
-        /// </returns>
+        /// <param name="field">
+        /// A data item of type template column data or template field.
+        /// </param>
         public DataItem GetTemplateItemTemplate(DataItem field)
         {
             if (field == null)
@@ -1357,12 +1388,12 @@ namespace CrystalKeeper.Core
         }
 
         /// <summary>
-        /// Returns a list of all collection items referencing the template.
+        /// Returns a list of all collection items referencing the template,
+        /// or an empty list if invalid or none found.
         /// </summary>
-        /// <returns>
-        /// A List of DataItem objects representing collections that use the
-        /// given template item.
-        /// </returns>
+        /// <param name="template">
+        /// A data item of type template.
+        /// </param>
         public List<DataItem> GetTemplateCollections(DataItem template)
         {
             //If the data item is a template.
@@ -1370,7 +1401,7 @@ namespace CrystalKeeper.Core
                 template.type == DataItemTypes.Template)
             {
                 //Finds all items that are collections with the template.
-                return _items.ToList().FindAll(new Predicate<DataItem>((item) =>
+                return items.ToList().FindAll(new Predicate<DataItem>((item) =>
                 {
                     if (GetCollectionTemplate(item) != null)
                     {
@@ -1386,12 +1417,12 @@ namespace CrystalKeeper.Core
         }
 
         /// <summary>
-        /// Returns the fields from the template column, or null if not found.
+        /// Returns the fields from the template column, or an empty list if
+        /// invalid or none found.
         /// </summary>
-        /// <returns>
-        /// All fields referencing the given template column data dataitem, or
-        /// null if no fields reference it.
-        /// </returns>
+        /// <param name="templateColumn">
+        /// A data item of type template column.
+        /// </param>
         public List<DataItem> GetTemplateColumnFields(DataItem templateColumn)
         {
             //If the data item is a template column.
@@ -1399,7 +1430,7 @@ namespace CrystalKeeper.Core
                 templateColumn.type == DataItemTypes.TemplateColumnData)
             {
                 //Gets all template fields that link to the template.
-                return _items.ToList().FindAll(new Predicate<DataItem>((item) =>
+                return items.ToList().FindAll(new Predicate<DataItem>((item) =>
                 {
                     if (item.type == DataItemTypes.TemplateField)
                     {
@@ -1420,10 +1451,9 @@ namespace CrystalKeeper.Core
         /// <summary>
         /// Returns the column order from the template, or null if none exist.
         /// </summary>
-        /// <returns>
-        /// All column order data referencing the given template dataitem, or
-        /// null if none reference it.
-        /// </returns>
+        /// <param name="template">
+        /// A data item of type template.
+        /// </param>
         public List<DataItem> GetTemplateColumns(DataItem template)
         {
             //If the data item is a template.
@@ -1431,7 +1461,7 @@ namespace CrystalKeeper.Core
                 template.type == DataItemTypes.Template)
             {
                 //Gets all linked template column order objects.
-                return _items.ToList().FindAll(new Predicate<DataItem>((item) =>
+                return items.ToList().FindAll(new Predicate<DataItem>((item) =>
                 {
                     if (item.type == DataItemTypes.TemplateColumnData)
                     {
@@ -1450,18 +1480,15 @@ namespace CrystalKeeper.Core
         }
 
         /// <summary>
-        /// Returns the database dataitem.
+        /// Returns the database dataitem, or null if not found.
         /// </summary>
-        /// <returns>
-        /// The database dataitem.
-        /// </returns>
         public DataItem GetDatabase()
         {
-            List<DataItem> items = GetItemsByType(DataItemTypes.Database);
-            if (items != null &&
-                items.Count > 0)
+            List<DataItem> itemsByType = GetItemsByType(DataItemTypes.Database);
+            if (itemsByType != null &&
+                itemsByType.Count > 0)
             {
-                return items.First();
+                return itemsByType.First();
             }
 
             return null;
@@ -1472,18 +1499,20 @@ namespace CrystalKeeper.Core
         /// </summary>
         public void Reset()
         {
-            _guidCounter = 0;
-            _items.Clear();
+            guidCounter = 0;
+            items.Clear();
 
             //Automatically adds the database item.
             DataItem item = new DataItem(NewGuid(), DataItemTypes.Database);
-            item.SetData("name", "Untitled");
+            item.SetData("name", GlobalStrings.NameUntitled);
             item.SetData("defUseEditMode", false);
             item.SetData("description", String.Empty);
             item.SetData("imageBackgroundEnabled", false);
             item.SetData("imageUrl", String.Empty);
+            item.SetData("autosaveDelay", 600000);
+            item.SetData("autosaveNumberofBackups", 1);
 
-            _items.Add(item);
+            items.Add(item);
         }
         #endregion
     }

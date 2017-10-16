@@ -426,6 +426,7 @@ namespace CrystalKeeper.Gui
                     bool isAnimated = false;
                     bool isMuted = false;
                     var extraImagePos = (TemplateImagePos)(int)currTemplateField.GetData("extraImagePos");
+                    bool displayAsCarousel = (bool)currTemplateField.GetData("displayAsCarousel");
 
                     //Loads the data if it exists, or sets it if empty.
                     if (((string)fieldData) == String.Empty)
@@ -460,15 +461,14 @@ namespace CrystalKeeper.Gui
                         elementsContainer.Orientation = Orientation.Horizontal;
                     }
 
-                    if (!isAnimated)
+                    if (!isAnimated && !displayAsCarousel)
                     {
                         Grid imagesContainer = new Grid();
 
                         //Creates an image for each url.
                         for (int j = 0; j < loadedUrls.Count; j++)
                         {
-                            ImgThumbnail thumbnail = new ImgThumbnail(loadedUrls[j], false);
-                            bool isUrlValid = true;
+                            ImgThumbnail thumbnail = new ImgThumbnail(loadedUrls[j]);
 
                             //Sets margins based on orientation.
                             if (extraImagePos == TemplateImagePos.Left ||
@@ -505,12 +505,11 @@ namespace CrystalKeeper.Gui
                                 else
                                 {
                                     thumbnail.SetSize(0);
-                                    isUrlValid = (thumbnail.ImgUrl != String.Empty);
                                 }
                             };
 
                             StackPanel contentControls = CreateImageControls(
-                                field, loadedUrls, index, isAnimated, isMuted);
+                                field, loadedUrls, index, isAnimated, isMuted, displayAsCarousel);
 
                             //Centers the content controls to match centered image fields.
                             if (templateType == TemplateFieldType.EntryImages && tCenterImages)
@@ -652,6 +651,130 @@ namespace CrystalKeeper.Gui
 
                         continue;
                     }
+                    else if (!isAnimated && displayAsCarousel)
+                    {
+                        ImgCarouselGui carousel = new ImgCarouselGui();
+                        carousel.Margin = new Thickness(2, 4, 2, 12);
+
+                        //Adds an image from each url to the carousel.
+                        bool isCarouselImageSet = false;
+                        for (int j = 0; j < loadedUrls.Count; j++)
+                        {
+                            ImgThumbnail thumbnail = new ImgThumbnail(loadedUrls[j]);
+                            thumbnail.Opacity = 0.75;
+                            carousel.GuiImageThumbnails.Children.Add(thumbnail);
+
+                            //Prevents left-clicking from opening in a new window.
+                            carousel.GuiDisplayedImage.PreviewMouseUp += (a, b) => { b.Handled = true; };
+
+                            int index = j; //For lambda capture.
+
+                            //Opacity visually changes when the mouse is hovered.
+                            thumbnail.MouseEnter += (a, b) =>
+                            {
+                                thumbnail.Opacity = 1;
+                            };
+
+                            thumbnail.MouseLeave += (a, b) =>
+                            {
+                                thumbnail.Opacity = 0.75;
+                            };
+
+                            //Removes invalid images and sets the first image.
+                            thumbnail.Loaded += (a, b) =>
+                            {
+                                if (thumbnail.ActualWidth <= 0 &&
+                                    thumbnail.ImgUrl == String.Empty)
+                                {
+                                    carousel.GuiImageThumbnails.Children.Remove(thumbnail);
+                                }
+                                else if (thumbnail.ActualWidth <= 0)
+                                {
+                                    //Sets up a broken image button.
+                                    var bttnBrokenImage = new Image();
+                                    var newImg = new BitmapImage(new Uri(Assets.BrokenImage));
+                                    bttnBrokenImage.Source = newImg;
+                                    bttnBrokenImage.MaxWidth = newImg.Width;
+                                    bttnBrokenImage.MaxHeight = newImg.Height;
+                                    bttnBrokenImage.ToolTip = GlobalStrings.TipBrokenImage;
+
+                                    //Allows user to select a new image url.
+                                    bttnBrokenImage.MouseDown += (c, d) =>
+                                    {
+                                        OpenFileDialog dlg = new OpenFileDialog();
+
+                                        //Opens to the location of the missing image.
+                                        string dirName = Path.GetDirectoryName(
+                                            Path.GetFullPath(thumbnail.ImgUrl));
+                                        if (Directory.Exists(dirName))
+                                        {
+                                            dlg.InitialDirectory = dirName;
+                                        }
+                                        dlg.FileName = Path.GetFileName(thumbnail.ImgUrl);
+
+                                        dlg.CheckPathExists = true;
+                                        dlg.Filter = GlobalStrings.FilterImages;
+                                        dlg.FilterIndex = 0;
+                                        dlg.Title = GlobalStrings.CaptionLoadImage;
+
+                                        if (dlg.ShowDialog() == true)
+                                        {
+                                            loadedUrls[index] = dlg.FileName;
+                                            string options = (isAnimated) ? "True" : "False";
+                                            options += "|" + ((isMuted) ? "True" : "False");
+                                            string newData = string.Join("|", loadedUrls);
+                                            newData = options + "|" + newData;
+                                            field.SetData("data", newData);
+
+                                            //Invalidates the page to update.
+                                            InvalidatePage?.Invoke(this, null);
+                                        }
+                                    };
+
+                                    carousel.GuiImageThumbnails.Children.Remove(thumbnail);
+                                    carousel.GuiImageThumbnails.Children.Add(bttnBrokenImage);
+                                }
+                                else if (!isCarouselImageSet)
+                                {
+                                    isCarouselImageSet = true;
+                                    carousel.GuiDisplayedImage.Source = thumbnail.Source;
+                                    carousel.GuiDisplayedImage.UpdateLayout();
+                                    thumbnail.Visibility = Visibility.Collapsed;
+                                }
+                            };
+
+                            //Clicking a thumbnail sets it as the main image.
+                            thumbnail.PreviewMouseUp += (a, b) =>
+                            {
+                                carousel.GuiDisplayedImage.Source = thumbnail.Source;
+                                carousel.GuiDisplayedImage.ImgUrl = thumbnail.ImgUrl;
+
+                                //Hides the current thumbnail and reveals the rest.
+                                for (int k = 0; k < carousel.GuiImageThumbnails.Children.Count; k++)
+                                {
+                                    carousel.GuiImageThumbnails.Children[k].Visibility =
+                                        Visibility.Visible;
+                                }
+                                thumbnail.Visibility = Visibility.Collapsed;
+
+                                //Thumbnails shouldn't show in full in a popup.
+                                b.Handled = true;
+                            };
+                        }
+
+                        //Adds content controls for the carousel.
+                        StackPanel contentControls = CreateImageControls(
+                            field, loadedUrls, 0, isAnimated, isMuted, displayAsCarousel);
+
+                        //Centers the content controls to match centered image fields.
+                        if (templateType == TemplateFieldType.EntryImages && tCenterImages)
+                        {
+                            contentControls.HorizontalAlignment = HorizontalAlignment.Center;
+                        }
+
+                        elementsContainer.Children.Add(contentControls);
+                        elementsContainer.Children.Add(carousel);
+                    }
                     else
                     {
                         MediaElement media = null;
@@ -702,7 +825,7 @@ namespace CrystalKeeper.Gui
                         }
 
                         StackPanel contentControls = CreateImageControls(
-                            field, loadedUrls, 0, isAnimated, isMuted);
+                            field, loadedUrls, 0, isAnimated, isMuted, displayAsCarousel);
 
                         //Centers the content controls to match centered image fields.
                         if (templateType == TemplateFieldType.EntryImages && tCenterImages)
@@ -726,19 +849,21 @@ namespace CrystalKeeper.Gui
                 }
 
                 //Sets the width and columns of the element container.
-                AdjustWidths(elementsContainer, tTwoColumns);
                 if ((templateType == TemplateFieldType.EntryImages) &&
                     tCenterImages)
                 {
+                    AdjustWidths(elementsContainer, false);
                     Grid.SetRow(elementsContainer, 1);
                     gui.GuiItems.Children.Add(elementsContainer);
                 }
                 else if (isFirstColumn)
                 {
+                    AdjustWidths(elementsContainer, tTwoColumns);
                     gui.LeftColItems.Children.Add(elementsContainer);
                 }
                 else
                 {
+                    AdjustWidths(elementsContainer, tTwoColumns);
                     gui.RightColItems.Children.Add(elementsContainer);
                 }
             }
@@ -752,7 +877,8 @@ namespace CrystalKeeper.Gui
             List<string> urls,
             int urlIndex,
             bool isAnimatedMedia,
-            bool isMuted)
+            bool isMuted,
+            bool displayAsCarousel)
         {
             //Sets up an upload image button.
             var bttnUpload = new Image();
@@ -840,7 +966,7 @@ namespace CrystalKeeper.Gui
                     }
 
                     //Replaces all images for multi-image uploads.
-                    if (dlg.FileNames.Length > 1)
+                    if (dlg.FileNames.Length > 1 || displayAsCarousel)
                     {
                         urls.Clear();
                     }
@@ -848,7 +974,9 @@ namespace CrystalKeeper.Gui
                     //Sets or adds images to the list.
                     for (int k = 0; k < dlg.FileNames.Length; k++)
                     {
-                        if (k == 0 && dlg.FileNames.Length == 1)
+                        if (k == 0 &&
+                            dlg.FileNames.Length == 1 &&
+                            !displayAsCarousel)
                         {
                             urls[urlIndex] = dlg.FileNames[k];
                         }
@@ -959,7 +1087,7 @@ namespace CrystalKeeper.Gui
                 if (mssgResult == MessageBoxResult.Yes)
                 {
                     //Clears the url(s) of an animation or movie.
-                    if (isAnimatedMedia)
+                    if (isAnimatedMedia || displayAsCarousel)
                     {
                         urls.Clear();
                     }

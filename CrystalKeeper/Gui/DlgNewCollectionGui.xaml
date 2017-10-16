@@ -2,30 +2,30 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:CrystalKeeper.Core"
+        Height="110px"
+        ResizeMode="NoResize"
+        SizeToContent="Width"
         Title="{x:Static local:GlobalStrings.NewCollectionCaption}"
-        SizeToContent="Width" Height="110px"
-        WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize">
+        WindowStartupLocation="CenterScreen">
     <StackPanel Margin="4px">
-    <WrapPanel>
-        <TextBlock
-            Text="{x:Static local:GlobalStrings.NewCollectionTemplate}"
-            Padding="4px"
-            VerticalAlignment="Center"
-            ToolTip="{x:Static local:GlobalStrings.TipNewCollectionTemplate}"/>
-        <ComboBox Name="CmbxTemplate"
-            MinWidth="100px"
-            Margin="4px"
-            ToolTip="{x:Static local:GlobalStrings.TipNewCollectionTemplate}"/>
-    </WrapPanel>
-    <Grid Margin="0, 10px, 0, 0px">
+        <WrapPanel>
+            <TextBlock Padding="4px"
+                       Text="{x:Static local:GlobalStrings.NewCollectionTemplate}"
+                       ToolTip="{x:Static local:GlobalStrings.TipNewCollectionTemplate}"
+                       VerticalAlignment="Center"/>
+            <ComboBox Name="CmbxTemplate"
+                      Margin="4px"
+                      MinWidth="100px"
+                      ToolTip="{x:Static local:GlobalStrings.TipNewCollectionTemplate}"/>
+        </WrapPanel>
+        <Grid Margin="0, 10px, 0, 0px">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <Button Name="BttnOk"
-                    IsDefault="True"
                     Content="{x:Static local:GlobalStrings.NewCollectionDone}"
+                    IsDefault="True"
                     Grid.Column="0"
                     Width="75px"/>
             <Button Name="BttnCancel"

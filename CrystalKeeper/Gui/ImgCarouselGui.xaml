@@ -1,0 +1,27 @@
+﻿<UserControl x:Class="CrystalKeeper.Gui.ImgCarouselGui"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:CrystalKeeper.Gui">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <!-- Displays the image with panning and zooming. -->
+        <local:ImgThumbnail x:Name="GuiDisplayedImage"
+                            MaxHeight="500"/>
+        
+        <!-- Contains other loaded images as thumbnails to click and set as the displayed image. -->
+        <ScrollViewer Grid.Row="1"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Disabled">
+            <StackPanel Name="GuiImageThumbnails"
+                        Height="75"
+                        HorizontalAlignment="Center"
+                        MaxHeight="75"
+                        Orientation="Horizontal">
+                <Separator/>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

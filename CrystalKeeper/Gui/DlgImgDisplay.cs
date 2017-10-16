@@ -158,6 +158,9 @@ namespace CrystalKeeper.Gui
         /// <summary>
         /// Adds an image to the listbox list, making it accessible.
         /// </summary>
+        /// <param name="url">
+        /// The url pointing to the image to be added.
+        /// </param>
         public void Add(string url)
         {
             urls.Add(url);

@@ -2,42 +2,37 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:CrystalKeeper.Core"
-        Title="{x:Static local:GlobalStrings.CaptionAbout}"
         SizeToContent="Height"
+        Title="{x:Static local:GlobalStrings.CaptionAbout}"
         Width="300px"
         WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"></RowDefinition>
-            <RowDefinition Height="auto"></RowDefinition>
-            <RowDefinition></RowDefinition>
-            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <Image
-            Grid.Row="0"
-            HorizontalAlignment="Center"
-            Height="32px"
-            Margin="0px,10px,0px,10px"
-            Source="pack://application:,,,/Assets/Logo.png"/>
-        <TextBlock
-            Grid.Row="1"
-            HorizontalAlignment="Center"
-            Padding="4px, 0px, 4px, 4px"
-            FontStyle="Italic"
-            FontSize="10px"
-            Text="{x:Static local:GlobalStrings.TipAboutVersion}"/>
-        <TextBlock
-            Grid.Row="2"
-            HorizontalAlignment="Center"
-            TextAlignment="Center"
-            Padding="4px"
-            Text="{x:Static local:GlobalStrings.TipAboutDescription}"
-            TextWrapping="Wrap"
-            />
-        <TextBlock
-            Grid.Row="3"
-            HorizontalAlignment="Center"
-            Padding="4px"
-            Text="{x:Static local:GlobalStrings.TipAboutCopyright}"/>
+        <Image Grid.Row="0"
+               Height="32px"
+               HorizontalAlignment="Center"
+               Margin="0px,10px,0px,10px"
+               Source="pack://application:,,,/Assets/Logo.png"/>
+        <TextBlock Grid.Row="1"
+                   FontSize="10px"
+                   FontStyle="Italic"
+                   HorizontalAlignment="Center"
+                   Padding="4px, 0px, 4px, 4px"
+                   Text="{x:Static local:GlobalStrings.TipAboutVersion}"/>
+        <TextBlock Grid.Row="2"
+                   HorizontalAlignment="Center"
+                   Padding="4px"
+                   Text="{x:Static local:GlobalStrings.TipAboutDescription}"
+                   TextAlignment="Center"
+                   TextWrapping="Wrap"/>
+        <TextBlock Grid.Row="3"
+                   HorizontalAlignment="Center"
+                   Padding="4px"
+                   Text="{x:Static local:GlobalStrings.TipAboutCopyright}"/>
     </Grid>
 </Window>

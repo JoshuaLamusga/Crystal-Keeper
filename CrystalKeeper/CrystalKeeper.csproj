@@ -96,6 +96,10 @@
     <Compile Include="Core\TemplateFieldType.cs" />
     <Compile Include="Core\TemplateImagePos.cs" />
     <Compile Include="Core\Utils.cs" />
+    <Page Include="Gui\ImgCarouselGui.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Gui\PgCollectionGuiView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -153,6 +157,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Gui\FixedColumnPanel.cs" />
+    <Compile Include="Gui\ImgCarouselGui.xaml.cs">
+      <DependentUpon>ImgCarouselGui.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Gui\PgCollectionGuiView.xaml.cs">
       <DependentUpon>PgCollectionGuiView.xaml</DependentUpon>
     </Compile>

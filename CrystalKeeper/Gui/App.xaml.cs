@@ -1,6 +1,5 @@
 ﻿using CrystalKeeper.Core;
 using CrystalKeeper.Gui;
-using Microsoft.Win32;
 using System.IO;
 using System.Windows;
 

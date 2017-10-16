@@ -13,6 +13,8 @@ namespace CrystalKeeper.Gui
     class ImgThumbnail : Image
     {
         #region Members
+        private string imgUrl;
+
         /// <summary>
         /// The image, preloaded for performance.
         /// </summary>
@@ -21,7 +23,19 @@ namespace CrystalKeeper.Gui
         /// <summary>
         /// The url storing the image location.
         /// </summary>
-        public string ImgUrl { get; private set; }
+        public string ImgUrl
+        {
+            get
+            {
+                return imgUrl;
+            }
+
+            set
+            {
+                imgUrl = value;
+                SetImage();
+            }
+        }
         #endregion
 
         #region Constructors
@@ -32,7 +46,7 @@ namespace CrystalKeeper.Gui
             : base()
         {
             img = null;
-            ImgUrl = String.Empty;
+            imgUrl = String.Empty;
 
             SetHandlers();
             SetImage();
@@ -44,16 +58,13 @@ namespace CrystalKeeper.Gui
         /// <param name="url">
         /// File path relative to the database file.
         /// </param>
-        public ImgThumbnail(string url, bool doOpenDialog = true)
+        public ImgThumbnail(string url)
             : base()
         {
             img = null;
-            ImgUrl = url;
+            imgUrl = url;
 
-            if (doOpenDialog)
-            {
-                SetHandlers();
-            }
+            SetHandlers();
             SetImage();
         }
         #endregion

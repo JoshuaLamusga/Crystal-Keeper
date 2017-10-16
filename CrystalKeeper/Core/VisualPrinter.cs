@@ -193,6 +193,16 @@ namespace CrystalKeeper.Core
         /// little as possible from the complete page) to determine where to
         /// separate a page. Returns the row to break, or last if none found.
         /// </summary>
+        /// <param name="bmp">
+        /// The bitmap to search through for a breakpoint.
+        /// </param>
+        /// <param name="topLine">
+        /// The row number above which a breakpoint should not be found.
+        /// </param>
+        /// <param name="bottomLine">
+        /// The row number to ideally break on, working backwards up to the
+        /// top line trying to find a breakpoint.
+        /// </param>
         private static unsafe int FindRowBreakpoint(
             System.Drawing.Bitmap bmp,
             int topLine,
@@ -260,6 +270,24 @@ namespace CrystalKeeper.Core
         /// Sizes the given bitmap to the page size and returns it as part
         /// of a printable page.
         /// </summary>
+        /// <param name="bmp">
+        /// The bitmap to search through for a breakpoint.
+        /// </param>
+        /// <param name="top">
+        /// The top row to print with.
+        /// </param>
+        /// <param name="bottom">
+        /// The bottom row to print with.
+        /// </param>
+        /// <param name="pageWidth">
+        /// The available width of the page to print.
+        /// </param>
+        /// <param name="PageHeight">
+        /// The available height of the page to print.
+        /// </param>
+        /// <param name="capabilities">
+        /// The possible printing features.
+        /// </param>
         private static PageContent GeneratePageContent(
             System.Drawing.Bitmap bmp,
             int top,
