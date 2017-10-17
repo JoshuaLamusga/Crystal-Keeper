@@ -1,5 +1,4 @@
-﻿using CrystalKeeper.GuiCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -138,6 +137,19 @@ namespace CrystalKeeper.Gui
             gui.textbox.TextChanged += HandlerRefreshSuggestions;
             gui.textbox.PreviewKeyDown += Textbox_TextChanged;
             gui.suggestions.PreviewKeyDown += Suggestions_PreviewKeyDown;
+            gui.container.LostFocus += Container_LostFocus;
+        }
+
+        /// <summary>
+        /// Hides suggestions when mouse focus is clearly not in bounds.
+        /// Keyboard focus is handled explicitly in Suggestions_PreviewKeyDown.
+        /// </summary>
+        private void Container_LostFocus(object sender, System.Windows.RoutedEventArgs e)
+        {
+            if (!gui.container.IsMouseOver)
+            {
+                HideSuggestions();
+            }
         }
 
         /// <summary>
@@ -240,24 +252,61 @@ namespace CrystalKeeper.Gui
 
             //Builds a list of all suggested items.
             var filteredSuggestions = new List<Tuple<string, string>>();
-            filteredSuggestions = suggestions.Where((suggestion) =>
-            {
-                if (!searchByWord || gui.textbox.Text == string.Empty)
-                {
-                    return RemoveDiacritics(suggestion.Item1.ToLower())
-                        .Contains(RemoveDiacritics(gui.textbox.Text.ToLower()));
-                }
-                else
-                {
-                    var words = gui.textbox.Text.Split(' ');
-                    return RemoveDiacritics(suggestion.Item1.ToLower())
-                        .Contains(RemoveDiacritics(words[words.Length - 1].ToLower()));
-                }
-            }).ToList();
+            var otherSuggestions = new List<Tuple<string, string>>();
 
-            //Creates a gui item (up to 50) for each match. Matches will
+            int suggestionsAllowed = 10;
+
+            //Adds each suggestion up to the max allowed.
+            string userText = String.Empty;
+            if ((!searchByWord || gui.textbox.Text == string.Empty))
+            {
+                userText = RemoveDiacritics(gui.textbox.Text.ToLower());
+            }
+            else
+            {
+                var words = gui.textbox.Text.Split(' ');
+                userText = RemoveDiacritics(words[words.Length - 1].ToLower());
+            }
+
+            //Records suggestions for StartsWith and Contains separately.
+            for (int i = 0; i < suggestions.Count; i++)
+            {
+                string searchText =
+                    RemoveDiacritics(suggestions[i].Item1.ToLower());
+
+                if (searchText.StartsWith(userText))
+                {
+                    filteredSuggestions.Add(suggestions[i]);
+                }
+                else if (searchText.Contains(userText) &&
+                    filteredSuggestions.Count + otherSuggestions.Count
+                    < suggestionsAllowed)
+                {
+                    otherSuggestions.Add(suggestions[i]);
+                }
+
+                if (filteredSuggestions.Count == suggestionsAllowed)
+                {
+                    break;
+                }
+            }
+
+            //Adds to the filtered suggestions up to the max count.
+            if (filteredSuggestions.Count < suggestionsAllowed)
+            {
+                for (int i = 0; i < otherSuggestions.Count; i++)
+                {
+                    filteredSuggestions.Add(otherSuggestions[i]);
+                    if (filteredSuggestions.Count == suggestionsAllowed)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            //Creates a gui item for each match. Matches will
             //appear in sorted order since original file is sorted.
-            for (int i = 0; i < filteredSuggestions.Count && i < 50; i++)
+            for (int i = 0; i < filteredSuggestions.Count; i++)
             {
                 ListBoxItem item = new ListBoxItem();
                 item.Content = filteredSuggestions[i].Item1;
