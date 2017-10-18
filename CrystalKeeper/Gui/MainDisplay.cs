@@ -9,6 +9,7 @@ using System.Linq;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -335,7 +336,10 @@ namespace CrystalKeeper.Gui
                 PromptEditTemplates(sender);
             }
 
-            e.Handled = true;
+            if (e != null)
+            {
+                e.Handled = true;
+            }
         }
 
         /// <summary>
@@ -1514,8 +1518,7 @@ namespace CrystalKeeper.Gui
                             //Gets the type of data to search.
                             object fieldData = field.GetData("data");
                             var templateType = (TemplateFieldType)(int)treeviewFilterField.GetData("dataType");
-                            if (templateType == TemplateFieldType.Text ||
-                                templateType == TemplateFieldType.Min_Formula ||
+                            if (templateType == TemplateFieldType.Min_Formula ||
                                 templateType == TemplateFieldType.Min_Name ||
                                 templateType == TemplateFieldType.Min_Group ||
                                 templateType == TemplateFieldType.Min_Locality ||
@@ -1523,6 +1526,26 @@ namespace CrystalKeeper.Gui
                             {
                                 if (((string)fieldData).ToLower()
                                     .Contains(treeviewFilterText.ToLower()))
+                                {
+                                    grp.Items.Add(entryRef);
+                                }
+                            }
+                            else if (templateType == TemplateFieldType.Text)
+                            {
+                                //Loads data to a rich text editor.
+                                RichTextEditor rtb = new RichTextEditor();
+                                if (fieldData is byte[])
+                                {
+                                    rtb.LoadData((byte[])fieldData);
+                                }
+
+                                //Gets the data.
+                                TextRange tr = new TextRange(
+                                    rtb.Gui.Textbox.Document.ContentStart,
+                                    rtb.Gui.Textbox.Document.ContentEnd);
+
+                                //Compares it.
+                                if (tr.Text.ToLower().Contains(treeviewFilterText.ToLower()))
                                 {
                                     grp.Items.Add(entryRef);
                                 }
