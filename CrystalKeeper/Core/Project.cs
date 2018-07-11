@@ -213,15 +213,34 @@ namespace CrystalKeeper.Core
                             item.SetData("description", reader.ReadString());
                             item.SetData("imageBackgroundEnabled", reader.ReadBoolean());
 
-                            //Reads the image data to a file and points to it.
-                            int numBytesInImage = reader.ReadInt32();
-
-                            if (numBytesInImage > 0)
+                            if (appVersion <= 1.1 + 0.01f) //imprecision adjustment
                             {
-                                byte[] fileData = reader.ReadBytes(numBytesInImage);
-                                string newUrl = Utils.GetAppdataFolder("Background.png");
-                                File.WriteAllBytes(newUrl, fileData);
-                                item.SetData("imageUrl", newUrl);
+                                //Reads the image data to a file and points to it.
+                                int numBytesInImage = reader.ReadInt32();
+
+                                if (numBytesInImage > 0)
+                                {
+                                    byte[] fileData = reader.ReadBytes(numBytesInImage);
+                                    string newUrl = Path.Combine(
+                                        Path.GetDirectoryName(url),
+                                        "Background.png");
+                                    File.WriteAllBytes(newUrl, fileData);
+                                    item.SetData("imageUrl", newUrl);
+                                }
+                            }
+                            else
+                            {
+                                string imageUrl = reader.ReadString();
+
+                                if (imageUrl != String.Empty)
+                                {
+                                    imageUrl = Path.Combine(
+                                        Utils.GetImagesFolder(
+                                            Path.GetDirectoryName(url)),
+                                        Path.GetFileName(imageUrl));
+                                }
+
+                                item.SetData("imageUrl", imageUrl);
                             }
 
                             if (appVersion <= 1.0)
@@ -320,44 +339,75 @@ namespace CrystalKeeper.Core
                     if (ttype == TemplateFieldType.EntryImages ||
                         ttype == TemplateFieldType.Images)
                     {
-                        var binData = (byte[])fields[i].GetData("data");
-
-                        //Reads data to files.
-                        using (MemoryStream ms = new MemoryStream(binData))
+                        if (appVersion <= 1.1 + 0.01f) //imprecision adjustment
                         {
-                            using (BinaryReader br = new BinaryReader(ms))
+                            var binData = (byte[])fields[i].GetData("data");
+
+                            //Reads data to files.
+                            using (MemoryStream ms = new MemoryStream(binData))
                             {
-                                //Gets the metadata and iterates through urls.
-                                var metadata = br.ReadString();
-                                var metaUrls = metadata.Split('|');
-
-                                for (int j = 2; j < metaUrls.Length; j++)
+                                using (BinaryReader br = new BinaryReader(ms))
                                 {
-                                    //Skips empty urls of default image fields.
-                                    if (metaUrls[j] == String.Empty)
-                                    {
-                                        continue;
-                                    }
+                                    //Gets the metadata and iterates through urls.
+                                    var metadata = br.ReadString();
+                                    var metaUrls = metadata.Split('|');
 
-                                    int numBytes = br.ReadInt32();
-                                    byte[] fileData = br.ReadBytes(numBytes);
-                                    string newUrl = Utils.GetAppdataFolder(metaUrls[j]);
-                                    metaUrls[j] = newUrl;
-
-                                    //Writes data to the absolute url filepath.
-                                    using (FileStream fs = new FileStream(
-                                        newUrl, FileMode.Create))
+                                    for (int j = 2; j < metaUrls.Length; j++)
                                     {
-                                        using (BinaryWriter writer = new BinaryWriter(fs))
+                                        //Skips empty urls of default image fields.
+                                        if (metaUrls[j] == String.Empty)
                                         {
-                                            writer.Write(fileData);
+                                            continue;
+                                        }
+
+                                        int numBytes = br.ReadInt32();
+                                        byte[] fileData = br.ReadBytes(numBytes);
+                                        metaUrls[j] = Path.Combine(
+                                            Utils.GetImagesFolder(Path.GetDirectoryName(url)),
+                                            Path.GetFileName(metaUrls[j]));
+                                        File.WriteAllBytes(metaUrls[j], fileData);
+                                        item.SetData("imageUrl", metaUrls[j]);
+
+                                        //Writes data to the absolute url filepath.
+                                        using (FileStream fs = new FileStream(
+                                            metaUrls[j], FileMode.Create))
+                                        {
+                                            using (BinaryWriter writer = new BinaryWriter(fs))
+                                            {
+                                                writer.Write(fileData);
+                                            }
                                         }
                                     }
+
+                                    //Replaces loaded binary data with metadata.
+                                    fields[i].SetData("data", String.Join("|", metaUrls));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            //Gets the metadata and iterates through urls.
+                            var metadata = (string)Utils.ByteArrayToObject(
+                                (byte[])fields[i].GetData("data"));
+
+                            string[] metaUrls = metadata.Split('|');
+
+                            for (int j = 2; j < metaUrls.Length; j++)
+                            {
+                                //Skips empty urls of default image fields.
+                                if (metaUrls[j] == String.Empty)
+                                {
+                                    continue;
                                 }
 
-                                //Replaces loaded binary data with metadata.
-                                fields[i].SetData("data", String.Join("|", metaUrls));
+                                metaUrls[j] = Path.Combine(
+                                    Utils.GetImagesFolder(
+                                        Path.GetDirectoryName(url)),
+                                    Path.GetFileName(metaUrls[j]));
                             }
+
+                            metadata = String.Join("|", metaUrls);
+                            fields[i].SetData("data", metadata);
                         }
                     }
 
@@ -462,7 +512,7 @@ namespace CrystalKeeper.Core
             {
                 Utils.Log("Could not open " + url + ". Exception: " + e.GetBaseException().Message);
 
-                //Tells the user the file did not save and cancel it.
+                //Tells the user the file did not save and cancels it.
                 MessageBox.Show(GlobalStrings.DlgCannotOpenUnknown);
 
                 return;
@@ -498,17 +548,24 @@ namespace CrystalKeeper.Core
                             writer.Write((string)item.GetData("description"));
                             writer.Write((bool)item.GetData("imageBackgroundEnabled"));
 
-                            //Reads the data from the file.
-                            string imageUrl = (string)item.GetData("imageUrl");
-                            if (File.Exists(imageUrl))
+                            //Copies the file to ImageData if not there.
+                            string saveDir = Path.GetDirectoryName(url);
+                            string imageDir = Utils.GetImagesFolder(saveDir);
+                            string imageUrl = ((string)item.GetData("imageUrl"));
+
+                            string newFileDir = Path.Combine(
+                                imageDir, Path.GetFileName(imageUrl));
+
+                            if (File.Exists(imageUrl) &&
+                                Path.GetDirectoryName(imageUrl) != imageDir)
                             {
-                                writer.Write((int)(new FileInfo(imageUrl).Length));
-                                writer.Write(File.ReadAllBytes(imageUrl));
+                                File.Copy(imageUrl, newFileDir);
                             }
-                            else
-                            {
-                                writer.Write(0);
-                            }
+
+                            //Saves URLs as relative.
+                            imageUrl = Utils.MakeRelativeUrl(url,
+                                Path.GetFileName(imageUrl));
+                            writer.Write(imageUrl);
 
                             writer.Write((int)item.GetData("autosaveDelay"));
                             writer.Write((int)item.GetData("autosaveNumberofBackups"));
@@ -524,50 +581,39 @@ namespace CrystalKeeper.Core
                             DataItem templateField = GetItemByGuid((ulong)item.GetData("templateFieldGuid"));
                             var fieldType = (TemplateFieldType)(int)templateField.GetData("dataType");
 
-                            //Parses large binary-based data.
+                            //Saves image URLs as relative to the saved file.
                             if (fieldType == TemplateFieldType.Images ||
                                 fieldType == TemplateFieldType.EntryImages)
                             {
+                                string saveDir2 = Path.GetDirectoryName(url);
+                                string imageDir2 = Utils.GetImagesFolder(saveDir2);
+
                                 //Gets the metadata and reads file data of each url.                        
                                 var metadata = ((string)item.GetData("data"));
                                 var metaUrls = metadata.Split('|');
 
-                                using (MemoryStream ms = new MemoryStream())
+                                for (int k = 2; k < metaUrls.Length; k++)
                                 {
-                                    using (BinaryWriter br = new BinaryWriter(ms))
+                                    string newFileDir2 = Path.Combine(
+                                        imageDir2, Path.GetFileName(metaUrls[k]));
+
+                                    //Copies external images to the images folder.
+                                    if (File.Exists(metaUrls[k]) &&
+                                        Path.GetDirectoryName(metaUrls[k]) != imageDir2)
                                     {
-                                        br.Write(metadata);
-
-                                        //Appends bytes and size of each url to data.
-                                        for (int k = 2; k < metaUrls.Length; k++)
-                                        {
-                                            if (File.Exists(metaUrls[k]))
-                                            {
-                                                var fileData = File.ReadAllBytes(metaUrls[k]);
-
-                                                br.Write(fileData.Length);
-                                                br.Write(fileData);
-                                            }
-                                        }
-
-                                        metadata = String.Join("|", metaUrls);
+                                        File.Copy(metaUrls[k], newFileDir2);
                                     }
 
-                                    if (metaUrls.Length > 0)
-                                    {
-                                        //Writes the size of the data chunk, then saves it.
-                                        var rawData = ms.ToArray();
-                                        writer.Write(rawData.Length);
-                                        writer.Write(rawData);
-                                    }
-                                    else
-                                    {
-                                        //Writes the size of the data chunk, then saves it.
-                                        var rawData = Utils.ObjectToByteArray(item.GetData("data"));
-                                        writer.Write(rawData.Length);
-                                        writer.Write(rawData);
-                                    }
+                                    //Saves URLs as relative.
+                                    metaUrls[k] = Utils.MakeRelativeUrl(url,
+                                        Path.GetFileName(metaUrls[k]));
                                 }
+                                metadata = String.Join("|", metaUrls);
+
+                                //Writes the size of the data chunk, then saves it.
+                                var rawData = Utils.ObjectToByteArray(metadata);
+                                writer.Write(rawData.Length);
+                                writer.Write(rawData);
                             }
                             else
                             {
