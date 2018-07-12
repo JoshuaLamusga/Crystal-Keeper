@@ -94,7 +94,7 @@ namespace CrystalKeeper.Core
         }
 
         /// <summary>
-        /// Returns a unique url in the images folder using the given filename.
+        /// Returns the images folder using the given path.
         /// </summary>
         /// <param name="path">
         /// The path used as the base location for the images folder.
