@@ -1638,7 +1638,7 @@ namespace CrystalKeeper.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to --- Version 1.1 ---.
+        ///   Looks up a localized string similar to Version 1.1.
         /// </summary>
         public static string TipAboutVersion {
             get {
