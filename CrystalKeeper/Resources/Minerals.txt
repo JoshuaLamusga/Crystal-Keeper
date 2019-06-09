@@ -4807,7 +4807,7 @@ Halbopal||||0
 Håleniusite-(La)|Fluorite group|LaOF|Sweden|1
 Half-Bornite||||0
 Halfbreed||||0
-Halite|Rocksalt group|NaCl|unknown|1
+Halite|Halite group|NaCl|unknown|1
 Halitosylvin||||0
 Hallerite||||0
 Hallimondite||Pb_2_(UO_2_)(AsO_4_)_2_·nH_2_O|Germany|1

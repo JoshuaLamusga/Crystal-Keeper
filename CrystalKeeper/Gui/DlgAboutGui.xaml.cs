@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Reflection;
+using System.Windows;
 
 namespace CrystalKeeper.Gui
 {
@@ -10,6 +12,16 @@ namespace CrystalKeeper.Gui
         public DlgAboutGui()
         {
             InitializeComponent();
+        }
+
+        /// <summary>
+        /// Returns the version number of the application.
+        /// </summary>
+        private string GetVersion()
+        {
+            return FileVersionInfo.GetVersionInfo
+                (Assembly.GetExecutingAssembly().Location)
+                .ProductVersion;
         }
     }
 }

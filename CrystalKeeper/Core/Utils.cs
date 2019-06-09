@@ -72,7 +72,6 @@ namespace CrystalKeeper.Core
                 //Removes the root and appends it to the appdata folder.
                 string newUrlExt = Path.GetExtension(path);
 
-
                 //Creates the directories if they don't exist.
                 Directory.CreateDirectory(dir);
 
@@ -92,6 +91,28 @@ namespace CrystalKeeper.Core
                 Log("Bad url with GetAppdataFolder(): " + e.StackTrace);
                 return dir;
             }
+        }
+
+        /// <summary>
+        /// Returns the images folder using the given path.
+        /// </summary>
+        /// <param name="path">
+        /// The path used as the base location for the images folder.
+        /// </param>
+        public static string GetImagesFolder(string path)
+        {
+            string dir = Path.Combine(path, "ImageData");
+
+            try
+            {
+                Directory.CreateDirectory(dir);
+            }
+            catch (ArgumentException e)
+            {
+                Log("Bad url with GetImagesFolder(): " + e.StackTrace);
+            }
+
+            return dir;
         }
 
         /// <summary>
