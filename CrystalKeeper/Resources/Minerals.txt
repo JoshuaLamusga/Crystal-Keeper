@@ -45,7 +45,7 @@ Adamant||||0
 Adamantane||||0
 Adamantine Spar||||0
 Adamellite||||0
-Adamite|Andalusite group|Zn_2_AsO_4_(OH)|Chile|1
+Adamite|Olivenite group|Zn_2_AsO_4_(OH)|Chile|1
 Adamite-Olivenite Series||||0
 Adamsite||||0
 Adamsite-(Y)||NaY(CO_3_)_2_·6H_2_O|Canada|1

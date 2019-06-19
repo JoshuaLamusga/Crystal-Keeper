@@ -140,27 +140,30 @@ namespace CrystalKeeper.Core
             {
                 data = File.ReadAllBytes(url);
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException e)
             {
                 Utils.Log("Could not open " + url + " for read access.");
+                Utils.Log($"Stack trace: {e.StackTrace}");
 
                 //Tells the user the file did not load and cancel it.
                 MessageBox.Show(GlobalStrings.DlgCannotOpenForRead);
 
                 return null;
             }
-            catch (PathTooLongException)
+            catch (PathTooLongException e)
             {
                 Utils.Log("Could not open " + url + " because it's too long.");
+                Utils.Log($"Stack trace: {e.StackTrace}");
 
                 //Tells the user the file did not load and cancel it.
                 MessageBox.Show(GlobalStrings.DlgCannotOpenTooLong);
 
                 return null;
             }
-            catch (DirectoryNotFoundException)
+            catch (DirectoryNotFoundException e)
             {
                 Utils.Log("Could not open " + url + " because the directory wasn't found.");
+                Utils.Log($"Stack trace: {e.StackTrace}");
 
                 //Tells the user the file did not load and cancels it.
                 MessageBox.Show(GlobalStrings.DlgCannotOpenNotFound);
@@ -169,8 +172,8 @@ namespace CrystalKeeper.Core
             }
             catch (Exception e)
             {
-                Utils.Log("Could not open " + url + ". Exception: " +
-                    e.GetBaseException().StackTrace);
+                Utils.Log("Could not open " + url + ". Exception: " + e.Message);
+                Utils.Log($"Stack trace: {e.StackTrace}");
 
                 //Tells the user the file did not load and cancels it.
                 MessageBox.Show(GlobalStrings.DlgCannotOpenUnknown);
@@ -415,9 +418,10 @@ namespace CrystalKeeper.Core
                             fields[i].SetData("data", Utils.ByteArrayToObject(
                                 (byte[])fields[i].GetData("data")));
                         }
-                        catch (System.Runtime.Serialization.SerializationException)
+                        catch (System.Runtime.Serialization.SerializationException e)
                         {
-                            Utils.Log("Cannot serialize " + url + " to load.");
+                            Utils.Log("Cannot serialize " + url + " to load. Exception: " + e.Message);
+                            Utils.Log($"Stack trace: {e.StackTrace}");
 
                             //Tells the user the file did not load and cancel it.
                             MessageBox.Show(GlobalStrings.DlgCannotOpenUnrecognized);
@@ -430,9 +434,10 @@ namespace CrystalKeeper.Core
                 //Constructs the new project instance.
                 return new Project(newItems);
             }
-            catch (EndOfStreamException)
+            catch (EndOfStreamException e)
             {
                 Utils.Log("Unexpected end-of-stream in " + url + ".");
+                Utils.Log($"Stack trace: {e.StackTrace}");
 
                 //Tells the user the file did not load and cancel it.
                 MessageBox.Show(GlobalStrings.DlgCannotOpenCorrupt);
@@ -484,11 +489,25 @@ namespace CrystalKeeper.Core
         /// </param>
         private static void CopyToNewImageLocation(string saveUrl, string imageUrl)
         {
-            if (File.Exists(imageUrl) &&
-                Path.GetDirectoryName(imageUrl) !=
-                Utils.GetImagesFolder(Path.GetDirectoryName(saveUrl)))
+            string newUrl = GetNewImageLocation(saveUrl, imageUrl);
+
+            try
             {
-                File.Copy(imageUrl, GetNewImageLocation(saveUrl, imageUrl));
+                if (File.Exists(imageUrl) &&
+                    !File.Exists(newUrl) &&
+                    Path.GetDirectoryName(imageUrl) != Utils.GetImagesFolder(Path.GetDirectoryName(saveUrl)))
+                {
+                    File.Copy(imageUrl, newUrl);
+                }
+            }
+
+            catch (Exception e)
+            {
+                Utils.Log("Can't save image. Exception: " + e.Message);
+                Utils.Log("Stack trace: " + e.StackTrace);
+
+                //Tells the user the file did not save and cancels it.
+                MessageBox.Show(GlobalStrings.DlgCannotSaveUnknown);
             }
         }
         #endregion
@@ -515,39 +534,43 @@ namespace CrystalKeeper.Core
 
                 writer = new BinaryWriter(File.OpenWrite(url));
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException e)
             {
                 Utils.Log("Could not open " + url + " for write access.");
+                Utils.Log($"Stack trace: {e.StackTrace}");
 
-                //Tells the user the file did not save and cancel it.
-                MessageBox.Show(GlobalStrings.DlgCannotOpenForRead);
+                //Tells the user the file did not save and cancels it.
+                MessageBox.Show(GlobalStrings.DlgCannotSaveForWrite);
 
                 return;
             }
-            catch (PathTooLongException)
+            catch (PathTooLongException e)
             {
                 Utils.Log("Could not open " + url + " because it's too long.");
+                Utils.Log($"Stack trace: {e.StackTrace}");
 
-                //Tells the user the file did not save and cancel it.
-                MessageBox.Show(GlobalStrings.DlgCannotOpenTooLong);
+                //Tells the user the file did not save and cancels it.
+                MessageBox.Show(GlobalStrings.DlgCannotSaveTooLong);
 
                 return;
             }
-            catch (DirectoryNotFoundException)
+            catch (DirectoryNotFoundException e)
             {
                 Utils.Log("Could not open " + url + " because the directory wasn't found.");
+                Utils.Log($"Stack trace: {e.StackTrace}");
 
-                //Tells the user the file did not save and cancel it.
-                MessageBox.Show(GlobalStrings.DlgCannotOpenNotFound);
+                //Tells the user the file did not save and cancels it.
+                MessageBox.Show(GlobalStrings.DlgCannotSaveNotFound);
 
                 return;
             }
             catch (Exception e)
             {
                 Utils.Log("Could not open " + url + ". Exception: " + e.GetBaseException().Message);
+                Utils.Log($"Stack trace: {e.StackTrace}");
 
                 //Tells the user the file did not save and cancels it.
-                MessageBox.Show(GlobalStrings.DlgCannotOpenUnknown);
+                MessageBox.Show(GlobalStrings.DlgCannotSaveNotFound);
 
                 return;
             }
@@ -684,6 +707,7 @@ namespace CrystalKeeper.Core
                 catch (InvalidCastException e)
                 {
                     Utils.Log("Invalid cast exception: " + e.GetBaseException().Message);
+                    Utils.Log($"Stack trace: {e.StackTrace}");
 
                     //Tell the user the file did not save and cancel it.
                     MessageBox.Show(GlobalStrings.DlgCannotSaveCorrupt);
